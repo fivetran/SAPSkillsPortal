@@ -936,7 +936,7 @@
   Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank">Claude Code</a>
 </div>
 
-<!-- Setup Modals -->
+<!-- Setup Modal -->
 <div class="modal-overlay" id="setupModal">
   <div class="modal">
     <div class="modal-header">
@@ -948,7 +948,7 @@
 </div>
 
 <script>
-// Sticky nav active state
+// Sticky nav
 document.addEventListener('scroll', function() {
   var sections = document.querySelectorAll('.section');
   var links = document.querySelectorAll('.nav-bar a');
@@ -956,277 +956,255 @@ document.addEventListener('scroll', function() {
   sections.forEach(function(sec) {
     if (sec.offsetTop <= scrollPos && sec.offsetTop + sec.offsetHeight > scrollPos) {
       links.forEach(function(l) { l.classList.remove('active'); });
-      var active = document.querySelector('.nav-bar a[href="#' + sec.id + '"]');
-      if (active) active.classList.add('active');
+      var a = document.querySelector('.nav-bar a[href="#' + sec.id + '"]');
+      if (a) a.classList.add('active');
     }
   });
 });
 
-// Skills data
+var DL = 'https://sapidesecc8.fivetran-internal-sales.com/sap_skills/downloads';
+
 var skills = {
-  otc: {
-    name: 'Order to Cash (OTC)',
-    repo: 'fivetran/sap-otc-workflow',
-    dir: 'sap-otc-workflow',
-    color: '#1a3a5c',
-    java: 'SAPOTCWorkflow.java',
-    mainClass: 'SAPOTCWorkflow',
-    extraJava: 'SAPOTCOrderGenerator.java SAPOTCExtractor.java',
-    runScript: 'otcwf.sh',
-    compileScript: 'compile.sh',
-    jcoInRepo: true,
-    skillDir: 'skill',
-    skillFile: 'sap-otc.md',
-    commands: ['generate &mdash; Run the full OTC workflow (sales order &rarr; delivery &rarr; billing)', 'status &mdash; Show current SAP document counts', 'help &mdash; Show available commands'],
-    extraLibs: 'gson.jar'
-  },
-  p2p: {
-    name: 'Procure to Pay (P2P)',
-    repo: 'fivetran/sap-ptp-generator',
-    dir: 'sap-ptp-generator',
-    color: '#1a5c3a',
-    java: 'SAPP2PWorkflow.java',
-    mainClass: 'SAPP2PWorkflow',
-    extraJava: '',
-    runScript: 'ptpwf.sh',
-    compileScript: null,
-    jcoInRepo: false,
-    skillDir: 'skill',
-    skillFile: 'sap-p2p.md',
-    commands: ['generate &mdash; Run the full P2P workflow (PO &rarr; GR &rarr; IR &rarr; payment)', 'status &mdash; Show procurement document counts', 'help &mdash; Show available commands'],
-    extraLibs: ''
-  },
-  pp: {
-    name: 'Plan to Produce (PP)',
-    repo: 'fivetran/PlanToProduce',
-    dir: 'PlanToProduce',
-    color: '#4a1a5c',
-    java: 'SAPP2PrWorkflow.java',
-    mainClass: 'SAPP2PrWorkflow',
-    extraJava: '',
-    runScript: 'p2prwf.sh',
-    compileScript: 'compile.sh',
-    jcoInRepo: false,
-    skillDir: 'skill',
-    skillFile: 'sap-pp.md',
-    commands: ['generate &mdash; Run the full PP workflow (prod order &rarr; GI &rarr; confirmation &rarr; GR)', 'status &mdash; Show production order counts', 'help &mdash; Show available commands'],
-    extraLibs: ''
-  },
-  mrp: {
-    name: 'Material Requirements Planning (MRP)',
-    repo: 'fivetran/MaterialRequirementsPlanning',
-    dir: 'MaterialRequirementsPlanning',
-    color: '#b35900',
-    java: 'SAPMRPWorkflow.java',
-    mainClass: 'SAPMRPWorkflow',
-    extraJava: '',
-    runScript: 'mrpwf.sh',
-    compileScript: 'compile.sh',
-    jcoInRepo: false,
-    skillDir: 'skill',
-    skillFile: 'sap-mrp.md',
-    commands: ['generate &mdash; Run MRP and create planned orders', 'status &mdash; Show MRP run results', 'help &mdash; Show available commands'],
-    extraLibs: ''
-  },
-  admin: {
-    name: 'Housekeeping &amp; Job Scheduler',
-    repo: 'fivetran/SAPHousekeeping',
-    dir: 'SAPHousekeeping',
-    color: '#922b21',
-    java: 'SAPJobScheduler.java',
-    mainClass: 'SAPJobScheduler',
-    extraJava: '',
-    runScript: 'jobsched.sh',
-    compileScript: 'compile.sh',
-    jcoInRepo: false,
-    skillDir: 'skill',
-    skillFile: 'sap-housekeeping.md',
-    commands: ['setup &mdash; Create variants + schedule all periodic jobs', 'status &mdash; Health dashboard (MM, FI, ML periods + number ranges)', 'list &mdash; List all scheduled maintenance jobs', 'run-now &lt;job&gt; &mdash; Run a specific job immediately', 'extend-ml &mdash; Generate ML period extension script'],
-    extraLibs: ''
-  },
-  cds: {
-    name: 'CDS View Extraction',
-    repo: 'fivetran/CDS-metadata-retrieval-fr-custom-SDK',
-    dir: 'CDS-metadata-retrieval-fr-custom-SDK',
-    color: '#0073FF',
-    java: null,
-    mainClass: null,
-    runScript: null,
-    compileScript: null,
-    jcoInRepo: false,
-    skillDir: null,
-    skillFile: null,
-    commands: [],
-    extraLibs: '',
-    isCds: true
-  }
+  otc: { name:'Order to Cash (OTC)', repo:'fivetran/sap-otc-workflow', dir:'sap-otc-workflow', color:'#1a3a5c', java:'SAPOTCWorkflow.java', extra:'SAPOTCOrderGenerator.java SAPOTCExtractor.java', run:'otcwf.sh', compile:'compile.sh', jcoLocal:true, skillDir:'skill', skill:'sap-otc.md', cmds:['generate — full OTC workflow','status — document counts','help — show commands'], gson:true },
+  p2p: { name:'Procure to Pay (P2P)', repo:'fivetran/sap-ptp-generator', dir:'sap-ptp-generator', color:'#1a5c3a', java:'SAPP2PWorkflow.java', extra:'', run:'ptpwf.sh', compile:null, jcoLocal:false, skillDir:'skill', skill:'sap-p2p.md', cmds:['generate — full P2P workflow','status — procurement counts','help — show commands'], gson:false },
+  pp: { name:'Plan to Produce (PP)', repo:'fivetran/PlanToProduce', dir:'PlanToProduce', color:'#4a1a5c', java:'SAPP2PrWorkflow.java', extra:'', run:'p2prwf.sh', compile:'compile.sh', jcoLocal:false, skillDir:'skill', skill:'sap-pp.md', cmds:['generate — full PP workflow','status — production order counts','help — show commands'], gson:false },
+  mrp: { name:'MRP', repo:'fivetran/MaterialRequirementsPlanning', dir:'MaterialRequirementsPlanning', color:'#b35900', java:'SAPMRPWorkflow.java', extra:'', run:'mrpwf.sh', compile:'compile.sh', jcoLocal:false, skillDir:'skill', skill:'sap-mrp.md', cmds:['generate — run MRP','status — MRP results','help — show commands'], gson:false },
+  admin: { name:'Housekeeping', repo:'fivetran/SAPHousekeeping', dir:'SAPHousekeeping', color:'#922b21', java:'SAPJobScheduler.java', extra:'', run:'jobsched.sh', compile:'compile.sh', jcoLocal:false, skillDir:'skill', skill:'sap-housekeeping.md', cmds:['setup — schedule all jobs','status — health dashboard','list — show jobs','run-now &lt;job&gt; — run immediately','extend-ml — ML period script'], gson:false },
+  cds: { name:'CDS View Extraction', repo:'fivetran/CDS-metadata-retrieval-fr-custom-SDK', dir:'CDS-metadata-retrieval-fr-custom-SDK', color:'#0073FF', java:null, run:null, compile:null, jcoLocal:false, skillDir:null, skill:null, cmds:[], gson:false, isCds:true }
 };
 
+var currentSkill = null;
+
 function openSetup(id) {
+  currentSkill = id;
   var s = skills[id];
   var h = '';
-
-  // Prerequisites
-  h += '<h3><span class="step-num" style="background:' + s.color + '">1</span> Prerequisites</h3>';
-  h += '<p>Ensure you have the following installed on your Mac:</p>';
-  h += '<table>';
-  h += '<tr><td><strong>Java 8+</strong></td><td>Check: <code>java -version</code>. Install via <code>brew install openjdk</code></td></tr>';
-  h += '<tr><td><strong>Git</strong></td><td>Check: <code>git --version</code>. Install via <code>xcode-select --install</code></td></tr>';
-  h += '<tr><td><strong>SAP JCo 3</strong></td><td><code>sapjco3.jar</code> + <code>libsapjco3.dylib</code> (macOS ARM64)</td></tr>';
-  if (s.isCds) {
-    h += '<tr><td><strong>Python 3</strong></td><td>For connector.py. Install: <code>brew install python3</code></td></tr>';
-    h += '<tr><td><strong>pip packages</strong></td><td><code>pip3 install google-cloud-storage duckdb pyarrow hdbcli</code></td></tr>';
-  }
-  h += '</table>';
-
-  h += '<div class="note"><strong>SAP JCo Library:</strong> Download the required libraries directly:<br><br>';
-  h += '<a href="/sap_skills/downloads/sapjco3.jar" style="display:inline-block;padding:6px 14px;background:#92400e;color:#fff;border-radius:5px;text-decoration:none;font-weight:600;font-size:0.82rem;margin:0 6px 6px 0">sapjco3.jar</a> ';
-  h += '<a href="/sap_skills/downloads/libsapjco3.dylib" style="display:inline-block;padding:6px 14px;background:#92400e;color:#fff;border-radius:5px;text-decoration:none;font-weight:600;font-size:0.82rem;margin:0 6px 6px 0">libsapjco3.dylib</a> ';
-  if (s.extraLibs) h += '<a href="/sap_skills/downloads/gson.jar" style="display:inline-block;padding:6px 14px;background:#92400e;color:#fff;border-radius:5px;text-decoration:none;font-weight:600;font-size:0.82rem;margin:0 6px 6px 0">gson.jar</a> ';
-  h += '<br><br>Place the files in a <code>SAPjco/</code> directory next to the project folder (or in the project folder for OTC).</div>';
-
-  // Tab bar: Terminal vs VS Code
-  h += '<h3><span class="step-num" style="background:' + s.color + '">2</span> Download &amp; Install</h3>';
-  h += '<div class="tab-bar">';
-  h += '<button class="tab-btn active" onclick="switchTab(this,\'term-' + id + '\')">Terminal</button>';
-  h += '<button class="tab-btn" onclick="switchTab(this,\'vscode-' + id + '\')">VS Code</button>';
+  h += '<p style="margin-bottom:18px;color:#4b5563">Choose how you want to work with <strong>' + s.name + '</strong>:</p>';
+  h += '<div style="display:flex;gap:16px;flex-wrap:wrap">';
+  h += '<div onclick="showGuide(\'' + id + '\',\'term\')" style="flex:1;min-width:250px;cursor:pointer;border:2px solid #e5e7eb;border-radius:12px;padding:24px;text-align:center;transition:border-color 0.2s,box-shadow 0.2s" onmouseover="this.style.borderColor=\'#0073FF\';this.style.boxShadow=\'0 4px 20px rgba(0,115,255,0.12)\'" onmouseout="this.style.borderColor=\'#e5e7eb\';this.style.boxShadow=\'none\'">';
+  h += '<div style="font-size:2.2rem;margin-bottom:10px">&#9000;</div>';
+  h += '<div style="font-size:1.05rem;font-weight:700;color:#1a1a2e;margin-bottom:4px">Terminal</div>';
+  h += '<div style="font-size:0.85rem;color:#6b7280">macOS Terminal or iTerm2</div>';
   h += '</div>';
-
-  // --- Terminal tab ---
-  h += '<div class="tab-content active" id="term-' + id + '">';
-  h += '<p><strong>Clone the repository:</strong></p>';
-  h += '<pre># Create a workspace directory\nmkdir -p ~/SAP_Projects &amp;&amp; cd ~/SAP_Projects\n\n# Clone the repo\ngit clone https://github.com/' + s.repo + '.git\ncd ' + s.dir + '</pre>';
-
-  if (!s.isCds) {
-    h += '<p><strong>Set up SAP JCo library:</strong></p>';
-    var dlBase = 'https://sapidesecc8.fivetran-internal-sales.com/sap_skills/downloads';
-    if (s.jcoInRepo) {
-      h += '<pre># OTC expects JCo files in the project directory itself\ncurl -kO ' + dlBase + '/sapjco3.jar\ncurl -kO ' + dlBase + '/libsapjco3.dylib\ncurl -kO ' + dlBase + '/gson.jar</pre>';
-    } else {
-      h += '<pre># Other skills expect JCo in a sibling SAPjco/ directory\nmkdir -p ~/SAP_Projects/SAPjco &amp;&amp; cd ~/SAP_Projects/SAPjco\ncurl -kO ' + dlBase + '/sapjco3.jar\ncurl -kO ' + dlBase + '/libsapjco3.dylib\ncd ~/SAP_Projects/' + s.dir + '</pre>';
-    }
-
-    h += '<p><strong>Compile:</strong></p>';
-    var cpPath = s.jcoInRepo ? '.:sapjco3.jar' : '.:../SAPjco/sapjco3.jar';
-    if (s.extraLibs) cpPath += ':' + s.extraLibs;
-    var allJava = s.java + (s.extraJava ? ' ' + s.extraJava : '');
-    if (s.compileScript) {
-      h += '<pre># Using the provided compile script\nchmod +x ' + s.compileScript + '\n./' + s.compileScript + '\n\n# Or compile manually\njavac -cp ' + cpPath + ' ' + allJava + '</pre>';
-    } else {
-      h += '<pre>javac -cp ' + cpPath + ' ' + allJava + '</pre>';
-    }
-
-    h += '<p><strong>Run:</strong></p>';
-    h += '<pre># Using the provided run script\nchmod +x ' + s.runScript + '\n./' + s.runScript + ' help</pre>';
-    h += '<p>Available commands:</p><ul style="margin:0 0 14px 20px;font-size:0.88rem;color:#4b5563">';
-    s.commands.forEach(function(c) { h += '<li>' + c + '</li>'; });
-    h += '</ul>';
-  } else {
-    h += '<p><strong>This project runs on the SAP server, not locally.</strong> The CDS extraction pipeline runs on <code>sapidess4</code> as a Fivetran custom connector.</p>';
-    h += '<pre># To work with it locally (editing/testing):\ncd ' + s.dir + '/drivers\n\n# Compile a Java phase (requires JCo on the server)\nssh root@sapidess4 "cd /usr/sap/cds_sql_only/drivers &amp;&amp; javac -cp .:sapjco3.jar:gson.jar SimpleDependencyTable.java"</pre>';
-  }
-
-  h += '<p><strong>Install the Claude Code skill:</strong></p>';
-  if (s.skillFile) {
-    h += '<pre># Copy the skill to your Claude Code commands directory\nmkdir -p ~/.claude/commands/' + s.dir + '\ncp ' + s.skillDir + '/' + s.skillFile + ' ~/.claude/commands/' + s.dir + '/</pre>';
-    h += '<p>After installing, use <code>/' + s.skillFile.replace('.md','') + '</code> in Claude Code to activate the skill context.</p>';
-  } else {
-    h += '<pre># The CDS skill is configured globally in Claude Code settings\n# See the sap-cds skill documentation for setup</pre>';
-  }
+  h += '<div onclick="showGuide(\'' + id + '\',\'vscode\')" style="flex:1;min-width:250px;cursor:pointer;border:2px solid #e5e7eb;border-radius:12px;padding:24px;text-align:center;transition:border-color 0.2s,box-shadow 0.2s" onmouseover="this.style.borderColor=\'#0073FF\';this.style.boxShadow=\'0 4px 20px rgba(0,115,255,0.12)\'" onmouseout="this.style.borderColor=\'#e5e7eb\';this.style.boxShadow=\'none\'">';
+  h += '<div style="font-size:2.2rem;margin-bottom:10px">&#128309;</div>';
+  h += '<div style="font-size:1.05rem;font-weight:700;color:#1a1a2e;margin-bottom:4px">Visual Studio Code</div>';
+  h += '<div style="font-size:0.85rem;color:#6b7280">VS Code with extensions</div>';
   h += '</div>';
-
-  // --- VS Code tab ---
-  h += '<div class="tab-content" id="vscode-' + id + '">';
-  h += '<p><strong>Clone via VS Code:</strong></p>';
-  h += '<pre># Option A: Use the VS Code command palette\n# 1. Open VS Code\n# 2. Press Cmd+Shift+P\n# 3. Type "Git: Clone"\n# 4. Paste: https://github.com/' + s.repo + '.git\n# 5. Choose ~/SAP_Projects as the destination\n\n# Option B: Clone from Terminal, then open in VS Code\nmkdir -p ~/SAP_Projects &amp;&amp; cd ~/SAP_Projects\ngit clone https://github.com/' + s.repo + '.git\ncode ' + s.dir + '</pre>';
-
-  if (!s.isCds) {
-    h += '<p><strong>Set up SAP JCo library:</strong></p>';
-    var dlBase2 = 'https://sapidesecc8.fivetran-internal-sales.com/sap_skills/downloads';
-    if (s.jcoInRepo) {
-      h += '<p>Download the JCo files into the project root (use VS Code Terminal):</p>';
-      h += '<pre>curl -kO ' + dlBase2 + '/sapjco3.jar\ncurl -kO ' + dlBase2 + '/libsapjco3.dylib\ncurl -kO ' + dlBase2 + '/gson.jar</pre>';
-    } else {
-      h += '<p>Download the JCo files into a sibling <code>SAPjco/</code> folder (use VS Code Terminal):</p>';
-      h += '<pre>mkdir -p ~/SAP_Projects/SAPjco &amp;&amp; cd ~/SAP_Projects/SAPjco\ncurl -kO ' + dlBase2 + '/sapjco3.jar\ncurl -kO ' + dlBase2 + '/libsapjco3.dylib\ncd ~/SAP_Projects/' + s.dir + '</pre>';
-    }
-
-    h += '<p><strong>Compile &amp; run from VS Code Terminal:</strong></p>';
-    h += '<pre># Open the integrated terminal: Ctrl+` (backtick)\n# Or: Terminal &rarr; New Terminal from the menu bar\n\nchmod +x ' + s.runScript + '\n./' + s.runScript + ' help</pre>';
-
-    h += '<p><strong>Recommended VS Code extensions:</strong></p>';
-    h += '<table>';
-    h += '<tr><td><code>redhat.java</code></td><td>Java language support (syntax highlighting, IntelliSense)</td></tr>';
-    h += '<tr><td><code>vscjava.vscode-java-pack</code></td><td>Java Extension Pack (debugger, test runner, Maven)</td></tr>';
-    h += '</table>';
-  } else {
-    h += '<p><strong>Remote development on SAP server:</strong></p>';
-    h += '<pre># Install the Remote-SSH extension in VS Code\n# 1. Cmd+Shift+P &rarr; "Remote-SSH: Connect to Host"\n# 2. Enter: root@sapidess4\n# 3. Open folder: /usr/sap/cds_sql_only/</pre>';
-    h += '<p><strong>Recommended VS Code extensions:</strong></p>';
-    h += '<table>';
-    h += '<tr><td><code>ms-vscode-remote.remote-ssh</code></td><td>Remote development via SSH</td></tr>';
-    h += '<tr><td><code>redhat.java</code></td><td>Java language support</td></tr>';
-    h += '<tr><td><code>ms-python.python</code></td><td>Python support (for connector.py)</td></tr>';
-    h += '</table>';
-  }
-
-  h += '<p><strong>Install Claude Code in VS Code:</strong></p>';
-  h += '<pre># Install the Claude Code extension\n# 1. Open Extensions sidebar (Cmd+Shift+X)\n# 2. Search for "Claude Code"\n# 3. Install the Anthropic extension\n# 4. Open Claude Code panel (Cmd+Shift+P &rarr; "Claude Code")</pre>';
-
-  if (s.skillFile) {
-    h += '<p><strong>Install the skill:</strong></p>';
-    h += '<pre># From VS Code terminal:\nmkdir -p ~/.claude/commands/' + s.dir + '\ncp ' + s.skillDir + '/' + s.skillFile + ' ~/.claude/commands/' + s.dir + '/\n\n# Then use /' + s.skillFile.replace('.md','') + ' in Claude Code</pre>';
-  }
   h += '</div>';
-
-  // Network requirements
-  h += '<h3><span class="step-num" style="background:' + s.color + '">3</span> Network Requirements</h3>';
-  h += '<p>Your Mac must be able to reach the SAP system:</p>';
-  h += '<table>';
-  h += '<tr><td><strong>SAP RFC</strong></td><td><code>sapidess4.fivetran-internal-sales.com:3303</code></td></tr>';
-  h += '<tr><td><strong>HANA DB</strong> (optional)</td><td>SSH tunnel: <code>ssh -f -N -L 30015:127.0.0.1:30015 root@sapidess4</code></td></tr>';
-  h += '<tr><td><strong>Test connectivity</strong></td><td><code>nc -zv sapidess4.fivetran-internal-sales.com 3303</code></td></tr>';
-  h += '</table>';
-  if (!s.isCds) {
-    h += '<div class="note"><strong>VPN required:</strong> You must be on the Fivetran internal network (or VPN) to reach <code>sapidess4</code>. If the connection times out, check your VPN status.</div>';
-  }
-
-  // Verify
-  h += '<h3><span class="step-num" style="background:' + s.color + '">4</span> Verify Installation</h3>';
-  if (!s.isCds) {
-    h += '<pre># Run the help command to verify everything works\n./' + s.runScript + ' help\n\n# Expected: prints available commands and usage info\n# If you see "UnsatisfiedLinkError": JCo native library not found\n# If you see "JCoException": SAP connection failed (check VPN)</pre>';
-  } else {
-    h += '<pre># Check the production pipeline on the server\nssh root@sapidess4 "ls /usr/sap/cds_sql_only/drivers/*.class | wc -l"\n\n# Expected: 30+ class files\n# Run a test extraction\nssh root@sapidess4 "cd /usr/sap/cds_sql_only/drivers &amp;&amp; java -cp .:sapjco3.jar:gson.jar TestZCdsSqlViews"</pre>';
-  }
-
-  document.getElementById('modalTitle').innerHTML = '<span style="color:' + s.color + '">' + s.name + '</span> &mdash; Download &amp; Setup';
+  document.getElementById('modalTitle').innerHTML = '<span style="color:' + s.color + '">' + s.name + '</span> — Setup Guide';
   document.getElementById('modalBody').innerHTML = h;
   document.getElementById('setupModal').classList.add('active');
   document.body.style.overflow = 'hidden';
+}
+
+function sn(s, n) { return '<span class="step-num" style="background:' + s.color + '">' + n + '</span> '; }
+
+function showGuide(id, mode) {
+  var s = skills[id];
+  var h = '';
+  var isVS = mode === 'vscode';
+  var step = 1;
+
+  // Back button
+  h += '<p><a href="#" onclick="openSetup(\'' + id + '\');return false" style="color:#0073FF;font-size:0.88rem;font-weight:600;text-decoration:none">&larr; Back to selection</a></p>';
+
+  h += '<div style="background:' + s.color + '12;border-left:4px solid ' + s.color + ';padding:14px 18px;border-radius:0 8px 8px 0;margin-bottom:22px">';
+  h += '<strong style="color:' + s.color + '">' + (isVS ? 'Visual Studio Code' : 'Terminal') + ' Setup Guide</strong>';
+  h += '<span style="color:#6b7280;font-size:0.88rem"> — ' + s.name + '</span></div>';
+
+  // ──────────────────────────────────────────
+  // STEP: Install Homebrew (if needed)
+  // ──────────────────────────────────────────
+  h += '<h3>' + sn(s, step++) + 'Install Homebrew (if not installed)</h3>';
+  h += '<p>Homebrew is the Mac package manager. Skip this if you already have it.</p>';
+  if (isVS) {
+    h += '<p>Open <strong>Terminal.app</strong> (search "Terminal" in Spotlight) and run:</p>';
+  }
+  h += '<pre>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</pre>';
+  h += '<p>Verify: <code>brew --version</code> should print a version number.</p>';
+
+  // ──────────────────────────────────────────
+  // STEP: Install Java
+  // ──────────────────────────────────────────
+  h += '<h3>' + sn(s, step++) + 'Install Java</h3>';
+  h += '<p>First check if Java is already installed:</p>';
+  h += '<pre>java -version</pre>';
+  h += '<p>If you see a version number (8 or higher), skip to the next step. Otherwise install it:</p>';
+  h += '<pre>brew install openjdk\n\n# Add Java to your PATH (copy-paste this whole block)\nsudo ln -sfn $(brew --prefix openjdk)/libexec/openjdk.jdk \\\n  /Library/Java/JavaVirtualMachines/openjdk.jdk</pre>';
+  h += '<p>Verify: <code>java -version</code> should now show the installed version.</p>';
+
+  // ──────────────────────────────────────────
+  // STEP: Install Git
+  // ──────────────────────────────────────────
+  h += '<h3>' + sn(s, step++) + 'Install Git</h3>';
+  h += '<p>Check if Git is installed:</p>';
+  h += '<pre>git --version</pre>';
+  h += '<p>If you see a version, skip ahead. Otherwise:</p>';
+  h += '<pre>xcode-select --install</pre>';
+  h += '<p>Click "Install" in the popup dialog. This installs Git and other developer tools.</p>';
+
+  if (isVS) {
+    // ──────────────────────────────────────────
+    // STEP: Install VS Code
+    // ──────────────────────────────────────────
+    h += '<h3>' + sn(s, step++) + 'Install Visual Studio Code</h3>';
+    h += '<p>If you don\'t have VS Code yet:</p>';
+    h += '<pre>brew install --cask visual-studio-code</pre>';
+    h += '<p>Or download from <a href="https://code.visualstudio.com" target="_blank" style="color:#0073FF">code.visualstudio.com</a>. After installing, enable the <code>code</code> command:</p>';
+    h += '<p>Open VS Code &rarr; <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> &rarr; type <strong>"Shell Command: Install \'code\' command in PATH"</strong> &rarr; Enter.</p>';
+
+    // ──────────────────────────────────────────
+    // STEP: Install VS Code Extensions
+    // ──────────────────────────────────────────
+    h += '<h3>' + sn(s, step++) + 'Install VS Code Extensions</h3>';
+    h += '<p>Open VS Code, then press <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>X</kbd> to open Extensions. Search and install:</p>';
+    h += '<table>';
+    if (!s.isCds) {
+      h += '<tr><td><strong>Extension Pack for Java</strong></td><td>by Microsoft — Java IntelliSense, debugger, test runner</td></tr>';
+    } else {
+      h += '<tr><td><strong>Remote - SSH</strong></td><td>by Microsoft — develop on the SAP server</td></tr>';
+      h += '<tr><td><strong>Python</strong></td><td>by Microsoft — for connector.py</td></tr>';
+    }
+    h += '<tr><td><strong>Claude Code</strong></td><td>by Anthropic — AI-assisted development</td></tr>';
+    h += '</table>';
+    h += '<p>Or install from the terminal:</p>';
+    if (!s.isCds) {
+      h += '<pre>code --install-extension vscjava.vscode-java-pack\ncode --install-extension anthropics.claude-code</pre>';
+    } else {
+      h += '<pre>code --install-extension ms-vscode-remote.remote-ssh\ncode --install-extension ms-python.python\ncode --install-extension anthropics.claude-code</pre>';
+    }
+  }
+
+  // ──────────────────────────────────────────
+  // STEP: Clone the repository
+  // ──────────────────────────────────────────
+  h += '<h3>' + sn(s, step++) + 'Download the Project</h3>';
+  if (isVS) {
+    h += '<p>Open VS Code and press <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd>, then type <strong>Git: Clone</strong> and paste:</p>';
+    h += '<pre>https://github.com/' + s.repo + '.git</pre>';
+    h += '<p>When asked where to save, choose <code>~/SAP_Projects</code> (create the folder if needed).</p>';
+    h += '<p>VS Code will ask to open the cloned folder &mdash; click <strong>Open</strong>.</p>';
+    h += '<p><em>Alternatively, open the VS Code integrated terminal (<kbd>Ctrl</kbd>+<kbd>`</kbd>) and run:</em></p>';
+  } else {
+    h += '<p>Open Terminal and run:</p>';
+  }
+  h += '<pre>mkdir -p ~/SAP_Projects &amp;&amp; cd ~/SAP_Projects\ngit clone https://github.com/' + s.repo + '.git\ncd ' + s.dir + '</pre>';
+  if (isVS) {
+    h += '<p>Then open it in VS Code: <code>code .</code></p>';
+  }
+
+  if (!s.isCds) {
+    // ──────────────────────────────────────────
+    // STEP: Download SAP JCo Libraries
+    // ──────────────────────────────────────────
+    h += '<h3>' + sn(s, step++) + 'Download SAP JCo Libraries</h3>';
+    h += '<p>The SAP Java Connector (JCo) is needed to connect to the SAP system.' + (isVS ? ' Run this in the VS Code terminal (<kbd>Ctrl</kbd>+<kbd>`</kbd>):' : '') + '</p>';
+    if (s.jcoLocal) {
+      h += '<pre># Download into the project directory\ncd ~/SAP_Projects/' + s.dir + '\ncurl -kO ' + DL + '/sapjco3.jar\ncurl -kO ' + DL + '/libsapjco3.dylib\ncurl -kO ' + DL + '/gson.jar</pre>';
+      h += '<p>Your project folder should now look like:</p>';
+      h += '<pre>' + s.dir + '/\n  ' + s.java + '\n  ' + s.run + '\n  sapjco3.jar        &larr; downloaded\n  libsapjco3.dylib   &larr; downloaded\n  gson.jar           &larr; downloaded</pre>';
+    } else {
+      h += '<pre># Create a shared JCo directory next to the project\nmkdir -p ~/SAP_Projects/SAPjco\ncd ~/SAP_Projects/SAPjco\ncurl -kO ' + DL + '/sapjco3.jar\ncurl -kO ' + DL + '/libsapjco3.dylib\n\n# Go back to the project\ncd ~/SAP_Projects/' + s.dir + '</pre>';
+      h += '<p>Your folder structure should now look like:</p>';
+      h += '<pre>~/SAP_Projects/\n  SAPjco/\n    sapjco3.jar        &larr; downloaded\n    libsapjco3.dylib   &larr; downloaded\n  ' + s.dir + '/\n    ' + s.java + '\n    ' + s.run + '\n    ...</pre>';
+    }
+
+    // ──────────────────────────────────────────
+    // STEP: Compile
+    // ──────────────────────────────────────────
+    h += '<h3>' + sn(s, step++) + 'Compile the Java Code</h3>';
+    h += '<p>From the project directory' + (isVS ? ' (VS Code terminal)' : '') + ':</p>';
+    var cp = s.jcoLocal ? '.:sapjco3.jar' : '.:../SAPjco/sapjco3.jar';
+    if (s.gson) cp += ':gson.jar';
+    var allJ = s.java + (s.extra ? ' ' + s.extra : '');
+    if (s.compile) {
+      h += '<pre>chmod +x ' + s.compile + '\n./' + s.compile + '</pre>';
+      h += '<p>Or compile manually:</p>';
+      h += '<pre>javac -cp ' + cp + ' ' + allJ + '</pre>';
+    } else {
+      h += '<pre>javac -cp ' + cp + ' ' + allJ + '</pre>';
+    }
+    h += '<p>You should see no errors. If you get "javac: command not found", go back to the Java installation step.</p>';
+
+    // ──────────────────────────────────────────
+    // STEP: Connect to VPN
+    // ──────────────────────────────────────────
+    h += '<h3>' + sn(s, step++) + 'Connect to VPN</h3>';
+    h += '<p>The SAP system is on the Fivetran internal network. Make sure your VPN is connected, then test:</p>';
+    h += '<pre>nc -zv sapidess4.fivetran-internal-sales.com 3303</pre>';
+    h += '<p>You should see <code>Connection to sapidess4... succeeded!</code>. If it times out, check your VPN.</p>';
+
+    // ──────────────────────────────────────────
+    // STEP: Run
+    // ──────────────────────────────────────────
+    h += '<h3>' + sn(s, step++) + 'Run the Skill</h3>';
+    h += '<p>Make the run script executable and test it:</p>';
+    h += '<pre>chmod +x ' + s.run + '\n./' + s.run + ' help</pre>';
+    h += '<p>You should see the list of available commands:</p>';
+    h += '<ul style="margin:8px 0 14px 20px;font-size:0.88rem;color:#4b5563">';
+    s.cmds.forEach(function(c) { h += '<li><code>' + c.split(' — ')[0] + '</code> — ' + (c.split(' — ')[1]||'') + '</li>'; });
+    h += '</ul>';
+    h += '<div class="note"><strong>Troubleshooting:</strong><br>';
+    h += '<code>UnsatisfiedLinkError</code> &rarr; JCo native library not found. Check <code>libsapjco3.dylib</code> is in the right place.<br>';
+    h += '<code>JCoException</code> &rarr; SAP connection failed. Check VPN is connected.<br>';
+    h += '<code>ClassNotFoundException</code> &rarr; Compilation failed. Re-run the compile step.</div>';
+
+  } else {
+    // CDS: server-based project
+    h += '<h3>' + sn(s, step++) + 'Connect to SAP Server</h3>';
+    h += '<p>The CDS pipeline runs on <code>sapidess4</code>, not locally. ' + (isVS ? 'Use VS Code Remote-SSH:' : 'Connect via SSH:') + '</p>';
+    if (isVS) {
+      h += '<p>Press <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> &rarr; <strong>Remote-SSH: Connect to Host</strong> &rarr; type:</p>';
+      h += '<pre>root@sapidess4</pre>';
+      h += '<p>Once connected, click <strong>Open Folder</strong> and enter:</p>';
+      h += '<pre>/usr/sap/cds_sql_only/</pre>';
+    } else {
+      h += '<pre>ssh root@sapidess4\ncd /usr/sap/cds_sql_only/drivers</pre>';
+    }
+
+    h += '<h3>' + sn(s, step++) + 'Verify the Pipeline</h3>';
+    h += '<pre># Check all class files are present\nls /usr/sap/cds_sql_only/drivers/*.class | wc -l\n# Expected: 30+ files\n\n# Test an extraction\ncd /usr/sap/cds_sql_only/drivers\njava -cp .:sapjco3.jar:gson.jar TestZCdsSqlViews</pre>';
+  }
+
+  // ──────────────────────────────────────────
+  // STEP: Install Claude Code Skill
+  // ──────────────────────────────────────────
+  h += '<h3>' + sn(s, step++) + 'Install the Claude Code Skill</h3>';
+  if (s.skill) {
+    if (isVS) {
+      h += '<p>Open the VS Code terminal (<kbd>Ctrl</kbd>+<kbd>`</kbd>) and run:</p>';
+    } else {
+      h += '<p>Copy the skill file to your Claude Code configuration:</p>';
+    }
+    h += '<pre>mkdir -p ~/.claude/commands/' + s.dir + '\ncp ' + s.skillDir + '/' + s.skill + ' ~/.claude/commands/' + s.dir + '/</pre>';
+    h += '<p>Now in ' + (isVS ? 'the Claude Code panel' : 'Claude Code CLI') + ', type <code>/' + s.skill.replace('.md','') + '</code> to activate the skill.</p>';
+  } else {
+    h += '<p>The CDS skill is configured in your Claude Code user settings. See the sap-cds skill documentation.</p>';
+  }
+
+  // ──────────────────────────────────────────
+  // DONE
+  // ──────────────────────────────────────────
+  h += '<div style="background:#dcfce7;border:1px solid #86efac;border-radius:10px;padding:18px 22px;margin-top:22px;text-align:center">';
+  h += '<div style="font-size:1.5rem;margin-bottom:6px">&#9989;</div>';
+  h += '<div style="font-size:1.05rem;font-weight:700;color:#166534">Setup Complete</div>';
+  h += '<div style="font-size:0.88rem;color:#15803d;margin-top:4px">You can now run <code>./' + (s.run || 'the pipeline') + '</code>' + (s.skill ? ' or use <code>/' + s.skill.replace('.md','') + '</code> in Claude Code' : '') + '.</div>';
+  h += '</div>';
+
+  document.getElementById('modalTitle').innerHTML = '<span style="color:' + s.color + '">' + s.name + '</span> — ' + (isVS ? 'VS Code' : 'Terminal') + ' Setup';
+  document.getElementById('modalBody').innerHTML = h;
+  document.getElementById('modalBody').scrollTop = 0;
+  document.querySelector('.modal').scrollTop = 0;
+  document.getElementById('setupModal').scrollTop = 0;
 }
 
 function closeSetup() {
   document.getElementById('setupModal').classList.remove('active');
   document.body.style.overflow = '';
 }
-
-// Close modal on overlay click or Escape
-document.getElementById('setupModal').addEventListener('click', function(e) {
-  if (e.target === this) closeSetup();
-});
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeSetup();
-});
-
-// Tab switching
-function switchTab(btn, tabId) {
-  var bar = btn.parentElement;
-  var container = bar.parentElement;
-  bar.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
-  btn.classList.add('active');
-  container.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
-  document.getElementById(tabId).classList.add('active');
-}
+document.getElementById('setupModal').addEventListener('click', function(e) { if (e.target === this) closeSetup(); });
+document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeSetup(); });
 </script>
 
 </body>
