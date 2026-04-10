@@ -654,27 +654,276 @@ ssh root@sapidess4 "cd /usr/sap/order_to_cash/ && javac -cp .:sapjco3.jar:gson.j
 <!-- CREDENTIALS -->
 <!-- ============================================================ -->
 <div class="section" id="credentials">
-  <div class="section-title">Credentials Reference</div>
-  <div class="warning-box">
-    <strong>Sensitive Information:</strong> This page contains credentials for internal development/IDES systems only. Do not use these credentials for production SAP systems.
-  </div>
+  <div class="section-title">Credential Vault</div>
 
   <div class="card">
-    <h3><span class="dot" style="background: var(--primary)"></span> All Credentials</h3>
-    <table>
-      <thead>
-        <tr><th>System</th><th>User</th><th>Password</th><th>Notes</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>SSH (both servers)</td><td><code>root</code></td><td><code>(see vault)</code></td><td>SSH access to sapidess4 and sapidesecc8</td></tr>
-        <tr><td>SAP GUI (S/4HANA)</td><td><code>ides</code></td><td><code>(see vault)</code></td><td>Client 100, sapidess4</td></tr>
-        <tr><td>SAP GUI (ECC)</td><td><code>ides</code></td><td><code>(see vault)</code></td><td>Client 100, sapidesecc8</td></tr>
-        <tr><td>HANA DB</td><td><code>SAPHANADB</code></td><td>&mdash;</td><td>Via SSH tunnel on port 30015</td></tr>
-        <tr><td>Oracle DB</td><td><code>/ as sysdba</code></td><td>&mdash;</td><td>OS authentication as oracle user</td></tr>
-      </tbody>
-    </table>
+    <!-- Unlock form (visible when locked) -->
+    <div id="vault-lock-screen">
+      <h3><span class="dot" style="background: var(--primary)"></span> Unlock Vault</h3>
+      <p style="color:var(--text-light); margin-bottom:16px; font-size:14px;">Credentials are stored in an encrypted vault (AES-256 / Fernet). Enter the master password to manage them.</p>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <input type="password" id="vault-master" placeholder="Master password" style="flex:1; padding:10px 14px; border:2px solid #d1d5db; border-radius:8px; font-size:15px; outline:none; transition:border 0.2s;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='#d1d5db'">
+        <button onclick="unlockVault()" id="vault-unlock-btn" style="padding:10px 24px; background:var(--primary); color:#fff; border:none; border-radius:8px; font-size:15px; font-weight:600; cursor:pointer; white-space:nowrap;">Unlock</button>
+      </div>
+    </div>
+
+    <!-- Vault manager (visible when unlocked) -->
+    <div id="vault-manager" style="display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <h3 style="margin:0;"><span class="dot" style="background: var(--success)"></span> Vault Unlocked</h3>
+        <div style="display:flex; gap:8px;">
+          <button onclick="showAddSystem()" style="padding:8px 16px; background:var(--primary); color:#fff; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">+ Add System</button>
+          <button onclick="lockVault()" style="padding:8px 16px; background:#dc2626; color:#fff; border:none; border-radius:6px; font-size:13px; font-weight:600; cursor:pointer;">Lock</button>
+        </div>
+      </div>
+      <div id="vault-systems"></div>
+    </div>
+
+    <div id="vault-status" style="margin-top:12px; font-size:14px;"></div>
   </div>
 </div>
+
+<!-- Add/Edit System Modal -->
+<div id="vault-modal-overlay" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1000; justify-content:center; align-items:center;">
+  <div style="background:white; border-radius:12px; padding:28px; max-width:560px; width:90%; max-height:80vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+    <h3 id="modal-title" style="margin-bottom:18px;">Add System</h3>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:13px; font-weight:600; color:var(--text-light); display:block; margin-bottom:4px;">System Key</label>
+      <input type="text" id="modal-sys-key" placeholder="e.g. sapidess4_ssh" style="width:100%; padding:8px 12px; border:2px solid #d1d5db; border-radius:6px; font-size:14px;">
+    </div>
+    <div style="margin-bottom:12px;">
+      <label style="font-size:13px; font-weight:600; color:var(--text-light); display:block; margin-bottom:4px;">Description</label>
+      <input type="text" id="modal-sys-desc" placeholder="e.g. SSH access to sapidess4" style="width:100%; padding:8px 12px; border:2px solid #d1d5db; border-radius:6px; font-size:14px;">
+    </div>
+    <div id="modal-entries">
+      <label style="font-size:13px; font-weight:600; color:var(--text-light); display:block; margin-bottom:8px;">Entries</label>
+    </div>
+    <button onclick="addModalEntry()" style="margin-bottom:16px; padding:6px 14px; background:#f3f4f6; color:var(--text); border:1px solid #d1d5db; border-radius:6px; font-size:13px; cursor:pointer;">+ Add Entry</button>
+    <div style="display:flex; gap:10px; justify-content:flex-end;">
+      <button onclick="closeModal()" style="padding:8px 20px; background:#f3f4f6; color:var(--text); border:1px solid #d1d5db; border-radius:6px; font-size:14px; cursor:pointer;">Cancel</button>
+      <button onclick="saveModal()" id="modal-save-btn" style="padding:8px 20px; background:var(--primary); color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer;">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+var _vaultMaster = '';
+var _vaultData = {};
+
+function unlockVault() {
+  var master = document.getElementById('vault-master').value;
+  if (!master) { setStatus('Please enter the master password.', '#dc2626'); return; }
+  var btn = document.getElementById('vault-unlock-btn');
+  btn.textContent = 'Unlocking...'; btn.disabled = true;
+  vaultAPI('get_all', {master_password: master}, function(data) {
+    btn.textContent = 'Unlock'; btn.disabled = false;
+    if (data.status === 'error') { setStatus('Wrong master password.', '#dc2626'); return; }
+    _vaultMaster = master;
+    _vaultData = data.vault;
+    renderVault();
+    document.getElementById('vault-lock-screen').style.display = 'none';
+    document.getElementById('vault-manager').style.display = 'block';
+    setStatus('');
+  }, function(err) {
+    btn.textContent = 'Unlock'; btn.disabled = false;
+    setStatus('Connection error: ' + err, '#dc2626');
+  });
+}
+
+function lockVault() {
+  _vaultMaster = '';
+  _vaultData = {};
+  document.getElementById('vault-manager').style.display = 'none';
+  document.getElementById('vault-lock-screen').style.display = 'block';
+  document.getElementById('vault-master').value = '';
+  document.getElementById('vault-systems').innerHTML = '';
+  setStatus('');
+}
+
+function renderVault() {
+  var container = document.getElementById('vault-systems');
+  container.innerHTML = '';
+  var systems = Object.keys(_vaultData).sort();
+  if (systems.length === 0) {
+    container.innerHTML = '<p style="color:var(--text-light); text-align:center; padding:20px;">No systems in vault. Click <b>+ Add System</b> to create one.</p>';
+    return;
+  }
+  for (var i = 0; i < systems.length; i++) {
+    var sys = systems[i];
+    var info = _vaultData[sys];
+    var desc = info.description || sys;
+    var entries = info.entries || [];
+
+    var card = document.createElement('div');
+    card.style.cssText = 'border:1px solid #e5e7eb; border-radius:8px; margin-bottom:12px; overflow:hidden;';
+
+    var header = '<div style="display:flex; justify-content:space-between; align-items:center; padding:12px 16px; background:#f9fafb; border-bottom:1px solid #e5e7eb;">'
+      + '<div><strong>' + esc(desc) + '</strong> <span style="color:var(--text-light); font-size:13px; margin-left:8px;">' + esc(sys) + '</span></div>'
+      + '<div style="display:flex; gap:6px;">'
+      + '<button onclick="editSystem(\'' + esc(sys) + '\')" style="padding:4px 12px; background:#f3f4f6; border:1px solid #d1d5db; border-radius:5px; font-size:12px; cursor:pointer;">Edit</button>'
+      + '<button onclick="deleteSystem(\'' + esc(sys) + '\')" style="padding:4px 12px; background:#fef2f2; color:#dc2626; border:1px solid #fecaca; border-radius:5px; font-size:12px; cursor:pointer;">Delete</button>'
+      + '</div></div>';
+
+    var rows = '';
+    for (var j = 0; j < entries.length; j++) {
+      var e = entries[j];
+      var label = e.tenant ? (e.tenant + ' / ' + e.user) : (e.user || '—');
+      var pwd = e.password || '—';
+      var extra = [];
+      if (e.tenant) extra.push('Tenant: ' + e.tenant);
+      if (info.client) extra.push('Client: ' + info.client);
+      if (info.port) extra.push('Port: ' + info.port);
+      rows += '<tr><td style="padding:8px 16px; font-size:14px;"><code>' + esc(label) + '</code></td>'
+        + '<td style="padding:8px 16px; font-size:14px;"><code style="background:#fef3c7; padding:2px 8px; border-radius:4px;">' + esc(pwd) + '</code></td>'
+        + '<td style="padding:8px 16px; font-size:13px; color:var(--text-light);">' + esc(extra.join(', ')) + '</td></tr>';
+    }
+    if (entries.length === 0) {
+      rows = '<tr><td colspan="3" style="padding:8px 16px; color:var(--text-light); font-size:13px;">No entries</td></tr>';
+    }
+
+    var table = '<table style="width:100%; border-collapse:collapse;">'
+      + '<thead><tr style="border-bottom:1px solid #e5e7eb;"><th style="padding:8px 16px; text-align:left; font-size:12px; text-transform:uppercase; color:var(--text-light);">User</th>'
+      + '<th style="padding:8px 16px; text-align:left; font-size:12px; text-transform:uppercase; color:var(--text-light);">Password</th>'
+      + '<th style="padding:8px 16px; text-align:left; font-size:12px; text-transform:uppercase; color:var(--text-light);">Details</th></tr></thead>'
+      + '<tbody>' + rows + '</tbody></table>';
+
+    card.innerHTML = header + table;
+    container.appendChild(card);
+  }
+}
+
+function showAddSystem() {
+  document.getElementById('modal-title').textContent = 'Add System';
+  document.getElementById('modal-sys-key').value = '';
+  document.getElementById('modal-sys-key').disabled = false;
+  document.getElementById('modal-sys-desc').value = '';
+  document.getElementById('modal-entries').innerHTML = '<label style="font-size:13px; font-weight:600; color:var(--text-light); display:block; margin-bottom:8px;">Entries</label>';
+  addModalEntry();
+  document.getElementById('modal-save-btn').setAttribute('data-mode', 'add');
+  openModal();
+}
+
+function editSystem(sys) {
+  var info = _vaultData[sys];
+  if (!info) return;
+  document.getElementById('modal-title').textContent = 'Edit: ' + (info.description || sys);
+  document.getElementById('modal-sys-key').value = sys;
+  document.getElementById('modal-sys-key').disabled = true;
+  document.getElementById('modal-sys-desc').value = info.description || '';
+  document.getElementById('modal-entries').innerHTML = '<label style="font-size:13px; font-weight:600; color:var(--text-light); display:block; margin-bottom:8px;">Entries</label>';
+  var entries = info.entries || [];
+  for (var i = 0; i < entries.length; i++) {
+    addModalEntry(entries[i]);
+  }
+  if (entries.length === 0) addModalEntry();
+  document.getElementById('modal-save-btn').setAttribute('data-mode', 'edit');
+  openModal();
+}
+
+function deleteSystem(sys) {
+  var info = _vaultData[sys];
+  var name = info ? (info.description || sys) : sys;
+  if (!confirm('Delete system "' + name + '" and all its credentials?')) return;
+  vaultAPI('delete', {master_password: _vaultMaster, system: sys}, function(data) {
+    if (data.status === 'ok') {
+      delete _vaultData[sys];
+      renderVault();
+      setStatus('Deleted "' + name + '".', '#059669');
+    } else {
+      setStatus('Delete failed: ' + (data.message || 'unknown error'), '#dc2626');
+    }
+  }, function(err) { setStatus('Connection error: ' + err, '#dc2626'); });
+}
+
+function addModalEntry(data) {
+  var div = document.createElement('div');
+  div.className = 'modal-entry';
+  div.style.cssText = 'display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:8px; margin-bottom:8px; align-items:end;';
+  var t = (data && data.tenant) || '';
+  var u = (data && data.user) || '';
+  var p = (data && data.password) || '';
+  div.innerHTML = '<div><label style="font-size:11px; color:var(--text-light);">Tenant</label><input type="text" class="entry-tenant" value="' + esc(t) + '" placeholder="optional" style="width:100%; padding:6px 10px; border:1px solid #d1d5db; border-radius:5px; font-size:13px;"></div>'
+    + '<div><label style="font-size:11px; color:var(--text-light);">User</label><input type="text" class="entry-user" value="' + esc(u) + '" placeholder="username" style="width:100%; padding:6px 10px; border:1px solid #d1d5db; border-radius:5px; font-size:13px;"></div>'
+    + '<div><label style="font-size:11px; color:var(--text-light);">Password</label><input type="text" class="entry-pass" value="' + esc(p) + '" placeholder="password" style="width:100%; padding:6px 10px; border:1px solid #d1d5db; border-radius:5px; font-size:13px;"></div>'
+    + '<button onclick="this.parentElement.remove()" style="padding:6px 10px; background:#fef2f2; color:#dc2626; border:1px solid #fecaca; border-radius:5px; font-size:16px; cursor:pointer; margin-bottom:1px;" title="Remove entry">&times;</button>';
+  document.getElementById('modal-entries').appendChild(div);
+}
+
+function saveModal() {
+  var sysKey = document.getElementById('modal-sys-key').value.trim();
+  var desc = document.getElementById('modal-sys-desc').value.trim();
+  if (!sysKey) { alert('System key is required.'); return; }
+
+  var entryDivs = document.querySelectorAll('#modal-entries .modal-entry');
+  var entries = [];
+  for (var i = 0; i < entryDivs.length; i++) {
+    var tenant = entryDivs[i].querySelector('.entry-tenant').value.trim();
+    var user = entryDivs[i].querySelector('.entry-user').value.trim();
+    var pass = entryDivs[i].querySelector('.entry-pass').value.trim();
+    if (user || pass) {
+      var entry = {user: user, password: pass};
+      if (tenant) entry.tenant = tenant;
+      entries.push(entry);
+    }
+  }
+
+  var credentials = {description: desc, entries: entries};
+  // Preserve extra fields from original data (port, tunnel, client, etc.)
+  var orig = _vaultData[sysKey];
+  if (orig) {
+    var keep = ['port', 'tunnel', 'client', 'host', 'sysnr'];
+    for (var k = 0; k < keep.length; k++) {
+      if (orig[keep[k]] !== undefined) credentials[keep[k]] = orig[keep[k]];
+    }
+  }
+
+  var btn = document.getElementById('modal-save-btn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  vaultAPI('set', {master_password: _vaultMaster, system: sysKey, credentials: credentials}, function(data) {
+    btn.textContent = 'Save'; btn.disabled = false;
+    if (data.status === 'ok') {
+      _vaultData[sysKey] = credentials;
+      renderVault();
+      closeModal();
+      setStatus('Saved "' + (desc || sysKey) + '".', '#059669');
+    } else {
+      setStatus('Save failed: ' + (data.message || 'unknown error'), '#dc2626');
+    }
+  }, function(err) {
+    btn.textContent = 'Save'; btn.disabled = false;
+    setStatus('Connection error: ' + err, '#dc2626');
+  });
+}
+
+function openModal() { var m = document.getElementById('vault-modal-overlay'); m.style.display = 'flex'; }
+function closeModal() { document.getElementById('vault-modal-overlay').style.display = 'none'; }
+
+function vaultAPI(action, body, onOk, onErr) {
+  fetch('/sap_skills/api/vault/' + action, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(body)
+  })
+  .then(function(r) { return r.json(); })
+  .then(onOk)
+  .catch(function(e) { onErr(e.message); });
+}
+
+function setStatus(msg, color) {
+  var el = document.getElementById('vault-status');
+  el.textContent = msg; el.style.color = color || 'inherit';
+}
+
+function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+document.getElementById('vault-master').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') unlockVault();
+});
+
+document.getElementById('vault-modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+</script>
 
 <!-- ============================================================ -->
 <!-- QUICK REFERENCE -->
