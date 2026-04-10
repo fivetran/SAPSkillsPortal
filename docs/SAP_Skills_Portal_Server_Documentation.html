@@ -176,6 +176,21 @@
   .copy-btn:hover { background: rgba(255,255,255,0.22); }
   .copy-btn.copied { background: #27ae60; color: white; border-color: #27ae60; }
 
+  /* Copy button for command tables */
+  .copy-cmd {
+    background: #f3f4f6;
+    color: var(--text-light);
+    border: 1px solid #d1d5db;
+    padding: 3px 12px;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+  }
+  .copy-cmd:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+  .copy-cmd.copied { background: #27ae60; color: white; border-color: #27ae60; }
+
   /* Step boxes */
   .step-box {
     background: linear-gradient(135deg, #fef9e7 0%, #fdf2d5 100%);
@@ -288,15 +303,15 @@
 
     <div class="card">
       <h3><span class="dot" style="background: var(--primary)"></span>Common SSH Commands</h3>
-      <table>
-        <tr><th>Action</th><th>Command</th></tr>
-        <tr><td>Check server status</td><td><code>ssh root@sapidesecc8 "systemctl status gcs-explorer --no-pager"</code></td></tr>
-        <tr><td>Restart production</td><td><code>ssh root@sapidesecc8 "systemctl restart gcs-explorer"</code></td></tr>
-        <tr><td>Restart dev</td><td><code>ssh root@sapidesecc8 "systemctl restart gcs-explorer-dev"</code></td></tr>
-        <tr><td>View logs</td><td><code>ssh root@sapidesecc8 "tail -20 /var/log/gcs_explorer.log"</code></td></tr>
-        <tr><td>List portal files</td><td><code>ssh root@sapidesecc8 "ls -la /usr/sap/sap_skills/"</code></td></tr>
-        <tr><td>Check disk space</td><td><code>ssh root@sapidesecc8 "df -h /"</code></td></tr>
-        <tr><td>Check cron jobs</td><td><code>ssh root@sapidesecc8 "crontab -l"</code></td></tr>
+      <table class="cmd-table">
+        <tr><th>Action</th><th>Command</th><th style="width:60px;"></th></tr>
+        <tr><td>Check server status</td><td><code>ssh root@sapidesecc8 "systemctl status gcs-explorer --no-pager"</code></td><td><button class="copy-cmd" onclick="copyCmd(this)">Copy</button></td></tr>
+        <tr><td>Restart production</td><td><code>ssh root@sapidesecc8 "systemctl restart gcs-explorer"</code></td><td><button class="copy-cmd" onclick="copyCmd(this)">Copy</button></td></tr>
+        <tr><td>Restart dev</td><td><code>ssh root@sapidesecc8 "systemctl restart gcs-explorer-dev"</code></td><td><button class="copy-cmd" onclick="copyCmd(this)">Copy</button></td></tr>
+        <tr><td>View logs</td><td><code>ssh root@sapidesecc8 "tail -20 /var/log/gcs_explorer.log"</code></td><td><button class="copy-cmd" onclick="copyCmd(this)">Copy</button></td></tr>
+        <tr><td>List portal files</td><td><code>ssh root@sapidesecc8 "ls -la /usr/sap/sap_skills/"</code></td><td><button class="copy-cmd" onclick="copyCmd(this)">Copy</button></td></tr>
+        <tr><td>Check disk space</td><td><code>ssh root@sapidesecc8 "df -h /"</code></td><td><button class="copy-cmd" onclick="copyCmd(this)">Copy</button></td></tr>
+        <tr><td>Check cron jobs</td><td><code>ssh root@sapidesecc8 "crontab -l"</code></td><td><button class="copy-cmd" onclick="copyCmd(this)">Copy</button></td></tr>
       </table>
     </div>
   </div>
@@ -692,6 +707,16 @@ function addCopyButtons(container) {
   });
 }
 document.addEventListener('DOMContentLoaded', function() { addCopyButtons(document); });
+
+function copyCmd(btn) {
+  var code = btn.closest('tr').querySelector('code');
+  if (!code) return;
+  navigator.clipboard.writeText(code.textContent.trim()).then(function() {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+  });
+}
 </script>
 
 </body>
