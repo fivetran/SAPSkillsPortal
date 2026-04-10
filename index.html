@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP S/4HANA Skills — Fivetran SAP Specialist Team</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-size: 14px;
+  color: #1a1a2e;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #0073FF 0%, #004da6 100%);
+  color: #fff;
+  padding: 48px 40px 40px;
+  text-align: center;
+}
+.header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+.header .subtitle {
+  font-size: 1.1rem;
+  opacity: 0.85;
+  font-weight: 400;
+}
+.header .badge {
+  display: inline-block;
+  background: rgba(255,255,255,0.18);
+  color: #fff;
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  margin-top: 14px;
+  font-weight: 500;
+  backdrop-filter: blur(4px);
+}
+
+/* Content */
+.content {
+  max-width: 1100px;
+  margin: -30px auto 40px;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Intro card */
+.intro-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 28px 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+}
+.intro-card h2 {
+  font-size: 1.15rem;
+  color: #1a1a2e;
+  margin-bottom: 10px;
+}
+.intro-card p {
+  font-size: 0.95rem;
+  color: #4b5563;
+  line-height: 1.65;
+}
+
+/* Cards grid */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.skill-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+  transition: box-shadow 0.2s, transform 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+.skill-card:hover {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+  transform: translateY(-2px);
+}
+
+.card-accent {
+  height: 6px;
+  width: 100%;
+}
+
+.card-body {
+  padding: 24px 24px 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  margin-bottom: 16px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.card-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin-bottom: 4px;
+}
+.card-subtitle {
+  font-size: 0.82rem;
+  color: #9ca3af;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 12px;
+}
+.card-desc {
+  font-size: 0.92rem;
+  color: #4b5563;
+  line-height: 1.6;
+  flex: 1;
+  margin-bottom: 20px;
+}
+
+.card-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+.card-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s, color 0.15s;
+}
+.card-link.github {
+  background: #f6f8fa;
+  color: #24292f;
+  border: 1px solid #d0d7de;
+}
+.card-link.github:hover {
+  background: #24292f;
+  color: #fff;
+}
+.card-link.docs {
+  background: #eff6ff;
+  color: #0073FF;
+  border: 1px solid #bfdbfe;
+}
+.card-link.docs:hover {
+  background: #0073FF;
+  color: #fff;
+}
+.card-link.skill {
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}
+.card-link.skill:hover {
+  background: #15803d;
+  color: #fff;
+}
+
+.card-link svg {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+/* Tools section */
+.tools-section {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 28px 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.tools-section h2 {
+  font-size: 1.15rem;
+  color: #1a1a2e;
+  margin-bottom: 16px;
+}
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+}
+.tool-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  border-radius: 8px;
+  background: #f8f9fa;
+  border: 1px solid #e5e7eb;
+  text-decoration: none;
+  color: #1a1a2e;
+  transition: background 0.15s, border-color 0.15s;
+}
+.tool-item:hover {
+  background: #eff6ff;
+  border-color: #0073FF;
+}
+.tool-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  background: #0073FF;
+  color: #fff;
+  flex-shrink: 0;
+}
+.tool-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+.tool-desc {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 24px;
+  color: #9ca3af;
+  font-size: 0.82rem;
+  border-top: 1px solid #e5e7eb;
+  background: #fff;
+}
+.footer a { color: #0073FF; text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+
+/* Color themes */
+.accent-otc { background: #1a3a5c; }
+.accent-p2p { background: #1a5c3a; }
+.accent-pp { background: #4a1a5c; }
+.accent-mrp { background: #b35900; }
+.accent-admin { background: #922b21; }
+.accent-cds { background: #0073FF; }
+
+.icon-otc { background: #1a3a5c; }
+.icon-p2p { background: #1a5c3a; }
+.icon-pp { background: #4a1a5c; }
+.icon-mrp { background: #b35900; }
+.icon-admin { background: #922b21; }
+.icon-cds { background: #0073FF; }
+
+/* Responsive */
+@media (max-width: 700px) {
+  .header { padding: 32px 20px 28px; }
+  .header h1 { font-size: 1.6rem; }
+  .content { padding: 0 12px; }
+  .cards-grid { grid-template-columns: 1fr; }
+  .tools-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>SAP S/4HANA Skills</h1>
+  <div class="subtitle">Automated Data Generators &amp; System Administration</div>
+  <div class="badge">Fivetran SAP Specialist Team &mdash; SAP S/4HANA 2023</div>
+</div>
+
+<div class="content">
+
+  <div class="intro-card">
+    <h2>About This Project</h2>
+    <p>
+      A suite of automated tools that generate realistic, end-to-end business process data across SAP S/4HANA IDES.
+      Each skill covers a complete business workflow — from master data creation through document posting — and includes
+      Java programs (via JCo RFC), Claude Code skills for AI-assisted operation, and comprehensive HTML documentation.
+      All processes run from a local Mac against the remote SAP system via RFC, with no SSH into SAP servers required.
+    </p>
+  </div>
+
+  <!-- Business Process Skills -->
+  <div class="cards-grid">
+
+    <!-- OTC -->
+    <div class="skill-card">
+      <div class="card-accent accent-otc"></div>
+      <div class="card-body">
+        <div class="card-icon icon-otc">&#128230;</div>
+        <div class="card-title">Order to Cash (OTC)</div>
+        <div class="card-subtitle">Sales &amp; Distribution</div>
+        <div class="card-desc">
+          Complete SD workflow: customer master creation, sales order, delivery, picking, packing,
+          goods issue (PGI), billing document, and accounting entry. Generates realistic sales
+          data across multiple sales orgs and distribution channels.
+        </div>
+        <div class="card-links">
+          <a href="https://github.com/fivetran/sap-otc-workflow" target="_blank" class="card-link github">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            GitHub
+          </a>
+          <a href="/sap_skills/docs/SAP_OTC_Workflow_Documentation.html" class="card-link docs">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M14 4.5V14a2 2 0 01-2 2H4a2 2 0 01-2-2V2a2 2 0 012-2h5.5L14 4.5zM9.5 3A1.5 1.5 0 018 1.5V0H4a1 1 0 00-1 1v14a1 1 0 001 1h8a1 1 0 001-1V4.5H9.5z"/></svg>
+            Documentation
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- P2P -->
+    <div class="skill-card">
+      <div class="card-accent accent-p2p"></div>
+      <div class="card-body">
+        <div class="card-icon icon-p2p">&#128722;</div>
+        <div class="card-title">Procure to Pay (P2P)</div>
+        <div class="card-subtitle">Materials Management</div>
+        <div class="card-desc">
+          Full MM procurement cycle: vendor master, purchase requisition, purchase order,
+          goods receipt (MIGO), invoice receipt (MIRO), and payment posting.
+          Covers standard and consignment procurement with three-way matching.
+        </div>
+        <div class="card-links">
+          <a href="https://github.com/fivetran/sap-ptp-generator" target="_blank" class="card-link github">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            GitHub
+          </a>
+          <a href="/sap_skills/docs/SAP_P2P_Workflow_Documentation.html" class="card-link docs">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M14 4.5V14a2 2 0 01-2 2H4a2 2 0 01-2-2V2a2 2 0 012-2h5.5L14 4.5zM9.5 3A1.5 1.5 0 018 1.5V0H4a1 1 0 00-1 1v14a1 1 0 001 1h8a1 1 0 001-1V4.5H9.5z"/></svg>
+            Documentation
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- PP -->
+    <div class="skill-card">
+      <div class="card-accent accent-pp"></div>
+      <div class="card-body">
+        <div class="card-icon icon-pp">&#9881;</div>
+        <div class="card-title">Plan to Produce (PP)</div>
+        <div class="card-subtitle">Production Planning</div>
+        <div class="card-desc">
+          End-to-end PP workflow: BOM creation, routing, planned order conversion,
+          production order release, goods issue to production (261), confirmation,
+          and goods receipt from production (101). Handles co-products and by-products.
+        </div>
+        <div class="card-links">
+          <a href="https://github.com/fivetran/PlanToProduce" target="_blank" class="card-link github">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            GitHub
+          </a>
+          <a href="/sap_skills/docs/SAP_PP_Workflow_Documentation.html" class="card-link docs">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M14 4.5V14a2 2 0 01-2 2H4a2 2 0 01-2-2V2a2 2 0 012-2h5.5L14 4.5zM9.5 3A1.5 1.5 0 018 1.5V0H4a1 1 0 00-1 1v14a1 1 0 001 1h8a1 1 0 001-1V4.5H9.5z"/></svg>
+            Documentation
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- MRP -->
+    <div class="skill-card">
+      <div class="card-accent accent-mrp"></div>
+      <div class="card-body">
+        <div class="card-icon icon-mrp">&#128202;</div>
+        <div class="card-title">Material Requirements Planning (MRP)</div>
+        <div class="card-subtitle">Supply Chain Planning</div>
+        <div class="card-desc">
+          MRP workflow automation: MRP area configuration, planning run execution (MD01/MD02),
+          planned order creation, conversion to production/purchase orders, and stock/requirements
+          list analysis. Bridges planning with P2P and PP execution.
+        </div>
+        <div class="card-links">
+          <a href="https://github.com/fivetran/MaterialRequirementsPlanning" target="_blank" class="card-link github">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            GitHub
+          </a>
+          <a href="/sap_skills/docs/SAP_MRP_Workflow_Documentation.html" class="card-link docs">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M14 4.5V14a2 2 0 01-2 2H4a2 2 0 01-2-2V2a2 2 0 012-2h5.5L14 4.5zM9.5 3A1.5 1.5 0 018 1.5V0H4a1 1 0 00-1 1v14a1 1 0 001 1h8a1 1 0 001-1V4.5H9.5z"/></svg>
+            Documentation
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Housekeeping -->
+    <div class="skill-card">
+      <div class="card-accent accent-admin"></div>
+      <div class="card-body">
+        <div class="card-icon icon-admin">&#128736;</div>
+        <div class="card-title">Housekeeping &amp; Job Scheduler</div>
+        <div class="card-subtitle">System Administration</div>
+        <div class="card-desc">
+          Automated data health maintenance: MM period opening (monthly job via XBP BAPIs),
+          FI posting period monitoring, Material Ledger period extension, number range tracking.
+          Keeps all business processes running by maintaining critical SAP config tables.
+        </div>
+        <div class="card-links">
+          <a href="https://github.com/fivetran/SAPHousekeeping" target="_blank" class="card-link github">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            GitHub
+          </a>
+          <a href="/sap_skills/docs/SAP_Housekeeping_Documentation.html" class="card-link docs">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M14 4.5V14a2 2 0 01-2 2H4a2 2 0 01-2-2V2a2 2 0 012-2h5.5L14 4.5zM9.5 3A1.5 1.5 0 018 1.5V0H4a1 1 0 00-1 1v14a1 1 0 001 1h8a1 1 0 001-1V4.5H9.5z"/></svg>
+            Documentation
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- CDS -->
+    <div class="skill-card">
+      <div class="card-accent accent-cds"></div>
+      <div class="card-body">
+        <div class="card-icon icon-cds">&#128268;</div>
+        <div class="card-title">CDS View Extraction</div>
+        <div class="card-subtitle">Metadata &amp; SQL Translation</div>
+        <div class="card-desc">
+          8-phase pipeline that extracts CDS view metadata, dependencies, field definitions,
+          and SQL definitions from SAP via custom RFCs. Resolves SQL-only views via BFS,
+          translates HANA SQL to BigQuery/Snowflake/Databricks ANSI SQL. Powers the Fivetran SAP connector.
+        </div>
+        <div class="card-links">
+          <a href="https://github.com/fivetran/CDS-metadata-retrieval-fr-custom-SDK" target="_blank" class="card-link github">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            GitHub
+          </a>
+          <a href="https://github.com/fivetran/cds-dbt-service" target="_blank" class="card-link skill">
+            <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+            dbt Service
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Related Tools -->
+  <div class="tools-section">
+    <h2>Related Tools</h2>
+    <div class="tools-grid">
+      <a href="/datalake_reader/" class="tool-item">
+        <div class="tool-icon">&#128451;</div>
+        <div>
+          <div class="tool-name">GCS Parquet Explorer</div>
+          <div class="tool-desc">Browse and query SAP CDS Parquet data in GCS, Azure, and AWS</div>
+        </div>
+      </a>
+      <a href="https://github.com/fivetran-antoniocarbone/gcs-parquet-explorer" target="_blank" class="tool-item">
+        <div class="tool-icon" style="background:#24292f">&#128187;</div>
+        <div>
+          <div class="tool-name">Parquet Explorer Source</div>
+          <div class="tool-desc">GitHub repository for the GCS Parquet Explorer web application</div>
+        </div>
+      </a>
+    </div>
+  </div>
+
+  <!-- Architecture Overview -->
+  <div class="intro-card">
+    <h2>Architecture</h2>
+    <p>
+      All tools connect to SAP S/4HANA IDES (sapidess4, system number 03, client 100) via <strong>SAP JCo 3 RFC</strong> from a local Mac.
+      Direct HANA SQL access is available through an SSH tunnel to port 30015 using <strong>hdbcli</strong> (Python).
+      Each business process skill is a standalone Java program with a Claude Code skill file for AI-assisted operation.
+      The CDS extraction pipeline runs as a Fivetran custom connector, producing Parquet files in GCS that land in BigQuery.
+    </p>
+  </div>
+
+</div>
+
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank">Claude Code</a>
+</div>
+
+</body>
+</html>
