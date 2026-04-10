@@ -3857,8 +3857,9 @@ class Handler(http.server.BaseHTTPRequestHandler):
             master = data.get("master_password", "")
             action = parsed.path.split("/")[-1]
 
-            # Authenticate via vault — master password must be valid
-            if vault_manager.list_systems(master) is None:
+            # Authenticate via vault — master password required only for destructive actions
+            needs_auth = action in ("restart_production",)
+            if needs_auth and vault_manager.list_systems(master) is None:
                 resp = json.dumps({"status": "error", "message": "Wrong master password"}).encode()
             elif action == "restart_production":
                 import subprocess

@@ -855,11 +855,25 @@ var _runPending = {action: '', title: ''};
 
 function runAdminCmd(action, title) {
   _runPending = {action: action, title: title};
-  document.getElementById('run-auth-title').textContent = title;
-  document.getElementById('run-auth-master').value = '';
-  document.getElementById('run-auth-status').textContent = '';
-  document.getElementById('run-auth-overlay').style.display = 'flex';
-  setTimeout(function() { document.getElementById('run-auth-master').focus(); }, 100);
+  // No auth needed for read-only commands — call directly
+  var btn = event.target;
+  var origText = btn.textContent;
+  btn.textContent = 'Running...'; btn.disabled = true;
+  fetch('/sap_skills/api/admin/' + action, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.textContent = origText; btn.disabled = false;
+    if (data.status === 'error') { alert('Error: ' + data.message); return; }
+    showRunOutput(title, data.output);
+  })
+  .catch(function(err) {
+    btn.textContent = origText; btn.disabled = false;
+    alert('Connection error: ' + err);
+  });
 }
 
 function closeRunAuth() {
