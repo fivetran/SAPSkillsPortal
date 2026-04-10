@@ -557,7 +557,6 @@
     <li><a href="#architecture">Architecture</a></li>
     <li><a href="#connectivity">Connectivity</a></li>
     <li><a href="#hosting">Hosting</a></li>
-    <li><a href="#deployment">Deployment</a></li>
     <li><a href="#colors">Color Themes</a></li>
     <li><a href="#troubleshooting">Troubleshooting</a></li>
   </ul>
@@ -883,44 +882,6 @@
           <tr><td><code>gcs_explorer_server.py</code> replaced</td><td>Must re-add <code>/sap_skills/</code> route block</td><td>Manual intervention</td></tr>
         </tbody>
       </table>
-    </div>
-  </div>
-
-  <!-- Deployment -->
-  <div class="section" id="deployment">
-    <div class="section-title">Deployment</div>
-    <p class="section-desc">
-      How to update the portal and documentation.
-    </p>
-
-    <div class="card">
-      <h3>Update Landing Page</h3>
-<pre># Edit directly on the server
-ssh root@sapidesecc8
-vi /usr/sap/sap_skills/index.html
-
-# Changes take effect immediately — no restart needed</pre>
-    </div>
-
-    <div class="card">
-      <h3>Add or Update Documentation</h3>
-<pre># Edit or add a doc directly on the server
-ssh root@sapidesecc8
-vi /usr/sap/sap_skills/docs/New_Documentation.html
-
-# Or copy from another location on the server
-cp /path/to/doc.html /usr/sap/sap_skills/docs/</pre>
-    </div>
-
-    <div class="card">
-      <h3>Push to GitHub</h3>
-<pre># Clone the repo, make changes, and push
-git clone https://github.com/fivetran/SAPSkillsPortal.git
-cd SAPSkillsPortal
-# ... edit files ...
-git add -A
-git commit -m "Update portal"
-git push origin main</pre>
     </div>
   </div>
 
