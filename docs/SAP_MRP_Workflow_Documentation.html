@@ -1,0 +1,1219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP MRP Automated Data Generator</title>
+<style>
+  :root {
+    --primary: #b35900;
+    --primary-light: #e67300;
+    --accent: #2980b9;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --step0: #d35400;
+    --step1: #2980b9;
+    --step2: #8e44ad;
+    --step3: #c0392b;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #b35900 0%, #7a3d00 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  .header .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+
+  /* Navigation */
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #fde8d0; }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* Flow Diagram */
+  .flow-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 30px 10px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  .flow-step {
+    text-align: center;
+    min-width: 120px;
+    flex-shrink: 0;
+  }
+  .flow-box {
+    border-radius: 12px;
+    padding: 16px 10px;
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    position: relative;
+  }
+  .flow-box .step-num {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 400;
+    opacity: 0.85;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .flow-sub {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+  .flow-arrow {
+    font-size: 1.6rem;
+    color: #adb5bd;
+    flex-shrink: 0;
+    padding: 0 4px;
+  }
+  .step0-bg { background: linear-gradient(135deg, var(--step0), #a04000); }
+  .step1-bg { background: linear-gradient(135deg, var(--step1), #1a6da0); }
+  .step2-bg { background: linear-gradient(135deg, var(--step2), #6c3483); }
+  .step3-bg { background: linear-gradient(135deg, var(--step3), #922b21); }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* Step detail cards */
+  .step-card {
+    border-left: 4px solid;
+    padding-left: 20px;
+  }
+  .step-card.s0 { border-color: var(--step0); }
+  .step-card.s1 { border-color: var(--step1); }
+  .step-card.s2 { border-color: var(--step2); }
+  .step-card.s3 { border-color: var(--step3); }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  th {
+    background: var(--primary);
+    color: white;
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:hover td { background: #f8f9fa; }
+  td code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  /* Code blocks */
+  pre {
+    background: #1e2937;
+    color: #e2e8f0;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin-top: 10px;
+  }
+  pre .comment { color: #6b7b8d; }
+  pre .string { color: #7ec699; }
+  pre .keyword { color: #c792ea; }
+
+  /* Info boxes */
+  .info-box {
+    background: #fde8d0;
+    border-left: 4px solid var(--primary-light);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+  .warn-box {
+    background: #fef5e7;
+    border-left: 4px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+
+  /* Two-column grid */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 768px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .flow-container { flex-wrap: wrap; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+
+  /* Parameter list */
+  .param-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 4px 16px;
+    font-size: 0.88rem;
+    margin: 8px 0;
+  }
+  .param-grid dt {
+    font-weight: 600;
+    font-family: 'SF Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--primary);
+  }
+  .param-grid dd { color: var(--text-light); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  /* Integration diagram */
+  .integration-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .integration-card {
+    background: var(--card-bg);
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    text-align: center;
+  }
+  .integration-card.active {
+    border-color: var(--primary);
+    background: #fde8d0;
+  }
+  .integration-card h4 { font-size: 0.95rem; margin-bottom: 6px; }
+  .integration-card p { font-size: 0.82rem; color: var(--text-light); }
+  @media (max-width: 768px) {
+    .integration-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>SAP MRP Automated Data Generator</h1>
+  <div class="subtitle">S/4HANA IDES &mdash; Material Requirements Planning via JCo RFC</div>
+  <span class="badge">MRP / Demand Planning</span>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#connectivity">Connectivity</a>
+    <a href="#materials">Materials</a>
+    <a href="#flow">Flow Diagram</a>
+    <a href="#step0">Step 0: PIR</a>
+    <a href="#step1">Step 1: MRP</a>
+    <a href="#step2">Step 2: Review</a>
+    <a href="#step3">Step 3: Convert</a>
+    <a href="#tables">SAP Tables</a>
+    <a href="#cds">CDS Views</a>
+    <a href="#bapis">BAPIs</a>
+    <a href="#usage">Usage</a>
+    <a href="#integration">Integration</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+    <a href="#testing">Test Results</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- OVERVIEW -->
+<div class="section" id="overview">
+  <h2 class="section-title">Overview</h2>
+  <div class="card">
+    <p>
+      <strong>MRP (Material Requirements Planning)</strong> automated data generator that creates end-to-end
+      demand-to-production-order documents via JCo RFC: planned independent requirements (PIR), MRP run,
+      stock/requirements review, and planned-order-to-production-order conversion. Generates realistic SAP MRP
+      transaction data on S/4HANA IDES using the bike finished goods family (MZ-FG-*).
+    </p>
+    <div class="info-box" style="margin-top:14px;">
+      <strong>Same SAP system as OTC, PP, and P2P.</strong> All programs connect to the same S/4HANA IDES instance.
+      MRP creates demand via PIR and lets the MRP run generate planned orders, which are then converted
+      to production orders. The bike family materials (MZ-FG-*, MZ-RM-*) are shared with the PP generator.
+    </div>
+    <br>
+    <div class="grid-2">
+      <div>
+        <h4>SAP System</h4>
+        <dl class="param-grid">
+          <dt>System</dt><dd>S/4HANA IDES (SID: S4H)</dd>
+          <dt>Release</dt><dd>758 (HANA DB)</dd>
+          <dt>Client</dt><dd>100</dd>
+          <dt>System Number</dt><dd>03 (port 3303)</dd>
+          <dt>Company Code</dt><dd>1710</dd>
+          <dt>Plant</dt><dd>1710</dd>
+          <dt>Currency</dt><dd>USD</dd>
+        </dl>
+      </div>
+      <div>
+        <h4>MRP Configuration</h4>
+        <dl class="param-grid">
+          <dt>MRP Type</dt><dd>PD (deterministic)</dd>
+          <dt>Lot Size</dt><dd>EX (lot-for-lot)</dd>
+          <dt>Procurement</dt><dd>BESKZ=E (in-house production)</dd>
+          <dt>Finished Goods</dt><dd>9 bike models (MZ-FG-*)</dd>
+          <dt>BOM Components</dt><dd>7&ndash;10 per FG (MZ-RM-*)</dd>
+          <dt>Java Class</dt><dd>SAPMRPWorkflow.java</dd>
+          <dt>Connection</dt><dd>JCo RFC from local Mac</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOCAL CONNECTIVITY -->
+<div class="section" id="connectivity">
+  <h2 class="section-title">Local Connectivity</h2>
+  <div class="card">
+    <p>Everything runs from the <strong>local Mac</strong> &mdash; no need to SSH into sapidess4 or sapidesecc8.
+    Client <code>100</code> is used for all operations.</p>
+    <div class="info-box">
+      Two connection methods are available: <strong>JCo RFC</strong> for BAPIs and function modules (used by the generator),
+      and <strong>HANA SQL</strong> for direct database queries (useful for verification and debugging).
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>SAP RFC via JCo (BAPIs)</h3>
+      <p>The generator connects directly to SAP over the network using the JCo 3 library. No SSH tunnel needed.</p>
+      <table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Host</td><td><code>sapidess4.fivetran-internal-sales.com</code></td></tr>
+        <tr><td>System Number</td><td><code>03</code> (port 3303)</td></tr>
+        <tr><td>Client</td><td><code>100</code></td></tr>
+        <tr><td>User</td><td><code>IDES</code></td></tr>
+        <tr><td>Password</td><td><code>Fivetran?99</code></td></tr>
+        <tr><td>Language</td><td><code>EN</code></td></tr>
+      </table>
+      <h4 style="margin-top:16px;">Required local files</h4>
+      <table>
+        <tr><td><code>../SAPjco/sapjco3.jar</code></td><td>Java JCo library</td></tr>
+        <tr><td><code>../SAPjco/libsapjco3.dylib</code></td><td>macOS ARM64 native library</td></tr>
+      </table>
+<pre style="margin-top:12px;">
+# Run the generator locally
+java -Xmx512m -cp .:../SAPjco/sapjco3.jar \
+  -Djava.library.path=../SAPjco SAPMRPWorkflow full 1
+</pre>
+    </div>
+
+    <div class="card">
+      <h3>HANA Database (direct SQL)</h3>
+      <p>Connect to HANA via SSH tunnel for direct SQL queries. Only the tunnel uses SSH &mdash; you never log into the server.</p>
+      <table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Tunnel</td><td><code>localhost:30015</code> &rarr; <code>sapidess4:30015</code></td></tr>
+        <tr><td>Database</td><td><code>FIV</code> (S/4HANA tenant)</td></tr>
+        <tr><td>User</td><td><code>SAPHANADB</code></td></tr>
+        <tr><td>Password</td><td><code>Fivetran1T1D</code></td></tr>
+        <tr><td>Python lib</td><td><code>pip3 install hdbcli</code></td></tr>
+      </table>
+<pre style="margin-top:12px;">
+# Step 1: Start SSH tunnel (runs in background, one-time)
+ssh -f -N -L 30015:127.0.0.1:30015 root@sapidess4
+
+# Step 2: Query HANA via Python
+python3 -c "
+from hdbcli import dbapi
+conn = dbapi.connect(address='localhost', port=30015,
+    user='SAPHANADB', password='Fivetran1T1D', databaseName='FIV')
+cur = conn.cursor()
+cur.execute(\"SELECT PLNUM, MATNR, GSMNG FROM PLAF WHERE MATNR LIKE 'MZ%'\")
+for row in cur.fetchall(): print(row)
+"
+</pre>
+
+      <h4 style="margin-top:16px;">Useful HANA queries for MRP</h4>
+<pre>
+-- PIR demand
+SELECT * FROM PBIM WHERE MATNR LIKE 'MZ-FG%' AND WERKS = '1710';
+
+-- Planned orders
+SELECT PLNUM, MATNR, GSMNG, PSTTR, PEDTR
+FROM PLAF WHERE MATNR LIKE 'MZ%' AND PLWRK = '1710';
+
+-- Production orders from conversion
+SELECT AUFNR, OBJNR FROM AUFK
+WHERE AUFNR IN ('000001002166', '000001002167');
+</pre>
+    </div>
+  </div>
+</div>
+
+<!-- MATERIALS -->
+<div class="section" id="materials">
+  <h2 class="section-title">Finished Goods (Bike Family)</h2>
+  <div class="card">
+    <p>All 9 finished goods are FERT materials with BOM + Routing in plant 1710,
+    MRP type <code>PD</code> (deterministic planning), lot size <code>EX</code> (lot-for-lot),
+    <code>BESKZ='E'</code> (in-house production).</p>
+
+    <table>
+      <tr><th>Material</th><th>Description</th><th>MRP Type</th><th>Lot Size</th><th>Components</th></tr>
+      <tr><td><code>MZ-FG-C900</code></td><td>C900 BIKE</td><td>PD</td><td>EX</td><td>7 ROH</td></tr>
+      <tr><td><code>MZ-FG-C950</code></td><td>C950 BIKE</td><td>PD</td><td>EX</td><td>7 ROH</td></tr>
+      <tr><td><code>MZ-FG-C990</code></td><td>C990 Bike</td><td>PD</td><td>EX</td><td>7 ROH</td></tr>
+      <tr><td><code>MZ-FG-M500</code></td><td>M500 BIKE</td><td>PD</td><td>EX</td><td>7 ROH</td></tr>
+      <tr><td><code>MZ-FG-M525</code></td><td>M525 BIKE</td><td>PD</td><td>EX</td><td>7 ROH</td></tr>
+      <tr><td><code>MZ-FG-M550</code></td><td>M550 BIKE</td><td>PD</td><td>EX</td><td>7 ROH</td></tr>
+      <tr><td><code>MZ-FG-R100</code></td><td>R100 BIKE</td><td>PD</td><td>EX</td><td>7 ROH</td></tr>
+      <tr><td><code>MZ-FG-R200</code></td><td>R200 Bike</td><td>PD</td><td>EX</td><td>7 ROH</td></tr>
+      <tr><td><code>MZ-FG-R300</code></td><td>R300 Bike</td><td>PD</td><td>EX</td><td>7 ROH</td></tr>
+    </table>
+
+    <h3 style="margin-top:20px;">Raw Material Components (MZ-RM-*)</h3>
+    <p>Each bike has 7&ndash;10 ROH components following the naming pattern <code>MZ-RM-{model}-01</code> through
+    <code>MZ-RM-{model}-07</code>. These are the same components used by the PP generator and appear as
+    dependent requirements when MRP explodes the BOM.</p>
+
+    <table>
+      <tr><th>#</th><th>Part</th><th>Example (R100)</th><th>UoM</th></tr>
+      <tr><td>01</td><td>Frame</td><td><code>MZ-RM-R100-01</code></td><td>ST</td></tr>
+      <tr><td>02</td><td>Handle Bars</td><td><code>MZ-RM-R100-02</code></td><td>ST</td></tr>
+      <tr><td>03</td><td>Seat</td><td><code>MZ-RM-R100-03</code></td><td>ST</td></tr>
+      <tr><td>04</td><td>Wheels</td><td><code>MZ-RM-R100-04</code></td><td>ST</td></tr>
+      <tr><td>05</td><td>Forks</td><td><code>MZ-RM-R100-05</code></td><td>ST</td></tr>
+      <tr><td>06</td><td>Brakes</td><td><code>MZ-RM-R100-06</code></td><td>ST</td></tr>
+      <tr><td>07</td><td>Drive Train</td><td><code>MZ-RM-R100-07</code></td><td>ST</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- FLOW DIAGRAM -->
+<div class="section" id="flow">
+  <h2 class="section-title">End-to-End Flow</h2>
+  <div class="card">
+    <div class="flow-container">
+      <div class="flow-step">
+        <div class="flow-box step0-bg">
+          <span class="step-num">Step 0</span>
+          Create PIR
+        </div>
+        <div class="flow-sub">MD61<br>PBIM / PBHI</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-box step1-bg">
+          <span class="step-num">Step 1</span>
+          Run MRP
+        </div>
+        <div class="flow-sub">MD01/MD02<br>PLAF / MDKP</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-box step2-bg">
+          <span class="step-num">Step 2</span>
+          Review
+        </div>
+        <div class="flow-sub">MD04<br>Stock/Req List</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-box step3-bg">
+          <span class="step-num">Step 3</span>
+          Convert
+        </div>
+        <div class="flow-sub">Planned &rarr; Prod Order<br>AUFK / AFKO</div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin: -10px 0 20px 0;">
+      <div style="display:inline-flex; gap:10px; align-items:center; background:#fde8d0; padding:10px 20px; border-radius:8px; border:1px solid #f5cba7;">
+        <span style="font-weight:600; color:var(--primary);">PIR Demand</span>
+        <span style="color:#666;">&rarr; MRP creates</span>
+        <span style="background:var(--step1); color:white; padding:3px 10px; border-radius:4px; font-size:0.85rem; font-weight:600;">Planned Orders</span>
+        <span style="color:#666;">&rarr; Converted to</span>
+        <span style="background:var(--step3); color:white; padding:3px 10px; border-radius:4px; font-size:0.85rem; font-weight:600;">Production Orders</span>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>Document Flow:</strong> PIR (PBIM/PBHI) &rarr; MRP Run (MDKP/MDTB) &rarr;
+      Planned Orders (PLAF) &rarr; Production Orders (AUFK/AFKO). After conversion,
+      MRP re-run cleans up the consumed planned order (PLAF deletion).
+    </div>
+
+    <div class="warn-box">
+      <strong>Why PIR + MRP instead of BAPI_PLANNEDORDER_CREATE?</strong>
+      BAPI_PLANNEDORDER_CREATE does NOT persist via RFC because the V2 collective update
+      never completes in the RFC session. The workaround is to create demand via PIR, then let
+      the MRP run generate planned orders in PLAF naturally.
+    </div>
+  </div>
+</div>
+
+<!-- STEP 0: CREATE PIR -->
+<div class="section" id="step0">
+  <h2 class="section-title">Step 0 &mdash; Create PIR (Planned Independent Requirements)</h2>
+  <div class="card step-card s0">
+    <h3><span class="dot" style="background:var(--step0)"></span>Create Forecast Demand (MD61)</h3>
+    <p>Creates Planned Independent Requirements (PIR) for bike finished goods. PIR represents
+    forecast demand that MRP will convert into planned orders. Uses requirement type
+    <code>VSF</code> (standard forecast) with auto-incrementing version <code>00</code>&ndash;<code>09</code>.</p>
+
+    <h4 style="margin-top:16px;">Transaction Codes</h4>
+    <table>
+      <tr><th>Tcode</th><th>Purpose</th></tr>
+      <tr><td><code>MD61</code></td><td>Create Planned Independent Requirements</td></tr>
+      <tr><td><code>MD62</code></td><td>Change Planned Independent Requirements</td></tr>
+      <tr><td><code>MD63</code></td><td>Display Planned Independent Requirements</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">BAPI</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th></tr>
+      <tr><td><code>BAPI_REQUIREMENTS_CREATE</code></td><td>Create PIR with material, plant, version, qty, date</td></tr>
+      <tr><td><code>BAPI_TRANSACTION_COMMIT</code></td><td>Persist changes (WAIT='X')</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Key Parameters</h4>
+    <table>
+      <tr><th>Field</th><th>Value</th><th>Notes</th></tr>
+      <tr><td><code>REQU_TYPE</code></td><td><code>VSF</code></td><td>Standard forecast requirement</td></tr>
+      <tr><td><code>VERSION</code></td><td><code>00</code>&ndash;<code>09</code></td><td>Auto-increments if version already exists</td></tr>
+      <tr><td><code>MATERIAL</code></td><td>e.g. <code>MZ-FG-M500</code></td><td>Random bike from pool of 9</td></tr>
+      <tr><td><code>PLANT</code></td><td><code>1710</code></td><td></td></tr>
+      <tr><td><code>REQ_QTY</code></td><td>Quantity (e.g. 2000)</td><td>Configurable via <code>--qty</code></td></tr>
+      <tr><td><code>REQ_DATE</code></td><td>Today + lead days</td><td>Configurable via <code>--lead-days</code></td></tr>
+    </table>
+
+    <div class="info-box" style="margin-top:14px;">
+      <strong>Note:</strong> The BAPI returns an empty <code>REQMTSPLANNUMBER</code> via RFC,
+      but the demand IS created in SAP. This is normal SAP behavior &mdash; the PIR number
+      is assigned internally and can be verified in PBIM/PBHI.
+    </div>
+
+    <h4 style="margin-top:16px;">Tables Populated</h4>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Key Fields Written</th></tr>
+      <tr><td><code>PBIM</code></td><td>PIR Header (Independent Requirements)</td><td>BESSION (version), BEDID (req type), MATNR, WERKS</td></tr>
+      <tr><td><code>PBHI</code></td><td>PIR Schedule Lines (Period Quantities)</td><td>BESSION, PDATU (req date), PLNMG (planned qty)</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Verification Query</h4>
+    <pre><code><span class="comment">-- Check PIR for bike materials</span>
+SELECT h.MATNR, h.WERKS, h.BESSION, i.PDATU, i.PLNMG
+FROM PBIM h
+JOIN PBHI i ON h.BESSION = i.BESSION AND h.BEDID = i.BEDID
+WHERE h.MATNR LIKE 'MZ-FG%' AND h.WERKS = '1710'
+ORDER BY h.MATNR, i.PDATU;</code></pre>
+  </div>
+</div>
+
+<!-- STEP 1: RUN MRP -->
+<div class="section" id="step1">
+  <h2 class="section-title">Step 1 &mdash; Run MRP</h2>
+  <div class="card step-card s1">
+    <h3><span class="dot" style="background:var(--step1)"></span>Material Requirements Planning (MD01/MD02)</h3>
+    <p>Executes single-item MRP for a material. MRP reads PIR demand, checks available stock,
+    explodes the BOM, and creates planned orders in PLAF to cover the net requirement.
+    Uses net change planning (<code>PROC_TYPE='1'</code>) with BOM re-explosion (<code>PLANNING_MODE='3'</code>).</p>
+
+    <h4 style="margin-top:16px;">Transaction Codes</h4>
+    <table>
+      <tr><th>Tcode</th><th>Purpose</th></tr>
+      <tr><td><code>MD01</code></td><td>MRP Run (Total Planning)</td></tr>
+      <tr><td><code>MD02</code></td><td>MRP Run (Single-Item, Single-Level)</td></tr>
+      <tr><td><code>MD04</code></td><td>Stock/Requirements List</td></tr>
+      <tr><td><code>MD05</code></td><td>MRP List (Individual)</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">BAPI</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th></tr>
+      <tr><td><code>BAPI_MATERIAL_PLANNING</code></td><td>Run single-item MRP</td></tr>
+      <tr><td><code>BAPI_TRANSACTION_COMMIT</code></td><td>Persist changes (WAIT='X')</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Key Parameters</h4>
+    <table>
+      <tr><th>Field</th><th>Value</th><th>Notes</th></tr>
+      <tr><td><code>MATERIAL</code></td><td>e.g. <code>MZ-FG-R100</code></td><td>Single material or loop all 9</td></tr>
+      <tr><td><code>PLANT</code></td><td><code>1710</code></td><td></td></tr>
+      <tr><td><code>PROC_TYPE</code></td><td><code>1</code></td><td>Net change planning</td></tr>
+      <tr><td><code>PLANNING_MODE</code></td><td><code>3</code></td><td>Re-explode BOM and routing</td></tr>
+    </table>
+
+    <div class="info-box" style="margin-top:14px;">
+      <strong>MRP Logic:</strong> Planned Order Qty = Demand (PIR) &minus; Available Stock.
+      With lot size EX (lot-for-lot), MRP creates exactly one planned order per net requirement.
+      If stock already covers the demand, MRP creates 0 planned orders &mdash; this is not an error.
+    </div>
+
+    <h4 style="margin-top:16px;">Tables Populated</h4>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Key Fields Written</th></tr>
+      <tr><td><code>PLAF</code></td><td>Planned Orders</td><td>PLNUM (planned order #), MATNR, GSMNG (order qty), PEDTR (end date)</td></tr>
+      <tr><td><code>MDKP</code></td><td>MRP Document Header</td><td>DTNUM (document #), MATNR, WERKS, DTART</td></tr>
+      <tr><td><code>MDTB</code></td><td>MRP Document Items</td><td>DTNUM, DTPOS, MRP element details</td></tr>
+      <tr><td><code>EBAN</code></td><td>Purchase Requisitions</td><td>BANFN, MATNR (for externally procured components)</td></tr>
+      <tr><td><code>RESB</code></td><td>Reservations (dependent requirements)</td><td>Planned order component reservations</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">MRP Element Types (MD04 View)</h4>
+    <table>
+      <tr><th>Code</th><th>Description</th><th>Source</th></tr>
+      <tr><td><code>PA</code></td><td>Planned Order</td><td>MRP-generated (PLAF)</td></tr>
+      <tr><td><code>PP</code></td><td>Planned Independent Requirement (PIR)</td><td>Step 0 (PBIM/PBHI)</td></tr>
+      <tr><td><code>FE</code></td><td>Production Order</td><td>Converted from planned order</td></tr>
+      <tr><td><code>VJ</code></td><td>Sales Order</td><td>From OTC generator</td></tr>
+      <tr><td><code>BE</code></td><td>Purchase Requisition</td><td>For externally procured items</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Verification Query</h4>
+    <pre><code><span class="comment">-- Planned orders from MRP run</span>
+SELECT PLNUM, MATNR, GSMNG, PEDTR, PSTTR, PLSCN
+FROM PLAF
+WHERE MATNR LIKE 'MZ-FG%' AND WERKS = '1710'
+ORDER BY PLNUM DESC;</code></pre>
+  </div>
+</div>
+
+<!-- STEP 2: REVIEW -->
+<div class="section" id="step2">
+  <h2 class="section-title">Step 2 &mdash; Review Stock/Requirements</h2>
+  <div class="card step-card s2">
+    <h3><span class="dot" style="background:var(--step2)"></span>Stock/Requirements List (MD04)</h3>
+    <p>Read-only step that displays the current stock situation and all MRP elements for a material.
+    Shows planned orders, PIR demand, production orders, sales orders, and current stock levels.
+    Useful for verifying MRP results before conversion.</p>
+
+    <h4 style="margin-top:16px;">BAPI</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th></tr>
+      <tr><td><code>BAPI_MATERIAL_STOCK_REQ_LIST</code></td><td>Read stock/requirements list (equivalent to MD04)</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Key Parameters</h4>
+    <table>
+      <tr><th>Field</th><th>Value</th><th>Notes</th></tr>
+      <tr><td><code>MATERIAL</code></td><td>e.g. <code>MZ-FG-R100</code></td><td>Material to review</td></tr>
+      <tr><td><code>PLANT</code></td><td><code>1710</code></td><td></td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Output Elements</h4>
+    <table>
+      <tr><th>Element</th><th>Description</th><th>Meaning</th></tr>
+      <tr><td><code>PA</code></td><td>Planned Order</td><td>MRP-generated supply (to be converted)</td></tr>
+      <tr><td><code>PP</code></td><td>PIR</td><td>Forecast demand from Step 0</td></tr>
+      <tr><td><code>FE</code></td><td>Production Order</td><td>Firm supply (converted from PA)</td></tr>
+      <tr><td><code>VJ</code></td><td>Sales Order</td><td>Customer demand (from OTC)</td></tr>
+      <tr><td><code>Stock</code></td><td>Current available stock</td><td>Unrestricted use inventory</td></tr>
+    </table>
+
+    <div class="info-box" style="margin-top:14px;">
+      <strong>No commit needed.</strong> This step is purely read-only &mdash; no
+      <code>BAPI_TRANSACTION_COMMIT</code> is called.
+    </div>
+  </div>
+</div>
+
+<!-- STEP 3: CONVERT -->
+<div class="section" id="step3">
+  <h2 class="section-title">Step 3 &mdash; Convert Planned Order to Production Order</h2>
+  <div class="card step-card s3">
+    <h3><span class="dot" style="background:var(--step3)"></span>Planned Order Conversion</h3>
+    <p>Reads a planned order from PLAF, creates a production order using the planned order details,
+    then re-runs MRP to clean up the consumed planned order. The profile <code>PLDORD_PROFILE='LA'</code>
+    is required for in-house production materials (BESKZ=E), as defined in T460C.</p>
+
+    <h4 style="margin-top:16px;">Transaction Codes</h4>
+    <table>
+      <tr><th>Tcode</th><th>Purpose</th></tr>
+      <tr><td><code>CO40</code></td><td>Convert Planned Order to Production Order</td></tr>
+      <tr><td><code>CO41</code></td><td>Convert Planned Orders (Collective)</td></tr>
+      <tr><td><code>MD04</code></td><td>Verify conversion (PA &rarr; FE)</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">BAPIs (Two-Step Process)</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th><th>Step</th></tr>
+      <tr><td><code>BAPI_PLANNEDORDER_GET_DETAIL</code></td><td>Read planned order details from PLAF</td><td>Read</td></tr>
+      <tr><td><code>BAPI_PRODORD_CREATE</code></td><td>Create production order from planned order data</td><td>Create</td></tr>
+      <tr><td><code>BAPI_TRANSACTION_COMMIT</code></td><td>Persist production order (WAIT='X')</td><td>Commit</td></tr>
+      <tr><td><code>BAPI_MATERIAL_PLANNING</code></td><td>Re-run MRP to clean up consumed planned order</td><td>Cleanup</td></tr>
+      <tr><td><code>BAPI_TRANSACTION_COMMIT</code></td><td>Persist MRP cleanup (WAIT='X')</td><td>Commit</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Key Parameters (BAPI_PRODORD_CREATE)</h4>
+    <table>
+      <tr><th>Field</th><th>Value</th><th>Notes</th></tr>
+      <tr><td><code>MATERIAL</code></td><td>From planned order</td><td>Material from PLAF</td></tr>
+      <tr><td><code>PLANT</code></td><td><code>1710</code></td><td></td></tr>
+      <tr><td><code>ORDER_TYPE</code></td><td>From planned order or default</td><td>Production order type</td></tr>
+      <tr><td><code>QUANTITY</code></td><td>From planned order (GSMNG)</td><td></td></tr>
+      <tr><td><code>BASIC_START_DATE</code></td><td>From planned order</td><td></td></tr>
+      <tr><td><code>BASIC_END_DATE</code></td><td>From planned order</td><td></td></tr>
+    </table>
+
+    <div class="warn-box" style="margin-top:14px;">
+      <strong>MRP cleanup is essential.</strong> After converting a planned order to a production order,
+      MRP must be re-run to delete the now-consumed planned order from PLAF. Without the cleanup run,
+      the planned order remains as a phantom supply element.
+    </div>
+
+    <div class="info-box" style="margin-top:14px;">
+      <strong>PLDORD_PROFILE='LA'</strong> is required for in-house production materials (BESKZ=E).
+      This profile is defined in configuration table T460C and controls how planned orders are converted.
+    </div>
+
+    <h4 style="margin-top:16px;">Tables Populated</h4>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Impact</th></tr>
+      <tr><td><code>AUFK</code></td><td>Production Order Header</td><td>New order created with AUFNR</td></tr>
+      <tr><td><code>AFKO</code></td><td>Production Order Master</td><td>PLNBEZ (material), GAMNG (qty)</td></tr>
+      <tr><td><code>PLAF</code></td><td>Planned Orders</td><td>Deleted by MRP cleanup run</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Verification Query</h4>
+    <pre><code><span class="comment">-- Production order created from planned order</span>
+SELECT a.AUFNR, k.PLNBEZ, k.GAMNG, k.GMEIN
+FROM AUFK a
+JOIN AFKO k ON a.AUFNR = k.AUFNR
+WHERE k.PLNBEZ LIKE 'MZ-FG%'
+ORDER BY a.AUFNR DESC;
+
+<span class="comment">-- Verify planned order was deleted</span>
+SELECT PLNUM, MATNR, GSMNG FROM PLAF
+WHERE PLNUM = '0004000XXXXX';</code></pre>
+  </div>
+</div>
+
+<!-- SAP TABLES REFERENCE -->
+<div class="section" id="tables">
+  <h2 class="section-title">SAP Tables Reference</h2>
+
+  <div class="card">
+    <h3>MRP Core Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th><th>Populated By</th></tr>
+      <tr><td><code>PBIM</code></td><td>PIR Header (Independent Requirements)</td><td>Demand</td><td>Step 0</td></tr>
+      <tr><td><code>PBHI</code></td><td>PIR Schedule Lines (Period Quantities)</td><td>Demand</td><td>Step 0</td></tr>
+      <tr><td><code>PLAF</code></td><td>Planned Orders</td><td>Supply</td><td>Step 1 (created), Step 3 (deleted)</td></tr>
+      <tr><td><code>MDKP</code></td><td>MRP Document Header</td><td>MRP Run</td><td>Step 1</td></tr>
+      <tr><td><code>MDTB</code></td><td>MRP Document Items</td><td>MRP Run</td><td>Step 1</td></tr>
+      <tr><td><code>EBAN</code></td><td>Purchase Requisitions</td><td>Procurement</td><td>Step 1</td></tr>
+      <tr><td><code>RESB</code></td><td>Reservations (Dependent Requirements)</td><td>Components</td><td>Step 1</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Production Order Tables (from Conversion)</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th><th>Populated By</th></tr>
+      <tr><td><code>AUFK</code></td><td>Order Master (Header)</td><td>Order Header</td><td>Step 3</td></tr>
+      <tr><td><code>AFKO</code></td><td>Order Header Data (PP specific)</td><td>Order Master</td><td>Step 3</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Material Master Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th></tr>
+      <tr><td><code>MARA</code></td><td>Material General Data</td><td>General</td></tr>
+      <tr><td><code>MARC</code></td><td>Material Plant Data (MRP, Production)</td><td>Plant</td></tr>
+      <tr><td><code>MARD</code></td><td>Storage Location Stock</td><td>Stock</td></tr>
+      <tr><td><code>MAKT</code></td><td>Material Descriptions</td><td>Texts</td></tr>
+      <tr><td><code>MBEW</code></td><td>Material Valuation</td><td>Valuation</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Configuration Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Purpose</th></tr>
+      <tr><td><code>T001</code></td><td>Company Codes</td><td>Company code 1710</td></tr>
+      <tr><td><code>T001W</code></td><td>Plants</td><td>Plant definitions</td></tr>
+      <tr><td><code>T460C</code></td><td>Planned Order Profiles</td><td>PLDORD_PROFILE='LA' for BESKZ=E</td></tr>
+      <tr><td><code>T438M</code></td><td>MRP Type Customizing</td><td>PD = deterministic planning</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- CDS VIEWS -->
+<div class="section" id="cds">
+  <h2 class="section-title">CDS Views Reference</h2>
+
+  <div class="card">
+    <h3>Planned Independent Requirements (PIR) CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_PlannedIndepRqmt</code></td><td>PIR header</td><td>PBIM</td></tr>
+      <tr><td><code>I_PlannedIndepRqmtItem</code></td><td>PIR schedule lines</td><td>PBHI</td></tr>
+      <tr><td><code>I_PlndIndepRqmtAPI01</code></td><td>PIR header (API)</td><td>PBIM</td></tr>
+      <tr><td><code>I_PlndIndepRqmtItemAPI01</code></td><td>PIR schedule line (API)</td><td>PBHI</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Planned Order CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_PlannedOrder</code></td><td>Planned order header</td><td>PLAF</td></tr>
+      <tr><td><code>I_PlannedOrderAPI01</code></td><td>Planned order header (API)</td><td>PLAF</td></tr>
+      <tr><td><code>I_PlannedOrderComponent</code></td><td>Planned order components</td><td>RESB</td></tr>
+      <tr><td><code>C_PlannedOrder</code></td><td>Consumption: Manage Planned Orders</td><td>PLAF</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>MRP CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_MRPDocument</code></td><td>MRP document header</td><td>MDKP</td></tr>
+      <tr><td><code>I_MRPElement</code></td><td>MRP element (stock/requirements list)</td><td>MDTB</td></tr>
+      <tr><td><code>I_MRPMaterial</code></td><td>Material MRP data</td><td>MARC</td></tr>
+      <tr><td><code>C_MRPStockRequirementList</code></td><td>Consumption: Stock/Requirements List (MD04)</td><td>MDTB</td></tr>
+      <tr><td><code>C_MRPMaterial</code></td><td>Consumption: MRP material overview</td><td>MARC</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Purchase Requisition CDS Views (from MRP)</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_PurchaseRequisition</code></td><td>PR header composite</td><td>EBAN</td></tr>
+      <tr><td><code>I_PurchaseRequisitionItem</code></td><td>PR item with all fields</td><td>EBAN</td></tr>
+      <tr><td><code>I_PurReqnItemPurOrdRef</code></td><td>PR item to PO reference</td><td>EBAN</td></tr>
+      <tr><td><code>C_PurchaseReqnHeader</code></td><td>Consumption: Manage PRs</td><td>EBAN</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Production Order CDS Views (from Conversion)</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_ProductionOrder</code></td><td>Production order header</td><td>AUFK, AFKO</td></tr>
+      <tr><td><code>I_ProductionOrderAPI01</code></td><td>Production order (API)</td><td>AUFK, AFKO</td></tr>
+      <tr><td><code>I_ProductionOrderItem</code></td><td>Production order item</td><td>AFPO</td></tr>
+      <tr><td><code>I_ProductionOrderComponent</code></td><td>Order BOM components</td><td>RESB</td></tr>
+      <tr><td><code>I_ProductionOrderOperation</code></td><td>Order routing operations</td><td>AFVV</td></tr>
+      <tr><td><code>C_ProdOrdConfirmation</code></td><td>Consumption: Order confirmations</td><td>AFRU</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Master Data CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_Product</code></td><td>Product/material general</td><td>MARA</td></tr>
+      <tr><td><code>I_ProductPlantBasic</code></td><td>Product plant data (MRP params)</td><td>MARC</td></tr>
+      <tr><td><code>I_ProductPlantMRPArea</code></td><td>MRP area data</td><td>MARC</td></tr>
+      <tr><td><code>I_ProductPlantProcurement</code></td><td>Product procurement data</td><td>MARC</td></tr>
+      <tr><td><code>I_ProductValuation</code></td><td>Product valuation</td><td>MBEW</td></tr>
+      <tr><td><code>I_MaterialStock</code></td><td>Material stock overview</td><td>MARD</td></tr>
+      <tr><td><code>I_BillOfMaterial</code></td><td>BOM header</td><td>STKO</td></tr>
+      <tr><td><code>I_BillOfMaterialItem</code></td><td>BOM components</td><td>STPO</td></tr>
+      <tr><td><code>I_ProductionRoutingHeader</code></td><td>Routing header</td><td>PLKO</td></tr>
+      <tr><td><code>I_ProductionRoutingOperation</code></td><td>Routing operations</td><td>PLPO</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- BAPIs REFERENCE -->
+<div class="section" id="bapis">
+  <h2 class="section-title">BAPI Reference</h2>
+  <div class="card">
+    <table>
+      <tr><th>Step</th><th>BAPI</th><th>Purpose</th><th>Commit?</th></tr>
+      <tr><td style="font-weight:700; color:var(--step0);">0</td><td><code>BAPI_REQUIREMENTS_CREATE</code></td><td>Create PIR demand</td><td>Yes</td></tr>
+      <tr><td style="font-weight:700; color:var(--step1);">1</td><td><code>BAPI_MATERIAL_PLANNING</code></td><td>Run single-item MRP</td><td>Yes</td></tr>
+      <tr><td style="font-weight:700; color:var(--step2);">2</td><td><code>BAPI_MATERIAL_STOCK_REQ_LIST</code></td><td>Read stock/requirements list</td><td>No</td></tr>
+      <tr><td style="font-weight:700; color:var(--step3);">3</td><td><code>BAPI_PLANNEDORDER_GET_DETAIL</code></td><td>Read planned order details</td><td>No</td></tr>
+      <tr><td style="font-weight:700; color:var(--step3);">3</td><td><code>BAPI_PRODORD_CREATE</code></td><td>Create production order</td><td>Yes</td></tr>
+      <tr><td style="font-weight:700; color:var(--step3);">3</td><td><code>BAPI_MATERIAL_PLANNING</code></td><td>MRP cleanup (delete consumed PA)</td><td>Yes</td></tr>
+      <tr><td style="font-weight:700; color:var(--text-light);">*</td><td><code>BAPI_TRANSACTION_COMMIT</code></td><td>Commit changes (WAIT='X')</td><td>&mdash;</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- USAGE -->
+<div class="section" id="usage">
+  <h2 class="section-title">Scripts &amp; Usage</h2>
+
+  <div class="card">
+    <h3>Quick Start (mrpgen.sh)</h3>
+    <p>Generate N MRP cycles with configurable pipeline depth:</p>
+    <pre><code><span class="comment"># PIR + MRP only (create demand and planned orders)</span>
+./mrpgen.sh 10 mrp
+
+<span class="comment"># Full pipeline: PIR + MRP + Convert (100 cycles)</span>
+./mrpgen.sh 100 convert</code></pre>
+  </div>
+
+  <div class="card">
+    <h3>Individual Steps (mrpwf.sh)</h3>
+    <pre><code>./mrpwf.sh step0-pir 5              <span class="comment"># Create 5 PIR demands</span>
+./mrpwf.sh step1-mrp MZ-FG-R100     <span class="comment"># Run MRP for one material</span>
+./mrpwf.sh step1-mrp                 <span class="comment"># Run MRP for all 9 finished goods</span>
+./mrpwf.sh step2-review MZ-FG-R100  <span class="comment"># Review stock/requirements (MD04)</span>
+./mrpwf.sh step3-convert 4000001463  <span class="comment"># Convert planned order to prod order</span>
+./mrpwf.sh full 3                    <span class="comment"># 3 full cycles (PIR+MRP+Convert)</span>
+./mrpwf.sh list                      <span class="comment"># List planned orders from PLAF</span>
+./mrpwf.sh status 4000001463         <span class="comment"># Show planned order details</span></code></pre>
+  </div>
+
+  <div class="card">
+    <h3>Stages (mrpgen.sh)</h3>
+    <table>
+      <tr><th>Stage</th><th>Pipeline</th><th>SAP Tables Created</th></tr>
+      <tr><td><code>mrp</code></td><td>PIR &rarr; MRP Run</td><td>PBIM, PBHI, PLAF, MDKP</td></tr>
+      <tr><td><code>convert</code></td><td>PIR &rarr; MRP &rarr; Convert &rarr; Cleanup</td><td>+ AUFK, AFKO (PLAF deleted)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Options</h3>
+    <table>
+      <tr><th>Flag</th><th>Description</th></tr>
+      <tr><td><code>--verbose</code></td><td>Print BAPI details and all return messages</td></tr>
+      <tr><td><code>--dry-run</code></td><td>Validate only (no BAPI_TRANSACTION_COMMIT)</td></tr>
+      <tr><td><code>--qty N</code></td><td>Fixed PIR quantity (default: random)</td></tr>
+      <tr><td><code>--pause N</code></td><td>Seconds between steps (default: 3)</td></tr>
+      <tr><td><code>--lead-days N</code></td><td>Days ahead for PIR requirement date</td></tr>
+      <tr><td><code>--stop-at STAGE</code></td><td>Stop after stage: pir, mrp, review, convert</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Project Structure</h3>
+    <pre><code>.
+&#9500;&#9472;&#9472; SAPMRPWorkflow.java              <span class="comment"># Main automation program</span>
+&#9500;&#9472;&#9472; mrpwf.sh                         <span class="comment"># Workflow wrapper (individual steps)</span>
+&#9500;&#9472;&#9472; mrpgen.sh                        <span class="comment"># Bulk data generator (batch mode)</span>
+&#9500;&#9472;&#9472; compile.sh                       <span class="comment"># Compilation helper</span>
+&#9500;&#9472;&#9472; docs/
+&#9474;   &#9492;&#9472;&#9472; SAP_MRP_Workflow_Documentation.html  <span class="comment"># This document</span>
+&#9492;&#9472;&#9472; skill/
+    &#9492;&#9472;&#9472; mrp-planning.md              <span class="comment"># Claude Code skill file</span></code></pre>
+  </div>
+</div>
+
+<!-- INTEGRATION -->
+<div class="section" id="integration">
+  <h2 class="section-title">Integration with Other Generators</h2>
+  <div class="card">
+    <p>The MRP generator sits at the center of the SAP data ecosystem, connecting demand from sales
+    to supply via production and procurement. All generators share the same S/4HANA IDES instance.</p>
+
+    <div class="integration-grid">
+      <div class="integration-card">
+        <h4 style="color:#2471a3;">OTC (Order-to-Cash)</h4>
+        <p><strong>Sales Orders &rarr; MRP Demand</strong><br>
+        OTC creates sales orders (VA01) which appear as <code>VJ</code> elements in MD04.
+        MRP sees these as customer demand and generates planned orders to fulfill them.</p>
+      </div>
+      <div class="integration-card active">
+        <h4 style="color:var(--primary);">MRP (This Generator)</h4>
+        <p><strong>PIR &rarr; Planned Orders &rarr; Prod Orders</strong><br>
+        Creates forecast demand via PIR, runs MRP to generate planned orders, converts to
+        production orders. The central planning hub.</p>
+      </div>
+      <div class="integration-card">
+        <h4 style="color:#7b2a8c;">PP (Plan-to-Produce)</h4>
+        <p><strong>Production Order Execution</strong><br>
+        PP picks up where MRP Step 3 leaves off: release, GI, confirmation, GR.
+        MRP creates the production order; PP executes it through the shop floor.</p>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin:20px 0 10px 0;">
+      <div style="display:inline-flex; gap:6px; align-items:center; font-size:0.9rem;">
+        <span style="background:#2471a3; color:white; padding:4px 12px; border-radius:6px; font-weight:600;">OTC: Sales Order</span>
+        <span style="color:#adb5bd; font-size:1.4rem;">&rarr;</span>
+        <span style="background:var(--primary); color:white; padding:4px 12px; border-radius:6px; font-weight:600;">MRP: Plan &amp; Convert</span>
+        <span style="color:#adb5bd; font-size:1.4rem;">&rarr;</span>
+        <span style="background:#7b2a8c; color:white; padding:4px 12px; border-radius:6px; font-weight:600;">PP: Execute &amp; Confirm</span>
+        <span style="color:#adb5bd; font-size:1.4rem;">&rarr;</span>
+        <span style="background:#e67e22; color:white; padding:4px 12px; border-radius:6px; font-weight:600;">P2P: Procure RM</span>
+      </div>
+    </div>
+
+    <div class="info-box" style="margin-top:16px;">
+      <strong>P2P (Procure-to-Pay)</strong> handles the procurement of raw materials (MZ-RM-*) that MRP
+      identifies as shortages during BOM explosion. When MRP finds insufficient component stock, it creates
+      purchase requisitions (EBAN) which P2P converts into purchase orders and goods receipts.
+    </div>
+  </div>
+</div>
+
+<!-- TROUBLESHOOTING -->
+<div class="section" id="troubleshooting">
+  <h2 class="section-title">Troubleshooting</h2>
+
+  <div class="card">
+    <h3>Common Errors</h3>
+    <table>
+      <tr><th>Error</th><th>Cause</th><th>Fix</th></tr>
+      <tr>
+        <td>Empty REQMTSPLANNUMBER</td>
+        <td>BAPI_REQUIREMENTS_CREATE returns blank PIR number via RFC</td>
+        <td>Normal SAP behavior. Demand IS created. Verify in PBIM/PBHI.</td>
+      </tr>
+      <tr>
+        <td>"Requirement already exists"</td>
+        <td>PIR version 00 already used for material/plant/period</td>
+        <td>Auto-increments version 00 &rarr; 09. If all 10 used, pick different date or material.</td>
+      </tr>
+      <tr>
+        <td>MRP creates 0 planned orders</td>
+        <td>Existing stock covers PIR demand (net requirement = 0)</td>
+        <td>Not an error. Increase PIR qty or consume stock first.</td>
+      </tr>
+      <tr>
+        <td>BAPI_PLANNEDORDER_CREATE fails</td>
+        <td>V2 collective update does not complete in RFC session</td>
+        <td>Do NOT use this BAPI. Use PIR + MRP run instead (the approach this generator uses).</td>
+      </tr>
+      <tr>
+        <td>"Cannot be changed manually"</td>
+        <td>MRP-generated planned orders are system-managed</td>
+        <td>Use MRP re-run to delete/modify planned orders, not manual changes.</td>
+      </tr>
+      <tr>
+        <td>Conversion fails (no profile)</td>
+        <td>PLDORD_PROFILE not set for in-house production materials</td>
+        <td>Set <code>PLDORD_PROFILE='LA'</code> (from T460C) for BESKZ=E materials.</td>
+      </tr>
+      <tr>
+        <td>Planned order not found</td>
+        <td>PLAF record already deleted by previous MRP cleanup</td>
+        <td>Run <code>list</code> to see current planned orders. Each can only be converted once.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>MRP Configuration Prerequisites</h3>
+    <table>
+      <tr><th>Setting</th><th>Table</th><th>Required Value</th><th>Purpose</th></tr>
+      <tr><td>MRP Type</td><td><code>MARC.DISMM</code></td><td><code>PD</code></td><td>Deterministic planning (reacts to PIR)</td></tr>
+      <tr><td>Lot Size</td><td><code>MARC.DISLS</code></td><td><code>EX</code></td><td>Lot-for-lot (exact quantity)</td></tr>
+      <tr><td>Procurement Type</td><td><code>MARC.BESKZ</code></td><td><code>E</code></td><td>In-house production</td></tr>
+      <tr><td>MRP Controller</td><td><code>MARC.DISPO</code></td><td>Set</td><td>Required for MRP to process the material</td></tr>
+      <tr><td>BOM</td><td><code>MAST/STKO/STPO</code></td><td>Exists</td><td>Required for BOM explosion in MRP</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>BAPI Parameter Gotchas</h3>
+    <table>
+      <tr><th>BAPI</th><th>Gotcha</th><th>Correct Approach</th></tr>
+      <tr>
+        <td><code>BAPI_REQUIREMENTS_CREATE</code></td>
+        <td>REQMTSPLANNUMBER always empty via RFC</td>
+        <td>Ignore the empty return; verify demand in PBIM</td>
+      </tr>
+      <tr>
+        <td><code>BAPI_MATERIAL_PLANNING</code></td>
+        <td>Returns statistics (plaf_ins, plaf_del) but no order numbers</td>
+        <td>Query PLAF after commit to get planned order numbers</td>
+      </tr>
+      <tr>
+        <td><code>BAPI_PRODORD_CREATE</code></td>
+        <td>RETURN is export structure, not table</td>
+        <td><code>getExportParameterList().getStructure("RETURN")</code></td>
+      </tr>
+      <tr>
+        <td><code>BAPI_PRODORD_CREATE</code></td>
+        <td>Date fields are BASIC_START_DATE / BASIC_END_DATE</td>
+        <td>Not BASIC_START / BASIC_END</td>
+      </tr>
+      <tr>
+        <td><code>BAPI_PLANNEDORDER_GET_DETAIL</code></td>
+        <td>Planned order number must be 10-digit zero-padded</td>
+        <td>Pad with leading zeros before calling</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- TEST RESULTS -->
+<div class="section" id="testing">
+  <h2 class="section-title">Test Results</h2>
+
+  <div class="card">
+    <h3>Step 0 &mdash; PIR Creation</h3>
+    <table>
+      <tr><th>Test</th><th>Result</th><th>Details</th></tr>
+      <tr>
+        <td>Create PIR for MZ-FG-M500</td>
+        <td style="color:var(--success);font-weight:700;">PASS</td>
+        <td>2,000 units, version 00 &rarr; demand created in PBIM/PBHI</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Step 1 &mdash; MRP Run</h3>
+    <table>
+      <tr><th>Test</th><th>Result</th><th>Details</th></tr>
+      <tr>
+        <td>MRP for MZ-FG-M500</td>
+        <td style="color:var(--success);font-weight:700;">PASS</td>
+        <td>plaf_ins=1, planned order 4000001463 (1,129 units = 2,000 demand &minus; 871 stock)</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Step 3 &mdash; Conversion</h3>
+    <table>
+      <tr><th>Test</th><th>Result</th><th>Details</th></tr>
+      <tr>
+        <td>Convert planned 4000001463</td>
+        <td style="color:var(--success);font-weight:700;">PASS</td>
+        <td>Production order 000001002167 created</td>
+      </tr>
+      <tr>
+        <td>MRP cleanup run</td>
+        <td style="color:var(--success);font-weight:700;">PASS</td>
+        <td>plaf_del=1 &mdash; consumed planned order removed</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Full Pipeline</h3>
+    <table>
+      <tr><th>Step</th><th>Result</th><th>Details</th></tr>
+      <tr><td>PIR (Step 0)</td><td style="color:var(--success);font-weight:700;">PASS</td><td>Demand created</td></tr>
+      <tr><td>MRP (Step 1)</td><td style="color:var(--success);font-weight:700;">PASS</td><td>Planned order generated</td></tr>
+      <tr><td>Review (Step 2)</td><td style="color:var(--success);font-weight:700;">PASS</td><td>PA + PP elements visible</td></tr>
+      <tr><td>Convert (Step 3)</td><td style="color:var(--success);font-weight:700;">PASS</td><td>Prod order created, PLAF cleaned</td></tr>
+    </table>
+    <div class="info-box" style="margin-top:14px;">
+      All tests performed on SAP S/4HANA IDES, client 100, plant 1710.
+      MRP uses <code>BAPI_MATERIAL_PLANNING</code> with PROC_TYPE='1' and PLANNING_MODE='3'.
+    </div>
+  </div>
+</div>
+
+</div><!-- container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  SAP MRP (Material Requirements Planning) Workflow Documentation &mdash; Generated 2026-04-09
+</div>
+
+</body>
+</html>

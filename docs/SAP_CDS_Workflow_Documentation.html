@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP CDS View Extraction Pipeline</title>
+<style>
+  :root {
+    --primary: #1a3a5c;
+    --primary-light: #2a5a8c;
+    --accent: #0073FF;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --phase1: #2ecc71;
+    --phase2: #3498db;
+    --phase3: #e67e22;
+    --phase4: #9b59b6;
+    --phase5: #e74c3c;
+    --phase6: #1abc9c;
+    --phase7: #34495e;
+    --phase8: #0073FF;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0073FF 0%, #004da6 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  .header .badge {
+    display: inline-block;
+    background: #e67e22;
+    color: white;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+
+  /* Navigation */
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #e0efff; }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    border-bottom: 3px solid var(--accent);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* Flow Diagram */
+  .flow-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 30px 10px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  .flow-vertical {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    padding: 20px 10px;
+  }
+  .flow-step {
+    text-align: center;
+    min-width: 120px;
+    flex-shrink: 0;
+  }
+  .flow-step-v {
+    text-align: center;
+    width: 260px;
+  }
+  .flow-box {
+    border-radius: 12px;
+    padding: 16px 10px;
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    position: relative;
+  }
+  .flow-box .step-num {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 400;
+    opacity: 0.85;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .flow-sub {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+  .flow-arrow {
+    font-size: 1.6rem;
+    color: #adb5bd;
+    flex-shrink: 0;
+    padding: 0 4px;
+  }
+  .flow-arrow-v {
+    font-size: 1.6rem;
+    color: #adb5bd;
+    padding: 4px 0;
+  }
+  .phase1-bg { background: linear-gradient(135deg, var(--phase1), #27ae60); }
+  .phase2-bg { background: linear-gradient(135deg, var(--phase2), #2980b9); }
+  .phase3-bg { background: linear-gradient(135deg, var(--phase3), #d35400); }
+  .phase4-bg { background: linear-gradient(135deg, var(--phase4), #8e44ad); }
+  .phase5-bg { background: linear-gradient(135deg, var(--phase5), #c0392b); }
+  .phase6-bg { background: linear-gradient(135deg, var(--phase6), #16a085); }
+  .phase7-bg { background: linear-gradient(135deg, var(--phase7), #2c3e50); }
+  .phase8-bg { background: linear-gradient(135deg, var(--phase8), #004da6); }
+  .config-bg { background: linear-gradient(135deg, #6c757d, #495057); }
+  .output-bg { background: linear-gradient(135deg, #fd7e14, #e8590c); }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* Step detail cards */
+  .step-card {
+    border-left: 4px solid;
+    padding-left: 20px;
+  }
+  .step-card.s1 { border-color: var(--phase1); }
+  .step-card.s2 { border-color: var(--phase2); }
+  .step-card.s3 { border-color: var(--phase3); }
+  .step-card.s4 { border-color: var(--phase4); }
+  .step-card.s5 { border-color: var(--phase5); }
+  .step-card.s6 { border-color: var(--phase6); }
+  .step-card.s7 { border-color: var(--phase7); }
+  .step-card.s8 { border-color: var(--phase8); }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  th {
+    background: var(--primary);
+    color: white;
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:hover td { background: #f8f9fa; }
+  td code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  /* Code blocks with copy button */
+  .pre-wrap {
+    position: relative;
+    margin-top: 10px;
+  }
+  .pre-wrap .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255,255,255,0.15);
+    color: #adb5bd;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 4px;
+    padding: 4px 10px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 2;
+  }
+  .pre-wrap .copy-btn:hover {
+    background: rgba(255,255,255,0.25);
+    color: white;
+  }
+  pre {
+    background: #1e2937;
+    color: #e2e8f0;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+  pre .comment { color: #6b7b8d; }
+  pre .string { color: #7ec699; }
+  pre .keyword { color: #c792ea; }
+
+  /* Info boxes */
+  .info-box {
+    background: #e0efff;
+    border-left: 4px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+  .warn-box {
+    background: #fef5e7;
+    border-left: 4px solid #e67e22;
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+  .tbd-box {
+    background: #f8f0ff;
+    border-left: 4px solid var(--phase4);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+
+  /* Two-column grid */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 768px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .flow-container { flex-wrap: wrap; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+
+  /* Parameter list */
+  .param-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 4px 16px;
+    font-size: 0.88rem;
+    margin: 8px 0;
+  }
+  .param-grid dt {
+    font-weight: 600;
+    font-family: 'SF Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--primary);
+  }
+  .param-grid dd { color: var(--text-light); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>SAP CDS View Extraction Pipeline</h1>
+  <div class="subtitle">8-Phase Metadata &amp; SQL Translation Pipeline</div>
+  <span class="badge">SAP S/4HANA 2023</span>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#flow">Pipeline Flow</a>
+    <a href="#directory">Directory</a>
+    <a href="#phase1">Phase 1</a>
+    <a href="#phase2">Phase 2</a>
+    <a href="#phase3">Phase 3</a>
+    <a href="#phase8">Phase 8</a>
+    <a href="#phase4">Phase 4</a>
+    <a href="#phase5">Phase 5</a>
+    <a href="#phase6">Phase 6</a>
+    <a href="#phase7">Phase 7</a>
+    <a href="#rfcs">Custom RFCs</a>
+    <a href="#sql-translation">SQL Translation</a>
+    <a href="#name-layers">Name Layers</a>
+    <a href="#ignore-assoc">ignore_association</a>
+    <a href="#bq-tables">BigQuery Tables</a>
+    <a href="#timeouts">Timeouts</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- SECTION 1: OVERVIEW -->
+<div class="section" id="overview">
+  <h2 class="section-title">Overview</h2>
+  <div class="card">
+    <p>
+      <strong>SAP CDS View Extraction Pipeline</strong> is an 8-phase Java pipeline that runs on
+      <code>sapidess4</code> via JCo RFC. It extracts CDS view dependencies, metadata, and SQL definitions
+      from SAP S/4HANA, producing CSV files that flow through a Fivetran SDK connector into GCS Parquet
+      and ultimately BigQuery.
+    </p>
+    <div class="info-box" style="margin-top:14px;">
+      <strong>End-to-end flow:</strong> Java phases produce CSV files &rarr; <code>connector.py</code>
+      reads them &rarr; Fivetran SDK pushes to GCS Parquet &rarr; BigQuery tables are created automatically.
+    </div>
+    <br>
+    <div class="grid-2">
+      <div>
+        <h4>SAP System</h4>
+        <dl class="param-grid">
+          <dt>System</dt><dd>S/4HANA 2023 IDES (SID: S4H)</dd>
+          <dt>Client</dt><dd>100</dd>
+          <dt>Host</dt><dd>sapidess4</dd>
+          <dt>Language</dt><dd>EN</dd>
+        </dl>
+      </div>
+      <div>
+        <h4>Pipeline Infrastructure</h4>
+        <dl class="param-grid">
+          <dt>Production Dir</dt><dd><code>/usr/sap/cds_sql_only/</code></dd>
+          <dt>GCS Bucket</dt><dd><code>gs://sap_cds_dbt/sap_cds_views/</code></dd>
+          <dt>BigQuery Dataset</dt><dd><code>sap_cds_views</code></dd>
+          <dt>GitHub</dt><dd>fivetran/CDS-metadata-retrieval-fr-custom-SDK</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:16px;">
+      <div>
+        <h4>Technology Stack</h4>
+        <dl class="param-grid">
+          <dt>Runtime</dt><dd>Java (JCo RFC) on sapidess4</dd>
+          <dt>Connector</dt><dd>Python connector.py (Fivetran SDK)</dd>
+          <dt>Storage</dt><dd>GCS Parquet</dd>
+          <dt>Target</dt><dd>BigQuery</dd>
+        </dl>
+      </div>
+      <div>
+        <h4>Custom ABAP RFCs</h4>
+        <dl class="param-grid">
+          <dt>Z_CDS_SQL_VIEWS</dt><dd>BFS chain resolution engine</dd>
+          <dt>Z_VIEW_DDL</dt><dd>HANA CREATE VIEW SQL</dd>
+          <dt>Z_CDS_DEPENDENCIES</dt><dd>Dependency tree walker</dd>
+          <dt>Z_VIEW_GET_META</dt><dd>DD02L/DD02T/DD26S/DD03L metadata</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 2: PIPELINE FLOW -->
+<div class="section" id="flow">
+  <h2 class="section-title">Pipeline Execution Flow</h2>
+  <div class="card">
+    <div class="warn-box">
+      <strong>Important:</strong> Phases do NOT run in numeric order. The actual execution sequence is shown below.
+    </div>
+    <div class="flow-vertical">
+      <div class="flow-step-v">
+        <div class="flow-box config-bg">
+          <span class="step-num">Input</span>
+          configuration.json (root views)
+        </div>
+      </div>
+      <div class="flow-arrow-v">&darr;</div>
+      <div class="flow-step-v">
+        <div class="flow-box phase1-bg">
+          <span class="step-num">Phase 1</span>
+          Dependency Discovery
+        </div>
+        <div class="flow-sub">BFS over DDLDEPENDENCY &bull; 10 min</div>
+      </div>
+      <div class="flow-arrow-v">&darr;</div>
+      <div class="flow-step-v">
+        <div class="flow-box phase2-bg">
+          <span class="step-num">Phase 2</span>
+          Recursive Resolution
+        </div>
+        <div class="flow-sub">Z_CDS_DEPENDENCIES + RFC_READ_TABLE &bull; 10 min</div>
+      </div>
+      <div class="flow-arrow-v">&darr;</div>
+      <div class="flow-step-v">
+        <div class="flow-box phase3-bg">
+          <span class="step-num">Phase 3 (first run)</span>
+          Descriptions
+        </div>
+        <div class="flow-sub">DD02T descriptions &bull; 10 min</div>
+      </div>
+      <div class="flow-arrow-v">&darr;</div>
+      <div class="flow-step-v">
+        <div class="flow-box phase8-bg">
+          <span class="step-num">Phase 8</span>
+          BFS Chain Resolution
+        </div>
+        <div class="flow-sub">Z_CDS_SQL_VIEWS &bull; BASEINFO parsing &bull; 60 min</div>
+      </div>
+      <div class="flow-arrow-v">&darr;</div>
+      <div class="flow-step-v">
+        <div class="flow-box phase3-bg">
+          <span class="step-num">Phase 3 (re-run)</span>
+          Descriptions (post-Phase 8)
+        </div>
+        <div class="flow-sub">Picks up new objects discovered by Phase 8</div>
+      </div>
+      <div class="flow-arrow-v">&darr;</div>
+      <div class="flow-step-v">
+        <div class="flow-box phase4-bg">
+          <span class="step-num">Phase 4</span>
+          Field Metadata
+        </div>
+        <div class="flow-sub">DD03L/DD03VT via RFC_READ_TABLE &bull; 120 min</div>
+      </div>
+      <div class="flow-arrow-v">&darr;</div>
+      <div class="flow-step-v">
+        <div class="flow-box phase5-bg">
+          <span class="step-num">Phase 5</span>
+          HANA SQL Definitions
+        </div>
+        <div class="flow-sub">Z_VIEW_DDL &bull; CREATE VIEW SQL &bull; 15 min</div>
+      </div>
+      <div class="flow-arrow-v">&darr;</div>
+      <div class="flow-step-v">
+        <div class="flow-box phase6-bg">
+          <span class="step-num">Phase 6</span>
+          SQL-Only Dual Definitions
+        </div>
+        <div class="flow-sub">Z_VIEW_DDL + Z_CDS_DEPENDENCIES &bull; 15 min</div>
+      </div>
+      <div class="flow-arrow-v">&darr;</div>
+      <div class="flow-step-v">
+        <div class="flow-box phase7-bg">
+          <span class="step-num">Phase 7</span>
+          Comprehensive Metadata
+        </div>
+        <div class="flow-sub">Z_VIEW_GET_META &bull; DD02L/DD02T/DD26S/DD03L &bull; 30 min</div>
+      </div>
+      <div class="flow-arrow-v">&darr;</div>
+      <div class="flow-step-v">
+        <div class="flow-box output-bg">
+          <span class="step-num">Output</span>
+          connector.py &rarr; Fivetran SDK &rarr; GCS &rarr; BigQuery
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION 3: DIRECTORY STRUCTURE -->
+<div class="section" id="directory">
+  <h2 class="section-title">Directory Structure</h2>
+  <div class="card">
+    <p>Production directory on <code>sapidess4</code>:</p>
+    <div class="pre-wrap">
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre>/usr/sap/cds_sql_only/
+  connector.py                          <span class="comment"># Fivetran SDK connector (reads CSV, pushes to GCS)</span>
+  configuration.json                    <span class="comment"># Root CDS views to extract</span>
+  drivers/
+    installation.sh                     <span class="comment"># Setup script</span>
+    configuration.json                  <span class="comment"># JCo connection parameters</span>
+    sapjco3.jar                         <span class="comment"># SAP JCo library</span>
+    libsapjco3.so                       <span class="comment"># Native JCo library (Linux)</span>
+    gson.jar                            <span class="comment"># JSON parsing</span>
+    SimpleDependencyTable.java/.class   <span class="comment"># Phase 1</span>
+    Phase2Recursive.java/.class         <span class="comment"># Phase 2</span>
+    Phase3Descriptions.java/.class      <span class="comment"># Phase 3</span>
+    Phase4FieldMetadataFixed.java/.class<span class="comment"># Phase 4</span>
+    Phase5SqlDefinitions.java/.class    <span class="comment"># Phase 5</span>
+    Phase6SqlOnlyViews.java/.class      <span class="comment"># Phase 6</span>
+    Phase7ViewMetadata.java/.class      <span class="comment"># Phase 7</span>
+    Phase8ChainResolution.java/.class   <span class="comment"># Phase 8</span>
+    DependencyResolver.java/.class      <span class="comment"># Shared: recursive dependency resolver</span>
+    DependencyNode.java/.class          <span class="comment"># Shared: tree node model</span>
+    DependencyGraph.java/.class         <span class="comment"># Shared: graph data structure</span>
+    TestZCdsSqlViews.java/.class        <span class="comment"># RFC test harness</span>
+    SQL_NAME_MAPPING.csv                <span class="comment"># CDS entity &rarr; HANA SQL name mapping</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- PHASE 1 -->
+<div class="section" id="phase1">
+  <h2 class="section-title">Phase 1: Dependency Discovery</h2>
+  <div class="card step-card s1">
+    <h3><span class="dot" style="background:var(--phase1)"></span>SimpleDependencyTable</h3>
+    <p>
+      Performs a BFS (Breadth-First Search) over the SAP <code>DDLDEPENDENCY</code> table starting from
+      root CDS views specified in <code>configuration.json</code>. Discovers the full dependency tree
+      of all objects referenced by the root views.
+    </p>
+    <div class="grid-2" style="margin-top:16px;">
+      <div>
+        <h4>Details</h4>
+        <dl class="param-grid">
+          <dt>Class</dt><dd><code>SimpleDependencyTable</code></dd>
+          <dt>RFC Used</dt><dd><code>RFC_READ_TABLE</code> on DDLDEPENDENCY</dd>
+          <dt>Timeout</dt><dd>10 minutes</dd>
+        </dl>
+      </div>
+      <div>
+        <h4>Output</h4>
+        <dl class="param-grid">
+          <dt>CSV File</dt><dd><code>SIMPLE_DEPENDENCY_TABLE.csv</code></dd>
+          <dt>Columns</dt><dd>DDLNAME, OBJECTNAME, OBJECTTYPE, STATE</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:12px;">
+      <strong>Key logic:</strong> Starting from each root view, recursively queries DDLDEPENDENCY
+      to find all objects (views, tables, data elements) that the root depends on, building a
+      flat dependency list.
+    </div>
+  </div>
+</div>
+
+<!-- PHASE 2 -->
+<div class="section" id="phase2">
+  <h2 class="section-title">Phase 2: Recursive Resolution</h2>
+  <div class="card step-card s2">
+    <h3><span class="dot" style="background:var(--phase2)"></span>Phase2Recursive</h3>
+    <p>
+      Uses the custom <code>Z_CDS_DEPENDENCIES</code> RFC plus <code>RFC_READ_TABLE</code> to
+      recursively resolve all dependencies and classify each object as a CDS view, database table,
+      table function, or other type.
+    </p>
+    <div class="grid-2" style="margin-top:16px;">
+      <div>
+        <h4>Details</h4>
+        <dl class="param-grid">
+          <dt>Class</dt><dd><code>Phase2Recursive</code></dd>
+          <dt>RFCs Used</dt><dd><code>Z_CDS_DEPENDENCIES</code>, <code>RFC_READ_TABLE</code></dd>
+          <dt>Timeout</dt><dd>10 minutes</dd>
+        </dl>
+      </div>
+      <div>
+        <h4>Output</h4>
+        <dl class="param-grid">
+          <dt>CSV File</dt><dd><code>PHASE2_DEPENDENCIES.csv</code></dd>
+          <dt>Columns</dt><dd>OBJECT_NAME, OBJECT_TYPE, PARENT_VIEW, DEPTH, CLASSIFICATION</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:12px;">
+      <strong>Key logic:</strong> Classifies each discovered object into categories (CDS View,
+      DB Table, Table Function, etc.) and records the parent-child relationship with depth level
+      for the full dependency tree.
+    </div>
+  </div>
+</div>
+
+<!-- PHASE 3 -->
+<div class="section" id="phase3">
+  <h2 class="section-title">Phase 3: Descriptions</h2>
+  <div class="card step-card s3">
+    <h3><span class="dot" style="background:var(--phase3)"></span>Phase3Descriptions</h3>
+    <p>
+      Extracts human-readable descriptions for all discovered objects from the SAP <code>DD02T</code>
+      (Data Dictionary text table). Runs twice in the pipeline: once after Phase 2, and again after
+      Phase 8 to pick up newly discovered objects.
+    </p>
+    <div class="grid-2" style="margin-top:16px;">
+      <div>
+        <h4>Details</h4>
+        <dl class="param-grid">
+          <dt>Class</dt><dd><code>Phase3Descriptions</code></dd>
+          <dt>RFC Used</dt><dd><code>RFC_READ_TABLE</code> on DD02T</dd>
+          <dt>Timeout</dt><dd>10 minutes</dd>
+          <dt>Runs</dt><dd>Twice (before and after Phase 8)</dd>
+        </dl>
+      </div>
+      <div>
+        <h4>Output</h4>
+        <dl class="param-grid">
+          <dt>CSV File</dt><dd><code>OBJECT_DESCRIPTIONS.csv</code></dd>
+          <dt>Columns</dt><dd>TABNAME, DDLANGUAGE, DDTEXT</dd>
+          <dt>BigQuery Table</dt><dd><code>all_descriptions</code></dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PHASE 8 (runs before Phase 4) -->
+<div class="section" id="phase8">
+  <h2 class="section-title">Phase 8: BFS Chain Resolution</h2>
+  <div class="card step-card s8">
+    <h3><span class="dot" style="background:var(--phase8)"></span>Phase8ChainResolution</h3>
+    <p>
+      The core engine of the pipeline. Uses the custom <code>Z_CDS_SQL_VIEWS</code> RFC to perform
+      BFS chain resolution, parsing BASEINFO structures to determine which dependencies are real
+      data sources (FROM clause) vs. association pointers. Implements the
+      <strong>ignore_association</strong> logic that can cut the dependency tree in half.
+    </p>
+    <div class="grid-2" style="margin-top:16px;">
+      <div>
+        <h4>Details</h4>
+        <dl class="param-grid">
+          <dt>Class</dt><dd><code>Phase8ChainResolution</code></dd>
+          <dt>RFC Used</dt><dd><code>Z_CDS_SQL_VIEWS</code></dd>
+          <dt>Timeout</dt><dd>60 minutes</dd>
+        </dl>
+      </div>
+      <div>
+        <h4>Output</h4>
+        <dl class="param-grid">
+          <dt>BigQuery Tables</dt><dd><code>sql_only_resolution</code>, <code>sql_only_objects</code></dd>
+          <dt>Key Feature</dt><dd>BASEINFO parsing, ignore_association</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:12px;">
+      <strong>Longest-running phase (60 min).</strong> Processes every object through Z_CDS_SQL_VIEWS,
+      parsing the BASEINFO FROM and ASSOCIATED arrays to classify each dependency.
+    </div>
+    <div class="info-box" style="margin-top:12px;">
+      <strong>BASEINFO parsing:</strong> Each CDS view returns a BASEINFO structure containing
+      a <code>FROM</code> array (real data dependencies) and an <code>ASSOCIATED</code> array
+      (association pointers). Objects in the ASSOCIATED array get <code>ignore_association = YES</code>
+      and can be safely excluded from SQL translation.
+    </div>
+  </div>
+</div>
+
+<!-- PHASE 4 -->
+<div class="section" id="phase4">
+  <h2 class="section-title">Phase 4: Field Metadata</h2>
+  <div class="card step-card s4">
+    <h3><span class="dot" style="background:var(--phase4)"></span>Phase4FieldMetadataFixed</h3>
+    <p>
+      Extracts detailed field-level metadata for every object using <code>RFC_READ_TABLE</code>
+      on the SAP Data Dictionary tables <code>DD03L</code> (field definitions) and
+      <code>DD03VT</code> (field descriptions).
+    </p>
+    <div class="grid-2" style="margin-top:16px;">
+      <div>
+        <h4>Details</h4>
+        <dl class="param-grid">
+          <dt>Class</dt><dd><code>Phase4FieldMetadataFixed</code></dd>
+          <dt>RFC Used</dt><dd><code>RFC_READ_TABLE</code> on DD03L, DD03VT</dd>
+          <dt>Timeout</dt><dd>120 minutes (longest phase)</dd>
+        </dl>
+      </div>
+      <div>
+        <h4>Output</h4>
+        <dl class="param-grid">
+          <dt>CSV Files</dt><dd><code>{OBJECT_NAME}_METADATA.csv</code></dd>
+          <dt>Columns</dt><dd>TABNAME, FIELDNAME, POSITION, DATATYPE, LENG, DECIMALS, DDTEXT</dd>
+          <dt>BigQuery Table</dt><dd><code>metadata_all</code></dd>
+        </dl>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:12px;">
+      <strong>Longest overall phase (120 min).</strong> Must query DD03L individually for each
+      object because the table is too large for bulk reads.
+    </div>
+  </div>
+</div>
+
+<!-- PHASE 5 -->
+<div class="section" id="phase5">
+  <h2 class="section-title">Phase 5: HANA SQL Definitions</h2>
+  <div class="card step-card s5">
+    <h3><span class="dot" style="background:var(--phase5)"></span>Phase5SqlDefinitions</h3>
+    <p>
+      Retrieves the actual HANA <code>CREATE VIEW</code> SQL statements for each CDS view using
+      the custom <code>Z_VIEW_DDL</code> RFC. These are the native HANA SQL definitions that
+      can be translated to ANSI SQL for BigQuery/Snowflake/Databricks.
+    </p>
+    <div class="grid-2" style="margin-top:16px;">
+      <div>
+        <h4>Details</h4>
+        <dl class="param-grid">
+          <dt>Class</dt><dd><code>Phase5SqlDefinitions</code></dd>
+          <dt>RFC Used</dt><dd><code>Z_VIEW_DDL</code></dd>
+          <dt>Timeout</dt><dd>15 minutes</dd>
+        </dl>
+      </div>
+      <div>
+        <h4>Output</h4>
+        <dl class="param-grid">
+          <dt>BigQuery Tables</dt><dd><code>{view}_sql_definition</code></dd>
+          <dt>Content</dt><dd>Full HANA CREATE VIEW SQL text</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PHASE 6 -->
+<div class="section" id="phase6">
+  <h2 class="section-title">Phase 6: SQL-Only Dual Definitions</h2>
+  <div class="card step-card s6">
+    <h3><span class="dot" style="background:var(--phase6)"></span>Phase6SqlOnlyViews</h3>
+    <p>
+      Extends Phase 5 by retrieving both the HANA SQL and the ABAP SQL definition for
+      "SQL-only" views &mdash; views identified by Phase 8 as needing only real data dependencies (no associations).
+      Uses both <code>Z_VIEW_DDL</code> and <code>Z_CDS_DEPENDENCIES</code>.
+    </p>
+    <div class="grid-2" style="margin-top:16px;">
+      <div>
+        <h4>Details</h4>
+        <dl class="param-grid">
+          <dt>Class</dt><dd><code>Phase6SqlOnlyViews</code></dd>
+          <dt>RFCs Used</dt><dd><code>Z_VIEW_DDL</code>, <code>Z_CDS_DEPENDENCIES</code></dd>
+          <dt>Timeout</dt><dd>15 minutes</dd>
+        </dl>
+      </div>
+      <div>
+        <h4>Output</h4>
+        <dl class="param-grid">
+          <dt>BigQuery Tables</dt><dd><code>{view}_abap_sql_definition</code>, <code>{view}_hana_sql_definition</code></dd>
+          <dt>Content</dt><dd>Dual SQL definitions (ABAP CDS + HANA native)</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PHASE 7 -->
+<div class="section" id="phase7">
+  <h2 class="section-title">Phase 7: Comprehensive Metadata</h2>
+  <div class="card step-card s7">
+    <h3><span class="dot" style="background:var(--phase7)"></span>Phase7ViewMetadata</h3>
+    <p>
+      Retrieves comprehensive Data Dictionary metadata using the custom <code>Z_VIEW_GET_META</code>
+      RFC, which returns data from four SAP tables in a single call: <code>DD02L</code> (table header),
+      <code>DD02T</code> (table texts), <code>DD26S</code> (view structure/joins), and
+      <code>DD03L</code> (field definitions).
+    </p>
+    <div class="grid-2" style="margin-top:16px;">
+      <div>
+        <h4>Details</h4>
+        <dl class="param-grid">
+          <dt>Class</dt><dd><code>Phase7ViewMetadata</code></dd>
+          <dt>RFC Used</dt><dd><code>Z_VIEW_GET_META</code></dd>
+          <dt>Timeout</dt><dd>30 minutes</dd>
+        </dl>
+      </div>
+      <div>
+        <h4>Output</h4>
+        <dl class="param-grid">
+          <dt>BigQuery Tables</dt><dd><code>dd02l_all</code>, <code>dd02t_all</code>, <code>dd26s_all</code>, <code>dd03l_all</code></dd>
+          <dt>Content</dt><dd>Full DD metadata for all views</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CUSTOM RFCs -->
+<div class="section" id="rfcs">
+  <h2 class="section-title">Custom ABAP Function Modules</h2>
+  <div class="card">
+    <p>Four custom Z_* function modules were developed in ABAP and deployed to the SAP system to support the pipeline.</p>
+  </div>
+
+  <div class="card step-card s8">
+    <h3><span class="dot" style="background:var(--phase8)"></span>Z_CDS_SQL_VIEWS</h3>
+    <p>BFS chain resolution engine. The most complex RFC &mdash; walks the CDS dependency tree
+       and returns BASEINFO structures with FROM/ASSOCIATED arrays.</p>
+    <table>
+      <tr><th>Direction</th><th>Parameter</th><th>Type</th><th>Description</th></tr>
+      <tr><td>IMPORTING</td><td><code>IV_VIEWNAME</code></td><td>CHAR(30)</td><td>CDS view name to resolve</td></tr>
+      <tr><td>IMPORTING</td><td><code>IV_MAX_DEPTH</code></td><td>INT4</td><td>Maximum recursion depth</td></tr>
+      <tr><td>EXPORTING</td><td><code>ET_RESOLUTION</code></td><td>TABLE</td><td>Resolved dependency chain with BASEINFO</td></tr>
+      <tr><td>EXPORTING</td><td><code>ET_OBJECTS</code></td><td>TABLE</td><td>All discovered objects with ignore_association flag</td></tr>
+    </table>
+  </div>
+
+  <div class="card step-card s5">
+    <h3><span class="dot" style="background:var(--phase5)"></span>Z_VIEW_DDL</h3>
+    <p>Returns the HANA native <code>CREATE VIEW</code> SQL definition for a given CDS view.</p>
+    <table>
+      <tr><th>Direction</th><th>Parameter</th><th>Type</th><th>Description</th></tr>
+      <tr><td>IMPORTING</td><td><code>IV_VIEWNAME</code></td><td>CHAR(30)</td><td>View name (ABAP Dictionary name)</td></tr>
+      <tr><td>EXPORTING</td><td><code>EV_SQL</code></td><td>STRING</td><td>Full HANA CREATE VIEW SQL statement</td></tr>
+      <tr><td>EXPORTING</td><td><code>EV_ABAP_SQL</code></td><td>STRING</td><td>ABAP CDS SQL definition (if available)</td></tr>
+    </table>
+  </div>
+
+  <div class="card step-card s2">
+    <h3><span class="dot" style="background:var(--phase2)"></span>Z_CDS_DEPENDENCIES</h3>
+    <p>Walks the CDS dependency tree and returns parent-child relationships with object classification.</p>
+    <table>
+      <tr><th>Direction</th><th>Parameter</th><th>Type</th><th>Description</th></tr>
+      <tr><td>IMPORTING</td><td><code>IV_VIEWNAME</code></td><td>CHAR(30)</td><td>Root view name</td></tr>
+      <tr><td>IMPORTING</td><td><code>IV_DEPTH</code></td><td>INT4</td><td>Max traversal depth</td></tr>
+      <tr><td>EXPORTING</td><td><code>ET_DEPENDENCIES</code></td><td>TABLE</td><td>Dependency tree with classification</td></tr>
+    </table>
+  </div>
+
+  <div class="card step-card s7">
+    <h3><span class="dot" style="background:var(--phase7)"></span>Z_VIEW_GET_META</h3>
+    <p>Returns comprehensive Data Dictionary metadata (DD02L, DD02T, DD26S, DD03L) for a view in a single call.</p>
+    <table>
+      <tr><th>Direction</th><th>Parameter</th><th>Type</th><th>Description</th></tr>
+      <tr><td>IMPORTING</td><td><code>IV_VIEWNAME</code></td><td>CHAR(30)</td><td>View name</td></tr>
+      <tr><td>EXPORTING</td><td><code>ET_DD02L</code></td><td>TABLE</td><td>Table/view header records</td></tr>
+      <tr><td>EXPORTING</td><td><code>ET_DD02T</code></td><td>TABLE</td><td>Table/view description texts</td></tr>
+      <tr><td>EXPORTING</td><td><code>ET_DD26S</code></td><td>TABLE</td><td>View structure (join conditions)</td></tr>
+      <tr><td>EXPORTING</td><td><code>ET_DD03L</code></td><td>TABLE</td><td>Field definitions</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- SQL TRANSLATION -->
+<div class="section" id="sql-translation">
+  <h2 class="section-title">HANA SQL &rarr; ANSI SQL Translation Rules</h2>
+  <div class="card">
+    <p>
+      SAP HANA SQL extracted from CDS views requires mechanical translation before it can run on
+      BigQuery, Snowflake, or Databricks. The translation falls into three categories:
+    </p>
+    <div class="grid-2" style="margin-top:12px;">
+      <div class="info-box">
+        <strong>~75% Mechanical:</strong> Schema removal, quoting, alias cleanup &mdash; fully automatable.
+      </div>
+      <div class="info-box">
+        <strong>~15% Function Rules:</strong> SAP-specific functions with known target equivalents.
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:8px;">
+      <strong>~10% Manual:</strong> Complex expressions, SESSION_CONTEXT, custom logic requiring human review.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Mechanical Translation Rules</h3>
+    <table>
+      <tr><th>HANA SQL Pattern</th><th>ANSI / Target SQL</th><th>Notes</th></tr>
+      <tr><td><code>"SAPHANADB"."TABLENAME"</code></td><td><code>TABLENAME</code></td><td>Remove schema prefix entirely</td></tr>
+      <tr><td><code>N'text'</code></td><td><code>'text'</code></td><td>Remove N prefix (national character literal)</td></tr>
+      <tr><td><code>/*..CARDINALITY..*/</code></td><td>(remove)</td><td>HANA cardinality hints &mdash; strip completely</td></tr>
+      <tr><td><code>SESSION_CONTEXT('CDS_CLIENT')</code></td><td><code>'100'</code></td><td>Replace with hardcoded client value</td></tr>
+      <tr><td><code>"alias"."field"</code></td><td><code>alias.field</code></td><td>Adjust quoting per target dialect</td></tr>
+      <tr><td><code>IFNULL(x, y)</code></td><td><code>COALESCE(x, y)</code></td><td>Standard ANSI equivalent</td></tr>
+      <tr><td><code>TO_NVARCHAR(x)</code></td><td><code>CAST(x AS STRING)</code></td><td>BigQuery/Snowflake string cast</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>SAP Function Translation Table</h3>
+    <table>
+      <tr><th>SAP HANA Function</th><th>BigQuery</th><th>Snowflake</th><th>Databricks</th></tr>
+      <tr><td><code>DATS_TIMS_TO_TSTMP</code></td><td><code>PARSE_TIMESTAMP</code></td><td><code>TO_TIMESTAMP_NTZ</code></td><td><code>TO_TIMESTAMP</code></td></tr>
+      <tr><td><code>TSTMP_TO_DATS</code></td><td><code>FORMAT_TIMESTAMP</code></td><td><code>TO_VARCHAR</code></td><td><code>DATE_FORMAT</code></td></tr>
+      <tr><td><code>FLTP_TO_DEC</code></td><td><code>CAST(x AS NUMERIC)</code></td><td><code>TO_DECIMAL</code></td><td><code>CAST(x AS DECIMAL)</code></td></tr>
+      <tr><td><code>TSTMP_CURRENT_UTCTIMESTAMP</code></td><td><code>CURRENT_TIMESTAMP()</code></td><td><code>CURRENT_TIMESTAMP()</code></td><td><code>CURRENT_TIMESTAMP()</code></td></tr>
+      <tr><td><code>ABAP_SYSTEM_TIMEZONE</code></td><td><code>'UTC'</code></td><td><code>'UTC'</code></td><td><code>'UTC'</code></td></tr>
+      <tr><td><code>TSTMP_TO_DST</code></td><td><code>FORMAT_TIMESTAMP</code></td><td><code>TO_VARCHAR</code></td><td><code>DATE_FORMAT</code></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Target Dialect Differences</h3>
+    <table>
+      <tr><th>Feature</th><th>BigQuery</th><th>Snowflake</th><th>Databricks</th></tr>
+      <tr><td>Identifier Quoting</td><td>Backticks <code>`name`</code></td><td>Double quotes <code>"name"</code></td><td>Backticks <code>`name`</code></td></tr>
+      <tr><td>Schema Prefix</td><td><code>dataset.table</code></td><td><code>schema.table</code></td><td><code>catalog.schema.table</code></td></tr>
+      <tr><td>String Type</td><td><code>STRING</code></td><td><code>VARCHAR</code></td><td><code>STRING</code></td></tr>
+      <tr><td>Timestamp Type</td><td><code>TIMESTAMP</code></td><td><code>TIMESTAMP_NTZ</code></td><td><code>TIMESTAMP</code></td></tr>
+      <tr><td>Integer Division</td><td>Truncates</td><td>Truncates</td><td>Returns DOUBLE</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- CDS VIEW NAME LAYERS -->
+<div class="section" id="name-layers">
+  <h2 class="section-title">CDS View Name Layers</h2>
+  <div class="card">
+    <p>Every CDS view has three distinct names. Understanding the mapping is critical for SQL translation.</p>
+    <table>
+      <tr><th>Layer</th><th>Example</th><th>Where Used</th></tr>
+      <tr><td><strong>CDS Entity Name</strong></td><td><code>I_Product</code></td><td>ABAP CDS source code, annotations</td></tr>
+      <tr><td><strong>ABAP Dictionary Name</strong></td><td><code>IPRODUCT</code></td><td>SAP Data Dictionary (SE11), DD03L, RFC_READ_TABLE</td></tr>
+      <tr><td><strong>HANA SQL Name</strong></td><td><code>"IPRODUCT"</code></td><td>HANA CREATE VIEW statements, HANA catalog</td></tr>
+    </table>
+    <div class="info-box" style="margin-top:12px;">
+      <strong>SQL_NAME_MAPPING.csv</strong> provides the translation between all three name layers.
+      This file is generated during the pipeline and is essential for correctly replacing view
+      references during SQL translation.
+    </div>
+  </div>
+</div>
+
+<!-- IGNORE_ASSOCIATION LOGIC -->
+<div class="section" id="ignore-assoc">
+  <h2 class="section-title">ignore_association Logic</h2>
+  <div class="card">
+    <p>
+      The <strong>ignore_association</strong> flag is the key optimization in Phase 8. It classifies
+      each dependency as either a real data source or an association pointer.
+    </p>
+    <div class="grid-2" style="margin-top:16px;">
+      <div class="card" style="margin-bottom:0;">
+        <h3><span class="dot" style="background:var(--phase1)"></span>ignore_association = NO</h3>
+        <p>Object appears in the <strong>BASEINFO FROM</strong> array. This is a <strong>real data dependency</strong> &mdash;
+           the view's SQL SELECT actually reads data from this object. Must be included in any SQL translation.</p>
+      </div>
+      <div class="card" style="margin-bottom:0;">
+        <h3><span class="dot" style="background:var(--phase5)"></span>ignore_association = YES</h3>
+        <p>Object appears in the <strong>BASEINFO ASSOCIATED</strong> array. This is an <strong>association pointer</strong> &mdash;
+           it defines a navigation path but the view does not read data from it directly. Can be safely excluded.</p>
+      </div>
+    </div>
+    <div class="info-box" style="margin-top:16px;">
+      <strong>Impact:</strong> Filtering out <code>ignore_association = YES</code> objects can cut the
+      dependency tree roughly <strong>in half</strong>, dramatically reducing the number of views
+      that need SQL translation.
+    </div>
+    <div class="pre-wrap" style="margin-top:12px;">
+      <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><span class="comment">-- Example: BASEINFO structure returned by Z_CDS_SQL_VIEWS</span>
+BASEINFO: {
+  "FROM": [
+    <span class="string">"MARA"</span>,           <span class="comment">-- real table dependency (ignore_association = NO)</span>
+    <span class="string">"IPRODUCT"</span>        <span class="comment">-- real view dependency (ignore_association = NO)</span>
+  ],
+  "ASSOCIATED": [
+    <span class="string">"I_PRODUCTTEXT"</span>,  <span class="comment">-- association pointer (ignore_association = YES)</span>
+    <span class="string">"I_PLANT"</span>         <span class="comment">-- association pointer (ignore_association = YES)</span>
+  ]
+}</pre>
+    </div>
+  </div>
+</div>
+
+<!-- BIGQUERY TABLES -->
+<div class="section" id="bq-tables">
+  <h2 class="section-title">BigQuery Tables Reference</h2>
+  <div class="card">
+    <p>All tables are created in the <code>sap_cds_views</code> BigQuery dataset, pushed via the Fivetran SDK connector.</p>
+    <table>
+      <tr><th>BigQuery Table</th><th>Source Phase</th><th>Key Columns</th><th>Description</th></tr>
+      <tr><td><code>all_descriptions</code></td><td>Phase 3</td><td>TABNAME, DDLANGUAGE</td><td>DD02T descriptions for all objects</td></tr>
+      <tr><td><code>metadata_all</code></td><td>Phase 4</td><td>TABNAME, FIELDNAME</td><td>Field-level metadata (DD03L + DD03VT)</td></tr>
+      <tr><td><code>{view}_sql_definition</code></td><td>Phase 5</td><td>VIEW_NAME</td><td>HANA CREATE VIEW SQL per view</td></tr>
+      <tr><td><code>{view}_abap_sql_definition</code></td><td>Phase 6</td><td>VIEW_NAME</td><td>ABAP CDS SQL definition per view</td></tr>
+      <tr><td><code>{view}_hana_sql_definition</code></td><td>Phase 6</td><td>VIEW_NAME</td><td>HANA native SQL definition per view</td></tr>
+      <tr><td><code>sql_only_resolution</code></td><td>Phase 8</td><td>VIEW_NAME, DEPTH</td><td>Full BFS chain resolution results</td></tr>
+      <tr><td><code>sql_only_objects</code></td><td>Phase 8</td><td>OBJECT_NAME</td><td>All objects with ignore_association flag</td></tr>
+      <tr><td><code>dd02l_all</code></td><td>Phase 7</td><td>TABNAME</td><td>Table/view header (DD02L)</td></tr>
+      <tr><td><code>dd02t_all</code></td><td>Phase 7</td><td>TABNAME, DDLANGUAGE</td><td>Table/view texts (DD02T)</td></tr>
+      <tr><td><code>dd26s_all</code></td><td>Phase 7</td><td>VIEWNAME, TABNAME</td><td>View structure/joins (DD26S)</td></tr>
+      <tr><td><code>dd03l_all</code></td><td>Phase 7</td><td>TABNAME, FIELDNAME</td><td>Field definitions (DD03L)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- PHASE TIMEOUTS -->
+<div class="section" id="timeouts">
+  <h2 class="section-title">Phase Timeouts</h2>
+  <div class="card">
+    <p>Each phase has a configured timeout. Exceeding the timeout usually indicates an RFC connectivity issue or an unexpectedly large dependency tree.</p>
+    <table>
+      <tr><th>Phase</th><th>Class</th><th>Timeout</th><th>Typical Duration</th></tr>
+      <tr><td>Phase 1</td><td><code>SimpleDependencyTable</code></td><td>10 min</td><td>2-5 min</td></tr>
+      <tr><td>Phase 2</td><td><code>Phase2Recursive</code></td><td>10 min</td><td>3-7 min</td></tr>
+      <tr><td>Phase 3</td><td><code>Phase3Descriptions</code></td><td>10 min</td><td>1-3 min</td></tr>
+      <tr><td>Phase 4</td><td><code>Phase4FieldMetadataFixed</code></td><td>120 min</td><td>60-90 min</td></tr>
+      <tr><td>Phase 5</td><td><code>Phase5SqlDefinitions</code></td><td>15 min</td><td>5-10 min</td></tr>
+      <tr><td>Phase 6</td><td><code>Phase6SqlOnlyViews</code></td><td>15 min</td><td>5-10 min</td></tr>
+      <tr><td>Phase 7</td><td><code>Phase7ViewMetadata</code></td><td>30 min</td><td>15-20 min</td></tr>
+      <tr><td>Phase 8</td><td><code>Phase8ChainResolution</code></td><td>60 min</td><td>30-45 min</td></tr>
+    </table>
+    <div class="info-box" style="margin-top:12px;">
+      <strong>Total pipeline runtime:</strong> approximately 3-4 hours end-to-end for a typical
+      set of root CDS views.
+    </div>
+  </div>
+</div>
+
+<!-- TROUBLESHOOTING -->
+<div class="section" id="troubleshooting">
+  <h2 class="section-title">Troubleshooting</h2>
+  <div class="card">
+    <table>
+      <tr><th>Problem</th><th>Cause</th><th>Fix</th></tr>
+      <tr>
+        <td><strong>Java not found</strong> on sapidess4</td>
+        <td>PATH not set for Java runtime</td>
+        <td>Run <code>export PATH=$PATH:/usr/lib/jvm/java-17-openjdk/bin</code> or check <code>installation.sh</code></td>
+      </tr>
+      <tr>
+        <td><strong>Empty BigQuery dataset</strong></td>
+        <td>connector.py did not find CSV files</td>
+        <td>Check CSV output in <code>/usr/sap/cds_sql_only/drivers/</code>; verify phases completed successfully</td>
+      </tr>
+      <tr>
+        <td><strong>Duplicate rows</strong> in BigQuery</td>
+        <td>Pipeline ran twice without clearing previous output</td>
+        <td>Delete existing CSV files before re-running; use <code>WRITE_DISPOSITION = WRITE_TRUNCATE</code></td>
+      </tr>
+      <tr>
+        <td><strong>Compilation error</strong> on .java file</td>
+        <td>Missing classpath entries (sapjco3.jar, gson.jar)</td>
+        <td>Compile with: <code>javac -cp .:sapjco3.jar:gson.jar ClassName.java</code></td>
+      </tr>
+      <tr>
+        <td><strong>RFC_SYSTEM_FAILURE</strong></td>
+        <td>SAP work process crash or function module error</td>
+        <td>Check SAP SM21 system log; restart the pipeline phase</td>
+      </tr>
+      <tr>
+        <td><strong>RFC_COMMUNICATION_FAILURE</strong></td>
+        <td>Network timeout or SAP gateway down</td>
+        <td>Verify SAP is running (<code>sapcontrol -nr 03 -function GetProcessList</code>); check JCo config</td></tr>
+      <tr>
+        <td><strong>Phase timeout exceeded</strong></td>
+        <td>Too many objects or slow RFC responses</td>
+        <td>Reduce root views in configuration.json; increase timeout in Java code; check SAP work process availability</td>
+      </tr>
+      <tr>
+        <td><strong>Z_CDS_SQL_VIEWS returns empty</strong></td>
+        <td>View name mismatch (CDS entity vs ABAP Dictionary name)</td>
+        <td>Use the ABAP Dictionary name (uppercase, no underscores); check SQL_NAME_MAPPING.csv</td>
+      </tr>
+      <tr>
+        <td><strong>connector.py Fivetran SDK error</strong></td>
+        <td>SDK version mismatch or missing Python dependencies</td>
+        <td>Check <code>pip list | grep fivetran</code>; ensure SDK is installed and connector.py uses correct API version</td>
+      </tr>
+      <tr>
+        <td><strong>GCS upload fails</strong></td>
+        <td>Service account permissions or bucket path wrong</td>
+        <td>Verify <code>gs://sap_cds_dbt/sap_cds_views/</code> exists; check service account has Storage Object Creator role</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  <p>SAP CDS View Extraction Pipeline &mdash; S/4HANA 2023 &mdash; IDES System &mdash; Client 100</p>
+  <p style="margin-top:4px;">8-Phase Metadata &amp; SQL Translation Pipeline &mdash; Fivetran CDS Metadata Retrieval</p>
+</div>
+
+<script>
+function copyCode(btn) {
+  const pre = btn.parentElement.querySelector('pre');
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

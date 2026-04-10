@@ -1,0 +1,1342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP Order-to-Cash Workflow Documentation</title>
+<style>
+  :root {
+    --primary: #1a3a5c;
+    --primary-light: #2a5a8c;
+    --accent: #e67e22;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --step1: #3498db;
+    --step2: #9b59b6;
+    --step3: #e67e22;
+    --step4: #1abc9c;
+    --step5: #27ae60;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  .header .badge {
+    display: inline-block;
+    background: var(--success);
+    color: white;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+
+  /* Navigation */
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #e8f0fe; }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* Flow Diagram */
+  .flow-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 30px 10px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  .flow-step {
+    text-align: center;
+    min-width: 140px;
+    flex-shrink: 0;
+  }
+  .flow-box {
+    border-radius: 12px;
+    padding: 16px 12px;
+    color: white;
+    font-weight: 700;
+    font-size: 0.95rem;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    position: relative;
+  }
+  .flow-box .step-num {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 400;
+    opacity: 0.85;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .flow-sub {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+  .flow-arrow {
+    font-size: 1.6rem;
+    color: #adb5bd;
+    flex-shrink: 0;
+    padding: 0 6px;
+  }
+  .step1-bg { background: linear-gradient(135deg, var(--step1), #2980b9); }
+  .step2-bg { background: linear-gradient(135deg, var(--step2), #8e44ad); }
+  .step3-bg { background: linear-gradient(135deg, var(--step3), #d35400); }
+  .step4-bg { background: linear-gradient(135deg, var(--step4), #16a085); }
+  .step5-bg { background: linear-gradient(135deg, var(--step5), #1e8449); }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* Step detail cards */
+  .step-card {
+    border-left: 4px solid;
+    padding-left: 20px;
+  }
+  .step-card.s1 { border-color: var(--step1); }
+  .step-card.s2 { border-color: var(--step2); }
+  .step-card.s3 { border-color: var(--step3); }
+  .step-card.s4 { border-color: var(--step4); }
+  .step-card.s5 { border-color: var(--step5); }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  th {
+    background: var(--primary);
+    color: white;
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:hover td { background: #f8f9fa; }
+  td code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  /* Code blocks */
+  pre {
+    background: #1e2937;
+    color: #e2e8f0;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin-top: 10px;
+  }
+  pre .comment { color: #6b7b8d; }
+  pre .string { color: #7ec699; }
+  pre .keyword { color: #c792ea; }
+
+  /* Info boxes */
+  .info-box {
+    background: #e8f4fd;
+    border-left: 4px solid var(--step1);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+  .warn-box {
+    background: #fef5e7;
+    border-left: 4px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+
+  /* Two-column grid */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 768px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .flow-container { flex-wrap: wrap; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+
+  /* Parameter list */
+  .param-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 4px 16px;
+    font-size: 0.88rem;
+    margin: 8px 0;
+  }
+  .param-grid dt {
+    font-weight: 600;
+    font-family: 'SF Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--primary);
+  }
+  .param-grid dd { color: var(--text-light); }
+
+  /* Performance bar */
+  .perf-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 6px 0;
+  }
+  .perf-label { width: 80px; font-weight: 600; font-size: 0.88rem; }
+  .perf-bar {
+    flex: 1;
+    height: 24px;
+    background: var(--code-bg);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .perf-fill {
+    height: 100%;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+
+  /* VBFA type mapping */
+  .vbfa-types { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .vbfa-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--code-bg);
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.82rem;
+    font-weight: 500;
+  }
+  .vbfa-chip code { background: none; padding: 0; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════ HEADER ═══════════════════════════ -->
+<div class="header">
+  <h1>SAP Order-to-Cash Workflow</h1>
+  <div class="subtitle">S/4HANA IDES &mdash; Automated OTC Data Generator via JCo RFC</div>
+  <span class="badge">All 5 Steps Operational</span>
+</div>
+
+<!-- ═══════════════════════════ NAV ═══════════════════════════ -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#project">Project Structure</a>
+    <a href="#flow">Flow Diagram</a>
+    <a href="#step1">Step 1: Order</a>
+    <a href="#step2">Step 2: Delivery</a>
+    <a href="#step3">Step 3: Goods Issue</a>
+    <a href="#step4">Step 4: Billing</a>
+    <a href="#step5">Step 5: Payment</a>
+    <a href="#tables">SAP Tables</a>
+    <a href="#cds">CDS Views</a>
+    <a href="#bapis">BAPIs / RFCs</a>
+    <a href="#config">Configuration</a>
+    <a href="#usage">Usage</a>
+    <a href="#hana">HANA Access</a>
+    <a href="#performance">Performance</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ═══════════════════════════ OVERVIEW ═══════════════════════════ -->
+<div class="section" id="overview">
+  <h2 class="section-title">Overview</h2>
+  <div class="card">
+    <p>
+      <strong>SAPOTCWorkflow</strong> is a Java program that automates the complete Order-to-Cash cycle
+      in SAP S/4HANA IDES via JCo RFC calls. It creates realistic transactional data across the full
+      OTC chain: from sales order entry through to incoming payment posting.
+    </p>
+    <div class="info-box" style="margin-top:14px;">
+      <strong>Runs locally on macOS.</strong> All programs execute from
+      <code>~/SAP_OTC/</code>, connecting to SAP via JCo RFC over the network.
+      HANA SQL access is available via SSH tunnel + Python <code>hdbcli</code>.
+    </div>
+    <br>
+    <div class="grid-2">
+      <div>
+        <h4>SAP System</h4>
+        <dl class="param-grid">
+          <dt>System</dt><dd>S/4HANA IDES (SID: S4H)</dd>
+          <dt>Release</dt><dd>758 (HANA DB)</dd>
+          <dt>Client</dt><dd>100</dd>
+          <dt>Host</dt><dd>sapidess4.fivetran-internal-sales.com</dd>
+          <dt>Instance Nr</dt><dd>03</dd>
+          <dt>User</dt><dd>IDES</dd>
+          <dt>Password</dt><dd><code>Fivetran?99</code></dd>
+        </dl>
+      </div>
+      <div>
+        <h4>Sales Organization</h4>
+        <dl class="param-grid">
+          <dt>Sales Org</dt><dd>1710</dd>
+          <dt>Dist. Channel</dt><dd>10</dd>
+          <dt>Division</dt><dd>00</dd>
+          <dt>Plant</dt><dd>1710</dd>
+          <dt>Shipping Point</dt><dd>1710</dd>
+          <dt>Currency</dt><dd>USD</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:16px;">
+      <div>
+        <h4>HANA Database</h4>
+        <dl class="param-grid">
+          <dt>Tenant DB</dt><dd>FIV</dd>
+          <dt>Instance</dt><dd>HDB00</dd>
+          <dt>Schema</dt><dd>SAPHANADB</dd>
+          <dt>User</dt><dd>SAPHANADB</dd>
+          <dt>Password</dt><dd><code>Fivetran1T1D</code></dd>
+          <dt>Local Port</dt><dd>30015 (via SSH tunnel)</dd>
+        </dl>
+      </div>
+      <div>
+        <h4>Local Environment</h4>
+        <dl class="param-grid">
+          <dt>Project Dir</dt><dd><code>~/SAP_OTC/</code></dd>
+          <dt>Java</dt><dd>OpenJDK 17 (Homebrew)</dd>
+          <dt>JCo</dt><dd>sapjco3.jar + libsapjco3.dylib (ARM64)</dd>
+          <dt>HANA Client</dt><dd>hdbcli (Python pip)</dd>
+          <dt>Platform</dt><dd>macOS (Apple Silicon)</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ PROJECT STRUCTURE ═══════════════════════════ -->
+<div class="section" id="project">
+  <h2 class="section-title">Project Structure</h2>
+  <div class="card">
+    <h3>Local Directory: <code>~/SAP_OTC/</code></h3>
+    <table>
+      <tr><th style="width:40%;">File</th><th>Purpose</th></tr>
+      <tr><td colspan="2" style="background:var(--code-bg);font-weight:600;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.5px;">Java Sources</td></tr>
+      <tr><td><code>SAPOTCWorkflow.java</code></td><td>Full 5-step OTC workflow (Order + Delivery + GI + Billing + Payment)</td></tr>
+      <tr><td><code>SAPOTCOrderGenerator.java</code></td><td>Standalone order generator (orders only, no delivery)</td></tr>
+      <tr><td><code>SAPOTCExtractor.java</code></td><td>SAP table reader/verifier via RFC_READ_TABLE</td></tr>
+      <tr><td colspan="2" style="background:var(--code-bg);font-weight:600;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.5px;">Libraries</td></tr>
+      <tr><td><code>sapjco3.jar</code></td><td>SAP Java Connector (JCo) library</td></tr>
+      <tr><td><code>libsapjco3.dylib</code></td><td>JCo native library for macOS (ARM64 / Apple Silicon)</td></tr>
+      <tr><td><code>gson.jar</code></td><td>Google Gson (JSON parsing)</td></tr>
+      <tr><td colspan="2" style="background:var(--code-bg);font-weight:600;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.5px;">Configuration</td></tr>
+      <tr><td><code>SAP_S4HANA.jcoDestination</code></td><td>JCo connection properties (host, sysnr, client, user, password)</td></tr>
+      <tr><td colspan="2" style="background:var(--code-bg);font-weight:600;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.5px;">Shell Scripts</td></tr>
+      <tr><td><code>compile.sh</code></td><td>Compile all Java sources locally</td></tr>
+      <tr><td><code>otcwf.sh</code></td><td>Run SAPOTCWorkflow &mdash; <code>./otcwf.sh full 5 --verbose</code></td></tr>
+      <tr><td><code>otcgen.sh</code></td><td>Run SAPOTCOrderGenerator &mdash; <code>./otcgen.sh 10</code></td></tr>
+      <tr><td><code>otc.sh</code></td><td>Run SAPOTCExtractor &mdash; <code>./otc.sh extract VBAK VBELN,ERDAT ...</code></td></tr>
+      <tr><td colspan="2" style="background:var(--code-bg);font-weight:600;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.5px;">HANA Database Access</td></tr>
+      <tr><td><code>hana_tunnel.sh</code></td><td>Start SSH tunnel to HANA (localhost:30015 &rarr; sapidess4)</td></tr>
+      <tr><td><code>hana_sql.py</code></td><td>Python HANA SQL client (single query or interactive mode)</td></tr>
+      <tr><td colspan="2" style="background:var(--code-bg);font-weight:600;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.5px;">Documentation</td></tr>
+      <tr><td><code>SAP_OTC_Workflow_Documentation.html</code></td><td>This documentation file</td></tr>
+      <tr><td colspan="2" style="background:var(--code-bg);font-weight:600;font-size:0.82rem;text-transform:uppercase;letter-spacing:0.5px;">Generated Output</td></tr>
+      <tr><td><code>otc_extract/</code></td><td>CSV files from SAPOTCExtractor queries</td></tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════ FLOW DIAGRAM ═══════════════════════════ -->
+<div class="section" id="flow">
+  <h2 class="section-title">End-to-End Flow</h2>
+  <div class="card">
+    <div class="flow-container">
+      <div class="flow-step">
+        <div class="flow-box step1-bg">
+          <span class="step-num">Step 1</span>
+          Sales Order
+        </div>
+        <div class="flow-sub">VBAK / VBAP<br>VBEP / VBPA</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-box step2-bg">
+          <span class="step-num">Step 2</span>
+          Delivery
+        </div>
+        <div class="flow-sub">LIKP / LIPS</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-box step3-bg">
+          <span class="step-num">Step 3</span>
+          Goods Issue
+        </div>
+        <div class="flow-sub">MKPF / MSEG<br>MATDOC</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-box step4-bg">
+          <span class="step-num">Step 4</span>
+          Billing
+        </div>
+        <div class="flow-sub">VBRK / VBRP</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-box step5-bg">
+          <span class="step-num">Step 5</span>
+          Payment
+        </div>
+        <div class="flow-sub">BKPF / BSEG<br>ACDOCA</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>Document Flow (VBFA)</strong> links all documents together. Each step creates a
+      forward reference: Order &rarr; Delivery &rarr; GI Material Doc &rarr; Billing Doc &rarr;
+      Accounting Doc. Use transaction <code>VF03</code> or the <code>status</code> command to
+      trace the complete chain.
+    </div>
+
+    <h4 style="margin-top:16px;">LUW (Logical Unit of Work) Boundaries</h4>
+    <p style="font-size:0.9rem; color: var(--text-light); margin-top:6px;">
+      Each step runs in its own LUW via <code>JCoContext.begin(dest)</code> /
+      <code>JCoContext.end(dest)</code>. This pins all BAPI calls + COMMIT to the same
+      SAP connection (required by JCo connection pooling). Between steps, the LUW is ended
+      and a new one started after a configurable pause.
+    </p>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ STEP 1 ═══════════════════════════ -->
+<div class="section" id="step1">
+  <h2 class="section-title">Step 1 &mdash; Sales Order Creation</h2>
+  <div class="card step-card s1">
+    <h3><span class="dot" style="background:var(--step1)"></span>Create Sales Order</h3>
+    <p>Creates a standard sales order (type <code>TA</code>) with randomized customer, materials, quantities,
+    and dates spread over the last 30 days.</p>
+
+    <h4 style="margin-top:16px;">BAPI</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th></tr>
+      <tr>
+        <td><code>BAPI_SALESORDER_CREATEFROMDAT2</code></td>
+        <td>Creates a sales order with header, items, schedule lines, and partners</td>
+      </tr>
+      <tr>
+        <td><code>BAPI_SALESORDER_CHANGE</code></td>
+        <td>Releases credit block (clears DLV_BLOCK and BILL_BLOCK)</td>
+      </tr>
+      <tr>
+        <td><code>BAPI_TRANSACTION_COMMIT</code></td>
+        <td>Persists changes (WAIT='X' for synchronous commit)</td>
+      </tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Import Parameters</h4>
+    <table>
+      <tr><th>Structure</th><th>Field</th><th>Value</th></tr>
+      <tr><td><code>ORDER_HEADER_IN</code></td><td>DOC_TYPE</td><td><code>TA</code> (Standard Order)</td></tr>
+      <tr><td></td><td>SALES_ORG</td><td><code>1710</code></td></tr>
+      <tr><td></td><td>DISTR_CHAN</td><td><code>10</code></td></tr>
+      <tr><td></td><td>DIVISION</td><td><code>00</code></td></tr>
+      <tr><td></td><td>REQ_DATE_H</td><td>Random date (last 30 days)</td></tr>
+      <tr><td></td><td>PURCH_NO_C</td><td><code>OTC-WF-MMDD</code></td></tr>
+      <tr><td><code>ORDER_HEADER_INX</code></td><td>UPDATEFLAG</td><td><code>I</code> (Insert)</td></tr>
+      <tr><td><code>LOGIC_SWITCH</code></td><td>NO_CREDIT_CHECK</td><td><code>X</code> (bypass credit at creation)</td></tr>
+      <tr><td><code>ORDER_PARTNERS</code></td><td>PARTN_ROLE / PARTN_NUMB</td><td><code>AG</code> (Sold-to) + customer number</td></tr>
+      <tr><td><code>ORDER_ITEMS_IN</code></td><td>ITM_NUMBER, MATERIAL, PLANT, TARGET_QTY</td><td>1-3 random items</td></tr>
+      <tr><td><code>ORDER_SCHEDULES_IN</code></td><td>ITM_NUMBER, SCHED_LINE, REQ_DATE, REQ_QTY</td><td>One schedule line per item</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Tables Populated</h4>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Key Fields Written</th></tr>
+      <tr><td><code>VBAK</code></td><td>Sales Order Header</td><td>VBELN, AUART, KUNNR, NETWR, ERDAT, BSTNK</td></tr>
+      <tr><td><code>VBAP</code></td><td>Sales Order Items</td><td>VBELN, POSNR, MATNR, KWMENG, NETPR, WERKS</td></tr>
+      <tr><td><code>VBEP</code></td><td>Schedule Lines</td><td>VBELN, POSNR, ETENR, EDATU, WMENG</td></tr>
+      <tr><td><code>VBPA</code></td><td>Partners</td><td>VBELN, POSNR, PARVW, KUNNR</td></tr>
+      <tr><td><code>VBFA</code></td><td>Document Flow</td><td>VBELV, VBELN, VBTYP_N='C'</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Customer Pool</h4>
+    <table>
+      <tr><th>Customer</th><th>Type</th><th>Notes</th></tr>
+      <tr><td><code>0017100001</code></td><td>Direct</td><td>CMGST=A, passes credit check</td></tr>
+      <tr><td><code>0017100002</code></td><td>Direct</td><td>Passes credit check</td></tr>
+      <tr><td><code>0017100003</code></td><td>Direct</td><td>No credit check, POD disabled via KNVV</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Material Pool</h4>
+    <table>
+      <tr><th>Material</th><th>UoM</th><th>Qty Range</th><th>~Price (USD)</th></tr>
+      <tr><td><code>TG11</code></td><td>ST</td><td>1-20</td><td>$17.55</td></tr>
+      <tr><td><code>TG12</code></td><td>ST</td><td>1-20</td><td>$17.55</td></tr>
+      <tr><td><code>MZ-FG-R100</code></td><td>ST</td><td>1-10</td><td>$565.00</td></tr>
+      <tr><td><code>MZ-FG-R300</code></td><td>ST</td><td>1-5</td><td>$7,741.00</td></tr>
+      <tr><td><code>MZ-TG-Y240</code></td><td>ST</td><td>1-10</td><td>$160.00</td></tr>
+      <tr><td><code>F-10A</code></td><td>ST</td><td>1-50</td><td>$18.65</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ STEP 2 ═══════════════════════════ -->
+<div class="section" id="step2">
+  <h2 class="section-title">Step 2 &mdash; Outbound Delivery</h2>
+  <div class="card step-card s2">
+    <h3><span class="dot" style="background:var(--step2)"></span>Create Outbound Delivery</h3>
+    <p>Creates an outbound delivery (type <code>LF</code>) referencing the sales order.
+    SAP automatically copies items and determines routes from the order.</p>
+
+    <h4 style="margin-top:16px;">BAPI</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th></tr>
+      <tr>
+        <td><code>BAPI_OUTB_DELIVERY_CREATE_SLS</code></td>
+        <td>Creates outbound delivery from sales order reference</td>
+      </tr>
+      <tr>
+        <td><code>BAPI_TRANSACTION_COMMIT</code></td>
+        <td>Persists changes</td>
+      </tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Import Parameters</h4>
+    <table>
+      <tr><th>Parameter</th><th>Value</th><th>Notes</th></tr>
+      <tr><td><code>SHIP_POINT</code></td><td><code>1710</code></td><td>Shipping point</td></tr>
+      <tr><td><code>DUE_DATE</code></td><td>Today's date</td><td>Extends delivery horizon for past-dated orders</td></tr>
+      <tr><td><code>SALES_ORDER_ITEMS.REF_DOC</code></td><td>Sales order number</td><td>All items (REF_DOC_IT=000000)</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Tables Populated</h4>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Key Fields Written</th></tr>
+      <tr><td><code>LIKP</code></td><td>Delivery Header</td><td>VBELN, LFART='LF', ERDAT, KUNNR, VSTEL</td></tr>
+      <tr><td><code>LIPS</code></td><td>Delivery Items</td><td>VBELN, POSNR, MATNR, LFIMG, WERKS</td></tr>
+      <tr><td><code>VBFA</code></td><td>Document Flow</td><td>VBELV=order, VBELN=delivery, VBTYP_N='J'</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ STEP 3 ═══════════════════════════ -->
+<div class="section" id="step3">
+  <h2 class="section-title">Step 3 &mdash; Goods Issue (PGI)</h2>
+  <div class="card step-card s3">
+    <h3><span class="dot" style="background:var(--step3)"></span>Post Goods Issue</h3>
+    <p>Posts Goods Issue for the delivery, consuming inventory and creating a material document.
+    This is a two-phase operation: first reads delivery items from LIPS, then executes the GI
+    using <code>WS_DELIVERY_UPDATE_2</code>.</p>
+
+    <h4 style="margin-top:16px;">Function Modules</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th></tr>
+      <tr>
+        <td><code>RFC_READ_TABLE</code></td>
+        <td>Reads delivery items (LIPS) to get quantities and materials</td>
+      </tr>
+      <tr>
+        <td><code>WS_DELIVERY_UPDATE_2</code></td>
+        <td>Performs picking confirmation + goods issue in a single call</td>
+      </tr>
+    </table>
+
+    <h4 style="margin-top:16px;">WS_DELIVERY_UPDATE_2 Parameters</h4>
+    <table>
+      <tr><th>Parameter</th><th>Value</th><th>Purpose</th></tr>
+      <tr><td><code>VBKOK_WA.VBELN_VL</code></td><td>Delivery number</td><td>Delivery reference</td></tr>
+      <tr><td><code>VBKOK_WA.WABUC</code></td><td><code>X</code></td><td>Goods issue flag</td></tr>
+      <tr><td><code>VBKOK_WA.WADAT_IST</code></td><td>Today</td><td>Actual GI date</td></tr>
+      <tr><td><code>VBKOK_WA.KOMUE</code></td><td><code>X</code></td><td>Picking complete</td></tr>
+      <tr><td><code>DELIVERY</code></td><td>Delivery number</td><td>Delivery reference</td></tr>
+      <tr><td><code>UPDATE_PICKING</code></td><td><code>X</code></td><td>Update picking quantities</td></tr>
+      <tr><td><code>COMMIT</code></td><td><code>X</code></td><td>Auto-commit</td></tr>
+      <tr><td><code>IF_DATABASE_UPDATE_1</code></td><td><code>X</code></td><td>Database update mode</td></tr>
+      <tr><td><code>SYNCHRON</code></td><td><code>X</code></td><td>Synchronous processing</td></tr>
+      <tr><td><code>NICHT_SPERREN_1</code></td><td><code>X</code></td><td>Skip lock check</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">VBPOK_TAB (Item Picking Data)</h4>
+    <p style="font-size:0.9rem; margin-top:6px;">One row per delivery item with: <code>VBELN</code>, <code>VBELN_VL</code>,
+    <code>POSNN</code>, <code>POSNR_VL</code>, <code>LFIMG</code> (delivery qty), <code>PIKMG</code> (picked qty).</p>
+
+    <h4 style="margin-top:16px;">Tables Populated</h4>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Key Fields Written</th></tr>
+      <tr><td><code>MKPF</code></td><td>Material Document Header</td><td>MBLNR, MJAHR, BUDAT, USNAM</td></tr>
+      <tr><td><code>MSEG</code></td><td>Material Document Items</td><td>MBLNR, MJAHR, ZEILE, BWART='601', MATNR, MENGE</td></tr>
+      <tr><td><code>MATDOC</code></td><td>Material Document (S/4HANA)</td><td>Consolidated journal entry</td></tr>
+      <tr><td><code>VBFA</code></td><td>Document Flow</td><td>VBELV=delivery, VBELN=matdoc, VBTYP_N='R'</td></tr>
+      <tr><td><code>LIKP</code></td><td>Delivery Header (updated)</td><td>WBSTK='C' (fully picked), WADAT_IST</td></tr>
+    </table>
+
+    <div class="warn-box" style="margin-top:14px;">
+      <strong>S/4HANA Note:</strong> <code>WS_DELIVERY_UPDATE</code> (original FM) is blocked by the
+      S/4HANA RFC API Blocklist (SAP Note 2416705). The system uses <code>WS_DELIVERY_UPDATE_2</code>
+      instead, which requires the profile parameter <code>ucon/rfc/check_blacklist = 0</code> to be set.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ STEP 4 ═══════════════════════════ -->
+<div class="section" id="step4">
+  <h2 class="section-title">Step 4 &mdash; Billing</h2>
+  <div class="card step-card s4">
+    <h3><span class="dot" style="background:var(--step4)"></span>Create Billing Document</h3>
+    <p>Creates an invoice (billing document) for the delivered goods. References the
+    delivery document with billing category <code>J</code> (delivery-related billing).</p>
+
+    <h4 style="margin-top:16px;">BAPI</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th></tr>
+      <tr>
+        <td><code>BAPI_BILLINGDOC_CREATEMULTIPLE</code></td>
+        <td>Creates one or more billing documents from delivery references</td>
+      </tr>
+      <tr>
+        <td><code>BAPI_TRANSACTION_COMMIT</code></td>
+        <td>Persists changes</td>
+      </tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Import Parameters</h4>
+    <table>
+      <tr><th>Table / Field</th><th>Value</th><th>Notes</th></tr>
+      <tr><td><code>BILLINGDATAIN.REF_DOC</code></td><td>Delivery number</td><td>Reference document</td></tr>
+      <tr><td><code>BILLINGDATAIN.REF_DOC_CA</code></td><td><code>J</code></td><td>Delivery-related billing</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Output</h4>
+    <p style="font-size:0.9rem; margin-top:6px;">Billing document number is retrieved from the <code>SUCCESS</code>
+    table (<code>BILL_DOC</code> field) or parsed from RETURN messages.</p>
+
+    <h4 style="margin-top:16px;">Tables Populated</h4>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Key Fields Written</th></tr>
+      <tr><td><code>VBRK</code></td><td>Billing Document Header</td><td>VBELN, FKART, KUNRG, NETWR, FKDAT, WAERK</td></tr>
+      <tr><td><code>VBRP</code></td><td>Billing Document Items</td><td>VBELN, POSNR, MATNR, FKIMG, NETWR</td></tr>
+      <tr><td><code>VBFA</code></td><td>Document Flow</td><td>VBELV=delivery, VBELN=billing, VBTYP_N='M'</td></tr>
+      <tr><td><code>BKPF</code></td><td>Accounting Document Header</td><td>BUKRS, BELNR, GJAHR (auto-created by billing)</td></tr>
+      <tr><td><code>BSEG</code></td><td>Accounting Document Items</td><td>Line items for revenue + receivable</td></tr>
+      <tr><td><code>ACDOCA</code></td><td>Universal Journal</td><td>S/4HANA single journal entry</td></tr>
+    </table>
+
+    <div class="warn-box" style="margin-top:14px;">
+      <strong>Prerequisites:</strong> The billing BAPI required two fixes in this IDES system:
+      (1) <code>CL_SD_BP_ADDRESS_GET</code> type mismatch fixed in SE24,
+      (2) POD requirement disabled &mdash; <code>TVLK.POBED</code> cleared for delivery type LF,
+      and <code>KNVV.PODKZ</code> cleared for customer 0017100003.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ STEP 5 ═══════════════════════════ -->
+<div class="section" id="step5">
+  <h2 class="section-title">Step 5 &mdash; Incoming Payment</h2>
+  <div class="card step-card s5">
+    <h3><span class="dot" style="background:var(--step5)"></span>Post Incoming Payment</h3>
+    <p>Posts an FI accounting document representing the customer's payment against the
+    billing document. Creates a bank debit (GL) and customer credit (AR) entry.</p>
+
+    <h4 style="margin-top:16px;">BAPI</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th></tr>
+      <tr>
+        <td><code>BAPI_ACC_DOCUMENT_POST</code></td>
+        <td>Posts a general FI accounting document</td>
+      </tr>
+      <tr>
+        <td><code>RFC_READ_TABLE</code></td>
+        <td>Reads billing amount from VBRK.NETWR</td>
+      </tr>
+      <tr>
+        <td><code>BAPI_TRANSACTION_COMMIT</code></td>
+        <td>Persists changes</td>
+      </tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Document Header (DOCUMENTHEADER)</h4>
+    <table>
+      <tr><th>Field</th><th>Value</th><th>Notes</th></tr>
+      <tr><td><code>BUS_ACT</code></td><td><code>RFBU</code></td><td>Business transaction type</td></tr>
+      <tr><td><code>USERNAME</code></td><td><code>IDES</code></td><td>Posting user</td></tr>
+      <tr><td><code>COMP_CODE</code></td><td><code>1710</code></td><td>Company code</td></tr>
+      <tr><td><code>DOC_TYPE</code></td><td><code>DZ</code></td><td>Customer payment document type</td></tr>
+      <tr><td><code>DOC_DATE</code></td><td>Today</td><td>Document date</td></tr>
+      <tr><td><code>PSTNG_DATE</code></td><td>Today</td><td>Posting date</td></tr>
+      <tr><td><code>REF_DOC_NO</code></td><td>Billing doc number</td><td>Cross-reference</td></tr>
+      <tr><td><code>HEADER_TXT</code></td><td><code>OTC Workflow Payment</code></td><td>Header text</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Line Items</h4>
+    <table>
+      <tr><th>Line</th><th>Table</th><th>Account</th><th>Amount</th><th>Details</th></tr>
+      <tr>
+        <td>001</td>
+        <td><code>ACCOUNTGL</code></td>
+        <td>GL <code>0011001000</code> (Main Bank)</td>
+        <td>+ (debit)</td>
+        <td>HOUSEBANKID=<code>USBK1</code>, HOUSEBANKACCTID=<code>USAC1</code></td>
+      </tr>
+      <tr>
+        <td>002</td>
+        <td><code>ACCOUNTRECEIVABLE</code></td>
+        <td>Customer number</td>
+        <td>&minus; (credit)</td>
+        <td>Clears the customer open item from billing</td>
+      </tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Amount Determination</h4>
+    <p style="font-size:0.9rem; margin-top:6px;">The payment amount is read from <code>VBRK.NETWR</code>
+    (billing document net value) via <code>RFC_READ_TABLE</code>. Both lines use the same absolute amount
+    with opposite signs (debit/credit) in USD.</p>
+
+    <h4 style="margin-top:16px;">Tables Populated</h4>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Key Fields Written</th></tr>
+      <tr><td><code>BKPF</code></td><td>Accounting Document Header</td><td>BUKRS, BELNR, GJAHR, BLART='DZ'</td></tr>
+      <tr><td><code>BSEG</code></td><td>Accounting Document Items</td><td>BUKRS, BELNR, GJAHR, BUZEI, KOART</td></tr>
+      <tr><td><code>ACDOCA</code></td><td>Universal Journal</td><td>S/4HANA consolidated entry</td></tr>
+      <tr><td><code>BSAD</code></td><td>Cleared Customer Items (index)</td><td>Customer payment clearing</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ TABLES ═══════════════════════════ -->
+<div class="section" id="tables">
+  <h2 class="section-title">SAP Tables Reference</h2>
+
+  <div class="card">
+    <h3>Sales &amp; Distribution (SD) Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th><th>Populated By</th></tr>
+      <tr><td><code>VBAK</code></td><td>Sales Document: Header Data</td><td>Order Header</td><td>Step 1</td></tr>
+      <tr><td><code>VBAP</code></td><td>Sales Document: Item Data</td><td>Order Items</td><td>Step 1</td></tr>
+      <tr><td><code>VBEP</code></td><td>Sales Document: Schedule Line Data</td><td>Schedule Lines</td><td>Step 1</td></tr>
+      <tr><td><code>VBPA</code></td><td>Sales Document: Partner</td><td>Partners</td><td>Step 1</td></tr>
+      <tr><td><code>VBKD</code></td><td>Sales Document: Business Data</td><td>Business Data</td><td>Step 1</td></tr>
+      <tr><td><code>VBFA</code></td><td>Sales Document: Document Flow</td><td>Document Flow</td><td>Steps 1-5</td></tr>
+      <tr><td><code>LIKP</code></td><td>SD Document: Delivery Header Data</td><td>Delivery Header</td><td>Step 2</td></tr>
+      <tr><td><code>LIPS</code></td><td>SD Document: Delivery Item Data</td><td>Delivery Items</td><td>Step 2</td></tr>
+      <tr><td><code>VBRK</code></td><td>Billing Document: Header Data</td><td>Billing Header</td><td>Step 4</td></tr>
+      <tr><td><code>VBRP</code></td><td>Billing Document: Item Data</td><td>Billing Items</td><td>Step 4</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Materials Management (MM) Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th><th>Populated By</th></tr>
+      <tr><td><code>MKPF</code></td><td>Header: Material Document</td><td>Mat. Doc Header</td><td>Step 3</td></tr>
+      <tr><td><code>MSEG</code></td><td>Document Segment: Material</td><td>Mat. Doc Items</td><td>Step 3</td></tr>
+      <tr><td><code>MATDOC</code></td><td>Material Document (S/4HANA)</td><td>Unified Mat. Doc</td><td>Step 3</td></tr>
+      <tr><td><code>MARD</code></td><td>Storage Location Data for Material</td><td>Stock Levels</td><td>Step 3 (updated)</td></tr>
+      <tr><td><code>MBEW</code></td><td>Material Valuation</td><td>Valuation</td><td>Step 3 (updated)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Financial Accounting (FI) Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th><th>Populated By</th></tr>
+      <tr><td><code>BKPF</code></td><td>Accounting Document Header</td><td>FI Doc Header</td><td>Steps 4, 5</td></tr>
+      <tr><td><code>BSEG</code></td><td>Accounting Document Segment</td><td>FI Doc Items</td><td>Steps 4, 5</td></tr>
+      <tr><td><code>ACDOCA</code></td><td>Universal Journal Entry (S/4HANA)</td><td>Universal Journal</td><td>Steps 4, 5</td></tr>
+      <tr><td><code>BSID</code></td><td>Accounting: Secondary Index for Customers (Open Items)</td><td>AR Open Items</td><td>Step 4</td></tr>
+      <tr><td><code>BSAD</code></td><td>Accounting: Secondary Index for Customers (Cleared Items)</td><td>AR Cleared Items</td><td>Step 5</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Configuration Tables (Modified for this Workflow)</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Change Applied</th></tr>
+      <tr><td><code>TVLK</code></td><td>Delivery Types</td><td>POBED cleared for LF (disabled POD requirement)</td></tr>
+      <tr><td><code>KNVV</code></td><td>Customer Sales Data</td><td>PODKZ cleared for customer 0017100003</td></tr>
+      <tr><td><code>T001K</code></td><td>Valuation Area</td><td>MLCCS cleared (CCS deactivated for plant 1710)</td></tr>
+      <tr><td><code>MARV</code></td><td>MM Period Control</td><td>Advanced to 04/2026</td></tr>
+      <tr><td><code>CKMLPP</code></td><td>ML Period Records</td><td>Gap-filled from IDES through 2026</td></tr>
+      <tr><td><code>CKMLCR</code></td><td>ML Currency Records</td><td>Gap-filled (CURTP 10 + 30)</td></tr>
+      <tr><td><code>T012</code></td><td>House Banks</td><td>USBK1 (pre-existing in IDES)</td></tr>
+      <tr><td><code>T012K</code></td><td>House Bank Accounts</td><td>USAC1 mapped to GL 0011001000</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Document Flow (VBFA) Type Codes</h3>
+    <p style="font-size:0.9rem; margin-bottom:10px;">The <code>VBTYP_N</code> field in VBFA identifies the subsequent document type:</p>
+    <div class="vbfa-types">
+      <span class="vbfa-chip"><code>C</code> Sales Order</span>
+      <span class="vbfa-chip"><code>J</code> Delivery</span>
+      <span class="vbfa-chip"><code>R</code> Goods Issue (Mat. Doc)</span>
+      <span class="vbfa-chip"><code>M</code> Billing Document</span>
+      <span class="vbfa-chip"><code>P</code> Payment</span>
+      <span class="vbfa-chip"><code>h</code> Return</span>
+      <span class="vbfa-chip"><code>O</code> Credit Memo</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ CDS VIEWS ═══════════════════════════ -->
+<div class="section" id="cds">
+  <h2 class="section-title">CDS Views Reference</h2>
+
+  <div class="card">
+    <h3>Sales Order CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_SalesOrder</code></td><td>Sales order header</td><td>VBAK</td></tr>
+      <tr><td><code>I_SalesOrderAPI01</code></td><td>Sales order header (API)</td><td>VBAK</td></tr>
+      <tr><td><code>I_SalesOrderItem</code></td><td>Sales order item</td><td>VBAP</td></tr>
+      <tr><td><code>I_SalesOrderItemAPI01</code></td><td>Sales order item (API)</td><td>VBAP</td></tr>
+      <tr><td><code>I_SalesOrderScheduleLine</code></td><td>Schedule line</td><td>VBEP</td></tr>
+      <tr><td><code>I_SalesOrderPartner</code></td><td>Partner functions</td><td>VBPA</td></tr>
+      <tr><td><code>I_SalesOrderPricingElement</code></td><td>Pricing conditions</td><td>PRCD_ELEMENTS</td></tr>
+      <tr><td><code>I_SalesOrderBillingPlanItem</code></td><td>Billing plan items</td><td>FPLT</td></tr>
+      <tr><td><code>I_SalesOrderText</code></td><td>Sales order texts</td><td>STXL</td></tr>
+      <tr><td><code>C_SalesOrder</code></td><td>Consumption: Manage Sales Orders</td><td>VBAK</td></tr>
+      <tr><td><code>C_SalesOrderItem</code></td><td>Consumption: Sales Order Items</td><td>VBAP</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Delivery CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_DeliveryDocument</code></td><td>Delivery header</td><td>LIKP</td></tr>
+      <tr><td><code>I_DeliveryDocumentItem</code></td><td>Delivery item</td><td>LIPS</td></tr>
+      <tr><td><code>I_DeliveryDocumentPartner</code></td><td>Delivery partner</td><td>VBPA</td></tr>
+      <tr><td><code>C_OutboundDelivery</code></td><td>Consumption: Outbound Deliveries</td><td>LIKP</td></tr>
+      <tr><td><code>C_OutbDeliveryItem</code></td><td>Consumption: Delivery Items</td><td>LIPS</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Billing Document CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_BillingDocument</code></td><td>Billing header</td><td>VBRK</td></tr>
+      <tr><td><code>I_BillingDocumentItem</code></td><td>Billing item</td><td>VBRP</td></tr>
+      <tr><td><code>I_BillingDocumentPartner</code></td><td>Billing partner</td><td>VBPA</td></tr>
+      <tr><td><code>I_BillingDocumentPricingElement</code></td><td>Billing pricing conditions</td><td>PRCD_ELEMENTS</td></tr>
+      <tr><td><code>C_BillingDocument</code></td><td>Consumption: Manage Billing Documents</td><td>VBRK</td></tr>
+      <tr><td><code>C_BillingDocumentItem</code></td><td>Consumption: Billing Items</td><td>VBRP</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Material Document / Goods Issue CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_MaterialDocumentHeader_2</code></td><td>Material doc header</td><td>MATDOC</td></tr>
+      <tr><td><code>I_MaterialDocumentItem_2</code></td><td>Material doc item</td><td>MATDOC</td></tr>
+      <tr><td><code>I_GoodsMovementItem</code></td><td>Goods movement item</td><td>MATDOC</td></tr>
+      <tr><td><code>I_MaterialStock</code></td><td>Material stock overview</td><td>MARD</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Document Flow CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_SalesDocumentFlow</code></td><td>Sales document flow</td><td>VBFA</td></tr>
+      <tr><td><code>I_SDDocumentPredecessor</code></td><td>Predecessor document</td><td>VBFA</td></tr>
+      <tr><td><code>I_SDDocumentSuccessor</code></td><td>Successor document</td><td>VBFA</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Accounting / Payment CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_JournalEntry</code></td><td>Accounting doc header</td><td>ACDOCA, BKPF</td></tr>
+      <tr><td><code>I_JournalEntryItem</code></td><td>Accounting line item</td><td>ACDOCA</td></tr>
+      <tr><td><code>I_OperationalAcctgDocItem</code></td><td>Operational accounting</td><td>ACDOCA</td></tr>
+      <tr><td><code>I_CustomerLineItem</code></td><td>Customer line items</td><td>ACDOCA</td></tr>
+      <tr><td><code>I_CustomerOpenItem</code></td><td>Customer open items (AR)</td><td>ACDOCA</td></tr>
+      <tr><td><code>I_CustomerClearedItem</code></td><td>Customer cleared items (AR)</td><td>ACDOCA</td></tr>
+      <tr><td><code>I_ARAccountBalance</code></td><td>Accounts receivable balance</td><td>ACDOCA</td></tr>
+      <tr><td><code>C_AROpenItems</code></td><td>Consumption: AR open items</td><td>ACDOCA</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Master Data CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_Customer</code></td><td>Customer general data</td><td>KNA1, BUT000</td></tr>
+      <tr><td><code>I_CustomerCompany</code></td><td>Customer company code data</td><td>KNB1</td></tr>
+      <tr><td><code>I_CustomerSalesArea</code></td><td>Customer sales area data</td><td>KNVV</td></tr>
+      <tr><td><code>I_CreditManagement</code></td><td>Credit management</td><td>KNKK</td></tr>
+      <tr><td><code>I_BusinessPartner</code></td><td>Business Partner general</td><td>BUT000</td></tr>
+      <tr><td><code>I_Product</code></td><td>Product/material general</td><td>MARA</td></tr>
+      <tr><td><code>I_ProductPlantBasic</code></td><td>Product plant data</td><td>MARC</td></tr>
+      <tr><td><code>I_ProductValuation</code></td><td>Product valuation</td><td>MBEW</td></tr>
+      <tr><td><code>I_ProductSalesDelivery</code></td><td>Product sales/delivery data</td><td>MVKE</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ BAPIs ═══════════════════════════ -->
+<div class="section" id="bapis">
+  <h2 class="section-title">BAPIs &amp; Function Modules</h2>
+  <div class="card">
+    <table>
+      <tr><th>Step</th><th>Function Module</th><th>Type</th><th>Purpose</th></tr>
+      <tr><td>1</td><td><code>BAPI_SALESORDER_CREATEFROMDAT2</code></td><td>BAPI</td><td>Create sales order with header, items, schedule lines, partners</td></tr>
+      <tr><td>1</td><td><code>BAPI_SALESORDER_CHANGE</code></td><td>BAPI</td><td>Release credit/delivery/billing blocks on order</td></tr>
+      <tr><td>2</td><td><code>BAPI_OUTB_DELIVERY_CREATE_SLS</code></td><td>BAPI</td><td>Create outbound delivery from sales order</td></tr>
+      <tr><td>3</td><td><code>RFC_READ_TABLE</code></td><td>RFC</td><td>Read delivery items (LIPS) for GI quantities</td></tr>
+      <tr><td>3</td><td><code>WS_DELIVERY_UPDATE_2</code></td><td>FM</td><td>Picking confirmation + goods issue posting</td></tr>
+      <tr><td>4</td><td><code>BAPI_BILLINGDOC_CREATEMULTIPLE</code></td><td>BAPI</td><td>Create billing document from delivery</td></tr>
+      <tr><td>5</td><td><code>RFC_READ_TABLE</code></td><td>RFC</td><td>Read billing amount from VBRK</td></tr>
+      <tr><td>5</td><td><code>BAPI_ACC_DOCUMENT_POST</code></td><td>BAPI</td><td>Post incoming payment (GL debit + AR credit)</td></tr>
+      <tr><td>*</td><td><code>BAPI_TRANSACTION_COMMIT</code></td><td>BAPI</td><td>Commit transaction (WAIT='X') &mdash; after every step</td></tr>
+      <tr><td>Init</td><td><code>BAPI_GOODSMVT_CREATE</code></td><td>BAPI</td><td>Stock initialization (mvt 501, goods receipt w/o PO)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ CONFIG ═══════════════════════════ -->
+<div class="section" id="config">
+  <h2 class="section-title">System Configuration Changes</h2>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3>RFC Blocklist Override</h3>
+      <p style="font-size:0.9rem;">S/4HANA blocks <code>WS_DELIVERY_UPDATE_2</code> by default (SAP Note 2416705).</p>
+      <pre>ucon/rfc/check_blacklist = 0</pre>
+      <p style="font-size:0.85rem; color:var(--text-light); margin-top:6px;">Set in SAP instance profile.</p>
+    </div>
+
+    <div class="card">
+      <h3>MM Posting Period (MARV)</h3>
+      <p style="font-size:0.9rem;">IDES was stuck at 12/2023. Advanced to 04/2026 via HANA SQL.</p>
+      <pre>UPDATE MARV SET LFMON='04', LFGJA='2026',
+  VMMON='03', VMGJA='2026',
+  VJMON='04', VJGJA='2025'
+WHERE BUKRS='1710'</pre>
+    </div>
+
+    <div class="card">
+      <h3>Material Ledger (CCS Deactivation)</h3>
+      <p style="font-size:0.9rem;">CCS control records were missing for 2026. Deactivated CCS:</p>
+      <pre>UPDATE T001K SET MLCCS='' WHERE BWKEY='1710'
+DELETE FROM TMLCCSHD WHERE BWKEY='1710'</pre>
+    </div>
+
+    <div class="card">
+      <h3>POD Requirement Disabled</h3>
+      <p style="font-size:0.9rem;">Proof of Delivery was blocking billing for delivery type LF:</p>
+      <pre>UPDATE TVLK SET POBED=''
+  WHERE MANDT='100' AND LFART='LF'
+UPDATE KNVV SET PODKZ=''
+  WHERE KUNNR='0017100003' AND PODKZ='X'</pre>
+    </div>
+
+    <div class="card">
+      <h3>ABAP Class Fix (SE24)</h3>
+      <p style="font-size:0.9rem;"><code>CL_SD_BP_ADDRESS_GET</code> had a type mismatch in IDES:</p>
+      <pre><span class="comment">-- Changed in method GET_BP_ADDRESSES_FOR_CUSTOMER:</span>
+DATA lt_address TYPE if_md_bp=>addresses.
+DATA ls_address TYPE if_md_bp=>address.</pre>
+    </div>
+
+    <div class="card">
+      <h3>CKMLPP/CKMLCR Gap Fill</h3>
+      <p style="font-size:0.9rem;">ML period records had gaps between IDES data (2023) and 2026:</p>
+      <pre><span class="comment">-- Filled continuous periods for all 6 materials</span>
+<span class="comment">-- CKMLPP: STATUS='10', CD_OK='X'</span>
+<span class="comment">-- CKMLCR: CURTP 10 (company) + 30 (group)</span></pre>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ USAGE ═══════════════════════════ -->
+<div class="section" id="usage">
+  <h2 class="section-title">Usage</h2>
+  <div class="card">
+    <h3>Quick Start</h3>
+    <pre>cd ~/SAP_OTC
+
+<span class="comment"># First time: compile Java sources</span>
+./compile.sh
+
+<span class="comment"># Run full OTC workflow (1 order, all 5 steps)</span>
+./otcwf.sh full 1 --verbose</pre>
+
+    <h3 style="margin-top:20px;">Full Workflow (All 5 Steps)</h3>
+    <pre>./otcwf.sh full 1 --verbose     <span class="comment"># 1 order, all steps, verbose output</span>
+./otcwf.sh full 5               <span class="comment"># 5 orders, all steps</span>
+./otcwf.sh full 100 --items 2   <span class="comment"># 100 orders, max 2 items each</span>
+./otcwf.sh full 1000            <span class="comment"># 1000 orders (~3.3 hours)</span></pre>
+
+    <h3 style="margin-top:20px;">Individual Steps</h3>
+    <pre>./otcwf.sh step1-order 5             <span class="comment"># 5 sales orders only</span>
+./otcwf.sh step2-delivery 0000005663 <span class="comment"># Delivery for specific order</span>
+./otcwf.sh step3-goodsissue 80006341 <span class="comment"># GI for specific delivery</span>
+./otcwf.sh step4-billing 80006341    <span class="comment"># Billing for specific delivery</span>
+./otcwf.sh step5-payment 90004903    <span class="comment"># Payment for specific billing doc</span></pre>
+
+    <h3 style="margin-top:20px;">Utilities</h3>
+    <pre>./otcwf.sh status 0000005663    <span class="comment"># Show document flow (VBFA)</span>
+./otcwf.sh stock-init --verbose <span class="comment"># Initialize stock for all materials (mvt 501)</span></pre>
+
+    <h3 style="margin-top:20px;">Options</h3>
+    <table>
+      <tr><th>Flag</th><th>Description</th><th>Default</th></tr>
+      <tr><td><code>--verbose</code></td><td>Print BAPI return messages and debug info</td><td>off</td></tr>
+      <tr><td><code>--dry-run</code></td><td>Validate without saving (TESTRUN='X')</td><td>off</td></tr>
+      <tr><td><code>--items N</code></td><td>Maximum line items per order</td><td>3</td></tr>
+      <tr><td><code>--pause N</code></td><td>Seconds between steps</td><td>2</td></tr>
+    </table>
+
+    <h3 style="margin-top:20px;">Verification (SAPOTCExtractor)</h3>
+    <pre><span class="comment"># Sales orders</span>
+./otc.sh extract VBAK VBELN,ERDAT,AUART,KUNNR,NETWR "ERDAT >= '20260401'"
+./otc.sh extract VBAP VBELN,POSNR,MATNR,KWMENG,NETPR "ERDAT >= '20260401'"
+
+<span class="comment"># Deliveries</span>
+./otc.sh extract LIKP VBELN,LFART,ERDAT,KUNNR "ERDAT >= '20260401'"
+./otc.sh extract LIPS VBELN,POSNR,MATNR,LFIMG "ERDAT >= '20260401'"
+
+<span class="comment"># Billing documents</span>
+./otc.sh extract VBRK VBELN,FKART,NETWR,FKDAT "FKDAT >= '20260401'"
+./otc.sh extract VBRP VBELN,POSNR,MATNR,NETWR "ERDAT >= '20260401'"
+
+<span class="comment"># Document flow</span>
+./otc.sh extract VBFA VBELV,VBELN,VBTYP_N "ERDAT >= '20260401'"
+
+<span class="comment"># Financial documents</span>
+./otc.sh extract BKPF BUKRS,BELNR,GJAHR,BLART,BUDAT "BUDAT >= '20260401'"
+
+<span class="comment"># Table tools</span>
+./otc.sh tables                 <span class="comment"># List all OTC tables</span>
+./otc.sh describe VBAK          <span class="comment"># Show table fields</span>
+./otc.sh count VBAK             <span class="comment"># Row count</span></pre>
+
+    <h3 style="margin-top:20px;">Development Workflow</h3>
+    <pre><span class="comment"># 1. Edit Java sources in ~/SAP_OTC/</span>
+<span class="comment"># 2. Compile</span>
+./compile.sh
+
+<span class="comment"># 3. Test (JCo connects to SAP over the network)</span>
+./otcwf.sh full 1 --dry-run --verbose
+
+<span class="comment"># 4. Run for real</span>
+./otcwf.sh full 5</pre>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ HANA ACCESS ═══════════════════════════ -->
+<div class="section" id="hana">
+  <h2 class="section-title">HANA Database Access</h2>
+  <div class="card">
+    <p style="margin-bottom:14px;">
+      Direct HANA SQL access is available for configuration changes, debugging, and ad-hoc queries.
+      Requires an SSH tunnel since HANA is not exposed publicly.
+    </p>
+
+    <h3>Start SSH Tunnel</h3>
+    <pre><span class="comment"># Start the tunnel (runs in background, idempotent)</span>
+./hana_tunnel.sh</pre>
+
+    <h3 style="margin-top:20px;">Run SQL Queries</h3>
+    <pre><span class="comment"># Single query</span>
+python3 hana_sql.py "SELECT * FROM TVLK WHERE LFART='LF'"
+
+<span class="comment"># Interactive SQL prompt</span>
+python3 hana_sql.py interactive
+
+<span class="comment"># Override connection parameters</span>
+python3 hana_sql.py --port 30041 --db FIV "SELECT 1 FROM DUMMY"</pre>
+
+    <h3 style="margin-top:20px;">Common HANA Queries</h3>
+    <pre><span class="comment"># Check MM posting period</span>
+python3 hana_sql.py "SELECT BUKRS,LFMON,LFGJA FROM MARV WHERE BUKRS='1710'"
+
+<span class="comment"># Check Material Ledger config</span>
+python3 hana_sql.py "SELECT BWKEY,MLBWA,MLBWV,MLAST,MLCCS FROM T001K WHERE BWKEY='1710'"
+
+<span class="comment"># Check customer POD settings</span>
+python3 hana_sql.py "SELECT KUNNR,VKORG,PODKZ FROM KNVV WHERE KUNNR IN ('0017100001','0017100002','0017100003') AND VKORG='1710'"
+
+<span class="comment"># Check delivery type POD</span>
+python3 hana_sql.py "SELECT LFART,POBED FROM TVLK WHERE LFART='LF'"
+
+<span class="comment"># Check house bank accounts</span>
+python3 hana_sql.py "SELECT BUKRS,HBKID,HKTID,HKONT FROM T012K WHERE BUKRS='1710' AND HBKID='USBK1'"
+
+<span class="comment"># Check ML period records</span>
+python3 hana_sql.py "SELECT KALNR,BDATJ,PESSION,STATUS FROM CKMLPP WHERE KALNR='000100000002' AND BDATJ='2026'"
+
+<span class="comment"># UPDATE example (autocommit is on)</span>
+python3 hana_sql.py "UPDATE TVLK SET POBED='' WHERE MANDT='100' AND LFART='LF'"</pre>
+
+    <h3 style="margin-top:20px;">Connection Details</h3>
+    <table>
+      <tr><th>Parameter</th><th>Value</th><th>Notes</th></tr>
+      <tr><td>Host</td><td><code>localhost</code></td><td>Via SSH tunnel</td></tr>
+      <tr><td>Port</td><td><code>30015</code></td><td>HANA indexserver (instance 00)</td></tr>
+      <tr><td>Tenant DB</td><td><code>FIV</code></td><td>S/4HANA data lives here</td></tr>
+      <tr><td>Schema</td><td><code>SAPHANADB</code></td><td>All SAP tables (VBAK, LIKP, etc.)</td></tr>
+      <tr><td>User</td><td><code>SAPHANADB</code></td><td>Schema owner, full read/write access</td></tr>
+      <tr><td>Password</td><td><code>Fivetran1T1D</code></td><td>Lifetime disabled, no expiry</td></tr>
+    </table>
+
+    <div class="warn-box" style="margin-top:14px;">
+      <strong>Buffered tables:</strong> HANA SQL changes to buffered SAP tables
+      (T001K, TVLK, KNVV, MARV) require an SAP restart to take effect in the application layer.
+      RFC_READ_TABLE reads from the SAP buffer, not directly from HANA.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ PERFORMANCE ═══════════════════════════ -->
+<div class="section" id="performance">
+  <h2 class="section-title">Performance</h2>
+  <div class="card">
+    <table>
+      <tr><th>Orders</th><th>Approx. Time</th><th>Rate</th></tr>
+      <tr><td>1</td><td>~12s</td><td>(includes JCo pool warmup)</td></tr>
+      <tr><td>5</td><td>~60s</td><td>~12s/order</td></tr>
+      <tr><td>10</td><td>~2 min</td><td>~12s/order</td></tr>
+      <tr><td>100</td><td>~20 min</td><td>~12s/order</td></tr>
+      <tr><td>1000</td><td>~3.3 hours</td><td>~12s/order</td></tr>
+    </table>
+
+    <p style="font-size:0.9rem; margin-top:14px;">
+      Each order passes through 5 BAPI/RFC calls + 3 commits + pauses (~2s each between LUW boundaries).
+      The ~12s/order rate includes all 5 steps. Steps 1-2 only take ~3.5s/order.
+    </p>
+
+    <h4 style="margin-top:16px;">Time Breakdown per Order</h4>
+    <div style="margin-top:10px;">
+      <div class="perf-row">
+        <span class="perf-label">Step 1</span>
+        <div class="perf-bar"><div class="perf-fill" style="width:25%; background:var(--step1);">~3s</div></div>
+      </div>
+      <div class="perf-row">
+        <span class="perf-label">Step 2</span>
+        <div class="perf-bar"><div class="perf-fill" style="width:17%; background:var(--step2);">~2s</div></div>
+      </div>
+      <div class="perf-row">
+        <span class="perf-label">Step 3</span>
+        <div class="perf-bar"><div class="perf-fill" style="width:20%; background:var(--step3);">~2.5s</div></div>
+      </div>
+      <div class="perf-row">
+        <span class="perf-label">Step 4</span>
+        <div class="perf-bar"><div class="perf-fill" style="width:17%; background:var(--step4);">~2s</div></div>
+      </div>
+      <div class="perf-row">
+        <span class="perf-label">Step 5</span>
+        <div class="perf-bar"><div class="perf-fill" style="width:17%; background:var(--step5);">~2s</div></div>
+      </div>
+      <div class="perf-row">
+        <span class="perf-label" style="color:var(--text-light);">Pauses</span>
+        <div class="perf-bar"><div class="perf-fill" style="width:50%; background:#adb5bd;">~6s (3x2s between LUWs)</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════ TROUBLESHOOTING ═══════════════════════════ -->
+<div class="section" id="troubleshooting">
+  <h2 class="section-title">Troubleshooting</h2>
+  <div class="card">
+    <table>
+      <tr><th style="min-width:220px;">Error</th><th>Cause</th><th>Fix</th></tr>
+      <tr>
+        <td><code>Orders not persisting</code></td>
+        <td>JCo routes BAPI + COMMIT to different connections</td>
+        <td>Wrap with <code>JCoContext.begin/end(dest)</code></td>
+      </tr>
+      <tr>
+        <td><code>CMGST=B</code> (credit blocked)</td>
+        <td>USCU_* customers have no credit limits</td>
+        <td>Use 001710000x customers only</td>
+      </tr>
+      <tr>
+        <td><code>No schedule lines due for delivery</code></td>
+        <td>Order date too far in past</td>
+        <td>Set <code>DUE_DATE</code> on delivery BAPI</td>
+      </tr>
+      <tr>
+        <td><code>Incompatible Call Rejected</code></td>
+        <td>S/4HANA RFC Blocklist</td>
+        <td>Set <code>ucon/rfc/check_blacklist = 0</code> in profile</td>
+      </tr>
+      <tr>
+        <td><code>M7/053</code> Posting period not open</td>
+        <td>MM period stuck in old year</td>
+        <td>Update MARV via HANA SQL</td>
+      </tr>
+      <tr>
+        <td><code>ML4HMASTER/229</code> CCS records missing</td>
+        <td>CCS active but no 2026 period data</td>
+        <td>Deactivate CCS: T001K.MLCCS='' + delete TMLCCSHD</td>
+      </tr>
+      <tr>
+        <td><code>C+/073</code> Error reading ML period records</td>
+        <td>Gap in CKMLPP between IDES data and 2026</td>
+        <td>Fill all gap periods in CKMLPP + CKMLCR</td>
+      </tr>
+      <tr>
+        <td><code>C+/700</code> No period records found</td>
+        <td>Missing CKMLPP/CKMLCR for current period</td>
+        <td>Create CKMLPP (STATUS=10) + CKMLCR (CURTP 10/30)</td>
+      </tr>
+      <tr>
+        <td><code>Deficit of SL Unrestricted-use</code></td>
+        <td>No stock for material</td>
+        <td>Run <code>otcwf stock-init</code></td>
+      </tr>
+      <tr>
+        <td><code>SYNTAX_ERROR</code> in billing BAPI</td>
+        <td>CL_SD_BP_ADDRESS_GET type mismatch</td>
+        <td>Fix in SE24 (change to if_md_bp=>addresses)</td>
+      </tr>
+      <tr>
+        <td><code>POD report back not yet carried out</code></td>
+        <td>POD required for delivery type/customer</td>
+        <td>Clear TVLK.POBED for LF + KNVV.PODKZ per customer</td>
+      </tr>
+      <tr>
+        <td><code>House bank account doesn't exist</code></td>
+        <td>T012K entry missing or wrong account ID</td>
+        <td>Use existing T012K: USBK1/USAC1</td>
+      </tr>
+      <tr>
+        <td><code>G/L account not defined in chart</code></td>
+        <td>Wrong chart of accounts</td>
+        <td>Use <code>0011001000</code> (YCOA chart, company 1710)</td>
+      </tr>
+      <tr>
+        <td><code>JCoException: connect failed</code></td>
+        <td>SAP system down or unreachable</td>
+        <td>Verify network connectivity to SAP host</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- container -->
+
+<!-- ═══════════════════════════ FOOTER ═══════════════════════════ -->
+<div class="footer">
+  <p>SAP OTC Workflow Documentation &mdash; S/4HANA IDES (SID: S4H, Client 100, Plant 1710)</p>
+  <p style="margin-top:4px;">Updated 2026-04-08 &mdash; All 5 steps operational at 100% success rate &mdash; Runs locally from ~/SAP_OTC/</p>
+</div>
+
+</body>
+</html>

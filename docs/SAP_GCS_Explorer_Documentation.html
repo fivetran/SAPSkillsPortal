@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GCS Parquet Explorer Documentation</title>
+<style>
+  :root {
+    --primary: #6b7280;
+    --primary-light: #9ca3af;
+    --primary-dark: #4b5563;
+    --accent: #f59e0b;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  .header .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+
+  /* Navigation */
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #e6f7f5; }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  th {
+    background: var(--primary);
+    color: white;
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:hover td { background: #f8f9fa; }
+  td code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  /* Code blocks */
+  pre {
+    background: #1e2937;
+    color: #e2e8f0;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin-top: 10px;
+  }
+  pre .comment { color: #6b7b8d; }
+  pre .string { color: #7ec699; }
+  pre .keyword { color: #c792ea; }
+
+  /* Copy button */
+  .pre-wrap { position: relative; margin-bottom: 16px; }
+  .pre-wrap pre { margin-bottom: 0; }
+  .copy-btn { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #94a3b8; border-radius: 5px; padding: 4px 8px; font-size: 0.72rem; font-family: inherit; cursor: pointer; transition: background 0.15s, color 0.15s; line-height: 1; z-index: 1; }
+  .copy-btn:hover { background: rgba(255,255,255,0.2); color: #e2e8f0; }
+  .copy-btn.copied { background: #166534; border-color: #22c55e; color: #86efac; }
+
+  /* Info boxes */
+  .info-box {
+    background: #e6f7f5;
+    border-left: 4px solid var(--primary);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+  .warn-box {
+    background: #fef5e7;
+    border-left: 4px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+
+  /* Two-column grid */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 768px) {
+    .grid-2 { grid-template-columns: 1fr; }
+  }
+
+  /* Parameter list */
+  .param-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 4px 16px;
+    font-size: 0.88rem;
+    margin: 8px 0;
+  }
+  .param-grid dt {
+    font-weight: 600;
+    font-family: 'SF Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--primary);
+  }
+  .param-grid dd { color: var(--text-light); }
+
+  /* Architecture diagram */
+  .arch-diagram {
+    background: #1e2937;
+    color: #e2e8f0;
+    padding: 20px 24px;
+    border-radius: 8px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.82rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre;
+    margin-top: 10px;
+  }
+
+  /* Step card */
+  .step-card {
+    border-left: 4px solid var(--primary);
+    padding-left: 20px;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>GCS Parquet Explorer</h1>
+  <div class="subtitle">Datalake Reader &amp; Iceberg Table Explorer</div>
+  <span class="badge">SAP S/4HANA 2023</span>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#local">Local Version</a>
+    <a href="#server">Server Version</a>
+    <a href="#duckdb">DuckDB Engine</a>
+    <a href="#iceberg">Iceberg &amp; Polaris</a>
+    <a href="#api">API Endpoints</a>
+    <a href="#deployment">Deployment</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- OVERVIEW -->
+<div class="section" id="overview">
+  <h2 class="section-title">Overview</h2>
+  <div class="card">
+    <p>
+      <strong>GCS Parquet Explorer</strong> is a single-file Python web application for browsing and querying
+      SAP CDS Parquet data across Google Cloud Storage, Azure Data Lake, and AWS S3. It provides an interactive
+      web UI with DuckDB-powered SQL queries, schema inspection, and Iceberg table support via Polaris REST catalogs.
+    </p>
+    <div class="info-box" style="margin-top:14px;">
+      <strong>No pandas dependency.</strong> The entire stack runs on DuckDB + PyArrow for maximum performance
+      and minimal memory footprint. DuckDB runs in a subprocess-isolated architecture to prevent GIL contention.
+    </div>
+    <br>
+    <div class="grid-2">
+      <div>
+        <h4>Application</h4>
+        <dl class="param-grid">
+          <dt>Type</dt><dd>Single-file Python web app</dd>
+          <dt>GitHub</dt><dd><a href="https://github.com/fivetran-antoniocarbone/gcs-parquet-explorer" style="color:var(--primary)">fivetran-antoniocarbone/gcs-parquet-explorer</a></dd>
+          <dt>Live URL</dt><dd><a href="https://sapidesecc8.fivetran-internal-sales.com/datalake_reader/" style="color:var(--primary)">sapidesecc8/datalake_reader/</a></dd>
+          <dt>SQL Engine</dt><dd>DuckDB (subprocess-isolated)</dd>
+          <dt>Parquet</dt><dd>PyArrow (no pandas)</dd>
+        </dl>
+      </div>
+      <div>
+        <h4>Two Versions</h4>
+        <dl class="param-grid">
+          <dt>Local</dt><dd><code>gcs_explorer.py</code> &mdash; port 8765, HTTP</dd>
+          <dt>Server</dt><dd><code>gcs_explorer_server.py</code> &mdash; port 443, HTTPS</dd>
+          <dt>Cloud Support</dt><dd>GCS, Azure Data Lake, AWS S3</dd>
+          <dt>Iceberg</dt><dd>DuckDB extension + Polaris REST</dd>
+          <dt>Default Bucket</dt><dd><code>sap_cds_dbt</code></dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Key Features</h3>
+    <div class="grid-2">
+      <ul style="margin-left:18px;">
+        <li>Browse GCS buckets and Parquet files</li>
+        <li>SQL queries via DuckDB</li>
+        <li>Schema inspection and Parquet metadata</li>
+        <li>Multi-cloud support (GCS, Azure, S3)</li>
+      </ul>
+      <ul style="margin-left:18px;">
+        <li>Iceberg table support via Polaris catalogs</li>
+        <li>Memory-aware caching with LRU eviction</li>
+        <li>Responsive Fivetran-themed UI</li>
+        <li>AWS vended credentials with query rewrite</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ARCHITECTURE -->
+<div class="section" id="architecture">
+  <h2 class="section-title">Architecture</h2>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Single-File Design</h3>
+    <p>
+      Everything lives in one <code>.py</code> file: Python backend + embedded HTML/CSS/JS frontend
+      in a raw string (<code>HTML_PAGE = r"""..."""</code>). Because the HTML is in a Python raw string,
+      <code>\u</code> unicode escapes do NOT work in CSS/JS &mdash; use literal UTF-8 characters or HTML entities.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Technology Stack</h3>
+    <table>
+      <tr><th>Layer</th><th>Technology</th></tr>
+      <tr><td>Server</td><td><code>http.server.ThreadingHTTPServer</code> (multi-threaded)</td></tr>
+      <tr><td>DuckDB Isolation</td><td>Separate subprocess via <code>multiprocessing.Process</code> (GIL-isolated)</td></tr>
+      <tr><td>SQL Engine</td><td>DuckDB (in-memory, with httpfs + iceberg + azure extensions)</td></tr>
+      <tr><td>Azure Transport</td><td><code>SET azure_transport_option_type='curl'</code> (fixes SSL on SUSE)</td></tr>
+      <tr><td>Parquet</td><td>PyArrow (<code>pyarrow.parquet</code>) &mdash; no pandas dependency</td></tr>
+      <tr><td>GCS</td><td><code>google-cloud-storage</code> with Application Default Credentials</td></tr>
+      <tr><td>Iceberg</td><td>DuckDB Iceberg extension + Polaris REST catalog</td></tr>
+      <tr><td>Polaris REST API</td><td>Direct HTTP calls for fast namespace/table listing (~250x faster)</td></tr>
+      <tr><td>Memory</td><td><code>psutil</code> for LRU eviction at 85% system memory</td></tr>
+      <tr><td>Auth</td><td>Email-based login with session cookies (server version only)</td></tr>
+      <tr><td>SSL</td><td>ZeroSSL certificate with chained PEM (server version only)</td></tr>
+      <tr><td>UI</td><td>Embedded HTML/CSS/JS, Fivetran light theme, no frameworks</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Server vs Local Differences</h3>
+    <table>
+      <tr><th>Feature</th><th>Local (<code>gcs_explorer.py</code>)</th><th>Server (<code>gcs_explorer_server.py</code>)</th></tr>
+      <tr><td>Port</td><td>8765 (HTTP)</td><td>443 (HTTPS)</td></tr>
+      <tr><td>URL prefix</td><td><code>/</code></td><td><code>/datalake_reader/</code></td></tr>
+      <tr><td>Login</td><td>None</td><td>Email-based (<code>LOGIN_PASSWORD</code>)</td></tr>
+      <tr><td>SSL</td><td>None</td><td>ZeroSSL cert + key</td></tr>
+      <tr><td>Threading</td><td><code>HTTPServer</code></td><td><code>ThreadingHTTPServer</code></td></tr>
+      <tr><td>DuckDB process</td><td>In-process</td><td>Separate subprocess (<code>DuckDBWorker</code>)</td></tr>
+      <tr><td>DuckDB comms</td><td>Direct calls</td><td><code>multiprocessing.Queue</code> (command/response)</td></tr>
+      <tr><td>Hang recovery</td><td>None</td><td>Auto-kill + respawn worker on timeout</td></tr>
+      <tr><td>Socket backlog</td><td>Default (5)</td><td>64 (<code>request_queue_size = 64</code>)</td></tr>
+      <tr><td>Azure transport</td><td>Default</td><td><code>curl</code> (fixes SSL on SUSE)</td></tr>
+      <tr><td>Polaris listing</td><td>DuckDB <code>information_schema</code></td><td>Direct Polaris REST API</td></tr>
+      <tr><td>Credential mgmt</td><td>None</td><td>UI panel to update client_id/secret</td></tr>
+      <tr><td>Process mgmt</td><td>Manual</td><td>systemd (auto-restart, boot start)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- LOCAL VERSION -->
+<div class="section" id="local">
+  <h2 class="section-title">Local Version</h2>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Configuration</h3>
+    <div class="grid-2">
+      <div>
+        <dl class="param-grid">
+          <dt>File</dt><dd><code>gcs_explorer.py</code></dd>
+          <dt>Port</dt><dd>8765 (HTTP)</dd>
+          <dt>Auth</dt><dd>None</dd>
+          <dt>Default Bucket</dt><dd><code>sap_cds_dbt</code></dd>
+        </dl>
+      </div>
+      <div>
+        <dl class="param-grid">
+          <dt>Default Prefix</dt><dd><code>sap_cds_views/</code></dd>
+          <dt>State File</dt><dd><code>~/.gcs_explorer_state.json</code></dd>
+          <dt>DuckDB</dt><dd>In-process (direct calls)</dd>
+          <dt>Python</dt><dd>3.10+ required</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Requirements</h3>
+    <pre>duckdb
+pyarrow
+google-cloud-storage
+psutil</pre>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Setup</h3>
+    <pre><span class="comment"># Install dependencies</span>
+pip install duckdb pyarrow google-cloud-storage psutil
+
+<span class="comment"># Authenticate with GCS</span>
+gcloud auth application-default login
+
+<span class="comment"># Run the explorer</span>
+python gcs_explorer.py</pre>
+    <div class="info-box" style="margin-top:14px;">
+      The local version stores the last-browsed bucket and prefix in <code>~/.gcs_explorer_state.json</code>
+      so it resumes where you left off on next launch.
+    </div>
+  </div>
+</div>
+
+<!-- SERVER VERSION -->
+<div class="section" id="server">
+  <h2 class="section-title">Server Version (sapidesecc8)</h2>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Host Details</h3>
+    <div class="grid-2">
+      <div>
+        <dl class="param-grid">
+          <dt>Hostname</dt><dd>sapidesecc8.fivetran-internal-sales.com</dd>
+          <dt>OS</dt><dd>SUSE Linux Enterprise Server 15 SP5</dd>
+          <dt>Python</dt><dd><code>/root/miniconda/bin/python3</code> (3.13.9)</dd>
+          <dt>Port</dt><dd>443 (HTTPS)</dd>
+        </dl>
+      </div>
+      <div>
+        <dl class="param-grid">
+          <dt>URL</dt><dd><a href="https://sapidesecc8.fivetran-internal-sales.com/datalake_reader/" style="color:var(--primary)">sapidesecc8/datalake_reader/</a></dd>
+          <dt>SSL</dt><dd>ZeroSSL (expires Jun 25, 2026)</dd>
+          <dt>Login</dt><dd><code>Fivetran?99</code></dd>
+          <dt>SSH</dt><dd><code>root@sapidesecc8</code></dd>
+        </dl>
+      </div>
+    </div>
+    <div class="warn-box" style="margin-top:14px;">
+      <strong>Important:</strong> <code>sudo</code> on sapidesecc8 uses <code>/usr/bin/python3</code> which does NOT have
+      duckdb/pyarrow. Always use <code>/root/miniconda/bin/python3</code> in service files and direct execution.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Server Files</h3>
+    <table>
+      <tr><th>File</th><th>Purpose</th></tr>
+      <tr><td><code>/usr/sap/gcs_explorer_server.py</code></td><td>Deployed production copy (port 443)</td></tr>
+      <tr><td><code>/usr/sap/gcs_explorer_server_dev.py</code></td><td>Deployed dev copy (port 8443)</td></tr>
+      <tr><td><code>/usr/sap/gcs_explorer_cert.pem</code></td><td>SSL certificate (ZeroSSL, chained: server + intermediate CA)</td></tr>
+      <tr><td><code>/usr/sap/gcs_explorer_key.pem</code></td><td>SSL private key</td></tr>
+      <tr><td><code>/usr/sap/gcs_explorer.env</code></td><td>Environment variables (secrets)</td></tr>
+      <tr><td><code>/etc/systemd/system/gcs-explorer.service</code></td><td>systemd service unit (production)</td></tr>
+      <tr><td><code>/etc/systemd/system/gcs-explorer-dev.service</code></td><td>systemd service unit (dev)</td></tr>
+      <tr><td><code>/var/log/gcs_explorer.log</code></td><td>Server log file (production)</td></tr>
+      <tr><td><code>/var/log/gcs_explorer_dev.log</code></td><td>Server log file (dev)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>systemd Service</h3>
+    <pre>[Unit]
+Description=GCS Parquet Explorer Web Server
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/usr/sap
+EnvironmentFile=-/usr/sap/gcs_explorer.env
+ExecStart=/root/miniconda/bin/python3 -u /usr/sap/gcs_explorer_server.py
+Restart=always
+RestartSec=5
+StandardOutput=append:/var/log/gcs_explorer.log
+StandardError=append:/var/log/gcs_explorer.log
+
+[Install]
+WantedBy=multi-user.target</pre>
+    <p style="margin-top:12px;">Features: auto-restart on crash (5s delay), auto-start on reboot, unbuffered output (<code>-u</code>) for immediate log visibility.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Additional Routes</h3>
+    <p>The server also hosts the <strong>SAP Skills Portal</strong> static files at the <code>/sap_skills/</code> route,
+    serving HTML/CSS/JS from <code>/usr/sap/sap_skills/</code> on the filesystem.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Environment Variables</h3>
+    <table>
+      <tr><th>Variable</th><th>Purpose</th></tr>
+      <tr><td><code>GCS_EXPLORER_PASSWORD</code></td><td>Login password (default: <code>changeme</code>)</td></tr>
+      <tr><td><code>POLARIS_GCS_CLIENT_ID</code></td><td>Google Cloud Polaris OAuth client ID</td></tr>
+      <tr><td><code>POLARIS_GCS_CLIENT_SECRET</code></td><td>Google Cloud Polaris OAuth client secret</td></tr>
+      <tr><td><code>POLARIS_AZURE_CLIENT_ID</code></td><td>Azure Polaris OAuth client ID</td></tr>
+      <tr><td><code>POLARIS_AZURE_CLIENT_SECRET</code></td><td>Azure Polaris OAuth client secret</td></tr>
+      <tr><td><code>POLARIS_AWS_CLIENT_ID</code></td><td>AWS Polaris OAuth client ID</td></tr>
+      <tr><td><code>POLARIS_AWS_CLIENT_SECRET</code></td><td>AWS Polaris OAuth client secret</td></tr>
+    </table>
+    <div class="info-box" style="margin-top:14px;">
+      On the server, these are stored in <code>/usr/sap/gcs_explorer.env</code> and loaded by systemd via
+      <code>EnvironmentFile</code>. The current production server still has credentials hardcoded in its
+      deployed copy and works without the env file.
+    </div>
+  </div>
+</div>
+
+<!-- DUCKDB ENGINE -->
+<div class="section" id="duckdb">
+  <h2 class="section-title">DuckDB Subprocess Architecture</h2>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Why Subprocess Isolation?</h3>
+    <p>
+      DuckDB's C extension holds the Python <strong>GIL</strong> (Global Interpreter Lock) during network I/O
+      operations such as <code>ATTACH TYPE ICEBERG</code> and <code>iceberg_scan</code> over S3. In the old
+      in-process design, this froze ALL Python threads &mdash; including the HTTP server's accept loop. No amount
+      of Python-level locking or watchdogging could prevent this because the GIL itself was blocked in C code.
+    </p>
+    <p style="margin-top:10px;">
+      <strong>Solution:</strong> Moving DuckDB to a separate subprocess gives it its own GIL that cannot affect
+      the HTTP server. The two processes communicate via <code>multiprocessing.Queue</code> using a command/response pattern.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Process Architecture</h3>
+    <div class="arch-diagram">&#9484;&#9472; Main Process (HTTP Server) &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;     &#9484;&#9472; Child Process (DuckDB) &#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9488;
+&#9474; ThreadingHTTPServer               &#9474;     &#9474; _duckdb_worker()              &#9474;
+&#9474; All HTTP handlers                 &#9474;     &#9474; Owns db_conn (duckdb.connect) &#9474;
+&#9474; GCS operations (list, download)   &#9474;  Q  &#9474; Owns arrow_tables dict        &#9474;
+&#9474; Polaris REST API calls            &#9474;&#9472;&#9472;&#9472;>&#9474; Command loop:                 &#9474;
+&#9474; DuckDBWorker (sends commands)     &#9474;<&#9472;&#9472;&#9472;&#9474;   exec_sql, exec_multi,       &#9474;
+&#9474; loaded_tables (metadata only)     &#9474;  Q  &#9474;   register_table,             &#9474;
+&#9474; polaris_catalogs dict             &#9474;     &#9474;   unregister_table            &#9474;
+&#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;     &#9492;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9472;&#9496;</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Commands</h3>
+    <table>
+      <tr><th>Command</th><th>Description</th><th>Timeout</th></tr>
+      <tr><td><code>exec_sql</code></td><td>Execute a single SQL query</td><td>50s</td></tr>
+      <tr><td><code>exec_multi</code></td><td>Execute multiple SQL statements (ATTACH, etc.)</td><td>65s</td></tr>
+      <tr><td><code>register_table</code></td><td>Register a PyArrow table in DuckDB via IPC serialization</td><td>30s</td></tr>
+      <tr><td><code>unregister_table</code></td><td>Remove a table from DuckDB</td><td>15s</td></tr>
+      <tr><td><code>init</code></td><td>Initialize DuckDB with extensions</td><td>&mdash;</td></tr>
+      <tr><td><code>interrupt</code></td><td>Cancel current operation</td><td>&mdash;</td></tr>
+      <tr><td><code>shutdown</code></td><td>Gracefully terminate the worker</td><td>&mdash;</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Command Protocol</h3>
+    <pre><span class="comment"># Main -> Worker (via cmd_q)</span>
+{"id": "uuid", "cmd": "exec_sql", "args": {"query": "SELECT ..."}}
+
+<span class="comment"># Worker -> Main (via resp_q)</span>
+{"id": "uuid", "status": "ok", "result": {"cols": [...], "data": [[...]]}}</pre>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Hang Recovery</h3>
+    <p>When a DuckDB operation hangs (e.g., <code>iceberg_scan</code> over unreachable S3):</p>
+    <ol style="margin-left:18px; margin-top:8px;">
+      <li>The <code>send_command()</code> timeout fires</li>
+      <li><code>DuckDBWorker._kill_and_respawn()</code> sends SIGKILL to the subprocess</li>
+      <li>All pending waiters are woken with "worker restarted" error</li>
+      <li><code>loaded_tables</code> and <code>polaris_catalogs</code> are cleared</li>
+      <li>A fresh subprocess starts with clean DuckDB</li>
+      <li>The HTTP server <strong>never stops responding</strong></li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Memory Management</h3>
+    <p>
+      The <code>_maybe_evict()</code> function is called before loading any new table. It checks system memory
+      usage via <code>psutil</code> and evicts the oldest tables from the <code>loaded_tables</code>
+      OrderedDict (LRU order) until system memory drops below <strong>85%</strong>.
+    </p>
+    <pre><span class="comment"># Memory threshold</span>
+MEMORY_THRESHOLD = 0.85  <span class="comment"># evict at 85% system memory</span></pre>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>DuckDB Initialization</h3>
+    <pre>def init_duckdb():
+    <span class="comment"># Ensure HOME is set - systemd services may not have it</span>
+    if not os.environ.get("HOME"):
+        os.environ["HOME"] = "/root"
+    db_conn = duckdb.connect(":memory:")
+    db_conn.execute(f"SET home_directory='{os.environ['HOME']}';")
+    db_conn.execute("INSTALL httpfs; LOAD httpfs;")
+    db_conn.execute("INSTALL iceberg; LOAD iceberg;")
+    db_conn.execute("INSTALL azure; LOAD azure;")
+    db_conn.execute("SET azure_transport_option_type='curl';")  <span class="comment"># Fixes SSL on SUSE</span></pre>
+    <div class="warn-box" style="margin-top:14px;">
+      Without <code>SET home_directory</code>, DuckDB cannot install extensions when running under systemd
+      (which strips <code>HOME</code>). This causes "Can't find the home directory at ''" errors when
+      connecting to Polaris catalogs.
+    </div>
+  </div>
+</div>
+
+<!-- ICEBERG & POLARIS -->
+<div class="section" id="iceberg">
+  <h2 class="section-title">Iceberg &amp; Polaris Integration</h2>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Overview</h3>
+    <p>
+      The explorer uses the DuckDB Iceberg extension for querying Iceberg tables and the Polaris REST catalog
+      for fast namespace and table listing. Three catalog presets are pre-configured for GCS, Azure, and AWS.
+    </p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Catalog Presets</h3>
+    <table>
+      <tr><th>Preset</th><th>Cloud</th><th>Catalog Name</th><th>Auth</th></tr>
+      <tr><td><code>gcs</code></td><td>Google Cloud Storage</td><td><code>obeisance_plaintive</code></td><td>OAuth2 client credentials + <code>gcloud auth</code></td></tr>
+      <tr><td><code>azure</code></td><td>Azure Data Lake</td><td><code>log_pseudo</code></td><td>OAuth2 client credentials + <code>CREDENTIAL_CHAIN</code></td></tr>
+      <tr><td><code>aws</code></td><td>AWS S3</td><td><code>surfacing_caramel</code></td><td>OAuth2 + Polaris vended S3 credentials</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Polaris REST API (Fast Listing)</h3>
+    <p>
+      Namespace and table listing uses the Polaris REST API directly instead of DuckDB
+      <code>information_schema</code> queries. This is approximately <strong>250x faster</strong>
+      (0.3s vs 70s for Azure).
+    </p>
+    <pre><span class="comment"># Key REST API functions</span>
+def _polaris_oauth_token(endpoint, client_id, client_secret):
+    <span class="string">"""POST to {endpoint}/v1/oauth/tokens with client_credentials grant."""</span>
+
+def _polaris_rest_get(endpoint, path, token):
+    <span class="string">"""GET {endpoint}{path} with Bearer token."""</span>
+
+def list_polaris_namespaces(alias):
+    <span class="string">"""GET /v1/{catalog}/namespaces"""</span>
+
+def list_polaris_tables(alias, namespace):
+    <span class="string">"""GET /v1/{catalog}/namespaces/{ns}/tables"""</span></pre>
+    <div class="info-box" style="margin-top:14px;">
+      DuckDB ATTACH is still used for actual SQL queries &mdash; only the browsing/listing is via REST.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>AWS Vended Credentials &amp; Query Rewrite</h3>
+    <p>
+      DuckDB's Iceberg extension does NOT send the <code>X-Iceberg-Access-Delegation: vended-credentials</code>
+      header when querying via <code>ATTACH ... TYPE ICEBERG</code>. The workaround implemented in
+      <code>_rewrite_aws_query()</code>:
+    </p>
+    <ol style="margin-left:18px; margin-top:8px;">
+      <li>Detect SQL query references an AWS Polaris catalog (e.g., <code>aws.namespace.table</code>)</li>
+      <li>Resolve the table's <code>metadata-location</code> via the Polaris REST API with vended-credentials header</li>
+      <li>Fetch vended S3 credentials from the table response <code>config</code> field</li>
+      <li>Create a DuckDB S3 secret with the vended credentials</li>
+      <li>Rewrite the query to use <code>iceberg_scan('s3://...metadata.json')</code></li>
+    </ol>
+    <pre><span class="comment"># User writes:</span>
+SELECT * FROM aws.sap_hana_db_saphanadb.mara LIMIT 100
+
+<span class="comment"># Server rewrites to:</span>
+SELECT * FROM iceberg_scan('s3://ts-s3-multiformat-dest-demo/sap_hana_db_saphanadb/mara/metadata/00092-xxx.metadata.json') LIMIT 100</pre>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Credential Management</h3>
+    <p>
+      The server version includes a <strong>Manage Credentials</strong> UI panel that allows updating
+      OAuth2 client_id and client_secret at runtime via <code>POST /api/polaris/update_credentials</code>.
+      Changes persist in memory until server restart. If a provider is currently connected, it is
+      automatically disconnected so the next connect uses the new credentials.
+    </p>
+  </div>
+</div>
+
+<!-- API ENDPOINTS -->
+<div class="section" id="api">
+  <h2 class="section-title">API Endpoints</h2>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>GET Endpoints</h3>
+    <p>All routes are under the <code>BASE_PATH</code> prefix (<code>/datalake_reader</code> on server).</p>
+    <table>
+      <tr><th>Endpoint</th><th>Function</th><th>Description</th></tr>
+      <tr><td><code>/</code></td><td>&mdash;</td><td>Serves HTML_PAGE</td></tr>
+      <tr><td><code>/login</code></td><td>&mdash;</td><td>Serves LOGIN_PAGE (server only)</td></tr>
+      <tr><td><code>/logout</code></td><td>&mdash;</td><td>Clears session cookie (server only)</td></tr>
+      <tr><td><code>/api/init</code></td><td><code>init_gcs()</code></td><td>Initialize GCS client, return status + last state</td></tr>
+      <tr><td><code>/api/buckets</code></td><td><code>list_buckets()</code></td><td>List all accessible GCS buckets</td></tr>
+      <tr><td><code>/api/ls?prefix=&amp;bucket=</code></td><td><code>list_path()</code></td><td>List dirs/files under a GCS prefix with stats</td></tr>
+      <tr><td><code>/api/parquet?path=</code></td><td><code>read_parquet()</code></td><td>Read single parquet file, register in DuckDB</td></tr>
+      <tr><td><code>/api/load_dir?prefix=</code></td><td><code>read_all_parquets_in_dir()</code></td><td>Read all parquets in a data/ dir, combine</td></tr>
+      <tr><td><code>/api/sql?query=&amp;prefix=</code></td><td><code>run_sql()</code></td><td>Execute SQL via DuckDB, auto-load missing tables</td></tr>
+      <tr><td><code>/api/cat?path=</code></td><td><code>read_file_text()</code></td><td>Read a text file from GCS</td></tr>
+      <tr><td><code>/api/tables</code></td><td><code>get_loaded_tables()</code></td><td>List tables registered in DuckDB</td></tr>
+      <tr><td><code>/api/health</code></td><td>&mdash;</td><td>Health check (no auth, no DuckDB)</td></tr>
+      <tr><td><code>/api/auth</code></td><td><code>run_gcloud_auth()</code></td><td>Run gcloud auth application-default login</td></tr>
+      <tr><td><code>/api/azure_auth</code></td><td><code>run_azure_auth()</code></td><td>Create DuckDB Azure credential chain secret</td></tr>
+      <tr><td><code>/api/aws_auth?mode=</code></td><td><code>run_aws_auth()</code></td><td>Create DuckDB S3 secret (role or keys)</td></tr>
+      <tr><td><code>/api/polaris/connect</code></td><td><code>connect_polaris()</code></td><td>Attach Iceberg catalog to DuckDB</td></tr>
+      <tr><td><code>/api/polaris/disconnect</code></td><td><code>disconnect_polaris()</code></td><td>Detach catalog</td></tr>
+      <tr><td><code>/api/polaris/catalogs</code></td><td><code>get_connected_catalogs()</code></td><td>List connected catalogs (no secrets)</td></tr>
+      <tr><td><code>/api/polaris/presets</code></td><td><code>get_catalog_presets()</code></td><td>Return presets with masked secrets</td></tr>
+      <tr><td><code>/api/polaris/namespaces?alias=</code></td><td><code>list_polaris_namespaces()</code></td><td>List namespaces via REST API</td></tr>
+      <tr><td><code>/api/polaris/tables?alias=&amp;namespace=</code></td><td><code>list_polaris_tables()</code></td><td>List tables via REST API</td></tr>
+      <tr><td><code>/api/polaris/all_tables</code></td><td><code>list_all_polaris_tables()</code></td><td>All tables across all connected catalogs</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>POST Endpoints</h3>
+    <table>
+      <tr><th>Endpoint</th><th>Function</th><th>Description</th></tr>
+      <tr><td><code>/api/login</code></td><td>&mdash;</td><td>Email login, sets session cookie (server only)</td></tr>
+      <tr><td><code>/api/restart</code></td><td>&mdash;</td><td>Restart server via <code>systemctl restart gcs-explorer</code></td></tr>
+      <tr><td><code>/api/polaris/update_credentials</code></td><td><code>update_polaris_credentials()</code></td><td>Update preset credentials at runtime</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- DEPLOYMENT -->
+<div class="section" id="deployment">
+  <h2 class="section-title">Deployment</h2>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Production Deployment Workflow</h3>
+    <pre><span class="comment"># 1. Upload to server</span>
+scp /tmp/gcs_explorer_server.py sapidesecc8:/tmp/gcs_explorer_server.py
+
+<span class="comment"># 2. Deploy and restart</span>
+ssh sapidesecc8 "sudo cp /tmp/gcs_explorer_server.py /usr/sap/gcs_explorer_server.py; sudo systemctl restart gcs-explorer"
+
+<span class="comment"># 3. Verify</span>
+ssh sapidesecc8 "sudo systemctl status gcs-explorer --no-pager"</pre>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Dev Deployment</h3>
+    <p>A separate dev instance runs alongside production on port 8443:</p>
+    <table>
+      <tr><th>Property</th><th>Production</th><th>Dev</th></tr>
+      <tr><td>Port</td><td>443</td><td>8443</td></tr>
+      <tr><td>URL prefix</td><td><code>/datalake_reader/</code></td><td><code>/datalake_reader_dev/</code></td></tr>
+      <tr><td>Service</td><td><code>gcs-explorer.service</code></td><td><code>gcs-explorer-dev.service</code></td></tr>
+      <tr><td>Server file</td><td><code>/usr/sap/gcs_explorer_server.py</code></td><td><code>/usr/sap/gcs_explorer_server_dev.py</code></td></tr>
+      <tr><td>Log file</td><td><code>/var/log/gcs_explorer.log</code></td><td><code>/var/log/gcs_explorer_dev.log</code></td></tr>
+    </table>
+    <pre style="margin-top:14px;"><span class="comment"># Dev deployment</span>
+scp /tmp/gcs_explorer_server_dev.py sapidesecc8:/tmp/
+ssh sapidesecc8 "sudo cp /tmp/gcs_explorer_server_dev.py /usr/sap/gcs_explorer_server_dev.py; sudo systemctl restart gcs-explorer-dev"</pre>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Service Management</h3>
+    <pre>sudo systemctl start gcs-explorer       <span class="comment"># Start</span>
+sudo systemctl stop gcs-explorer        <span class="comment"># Stop</span>
+sudo systemctl restart gcs-explorer     <span class="comment"># Restart (after deploy)</span>
+sudo systemctl status gcs-explorer      <span class="comment"># Check status</span>
+sudo systemctl enable gcs-explorer      <span class="comment"># Enable on boot (already done)</span>
+journalctl -u gcs-explorer -f           <span class="comment"># Follow logs</span></pre>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>SSL Certificate</h3>
+    <dl class="param-grid">
+      <dt>Certificate</dt><dd><code>/usr/sap/gcs_explorer_cert.pem</code> (ZeroSSL, chained: server + intermediate CA)</dd>
+      <dt>Private Key</dt><dd><code>/usr/sap/gcs_explorer_key.pem</code></dd>
+      <dt>Expiration</dt><dd>June 25, 2026</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--primary)"></span>Server Stability &amp; Resilience</h3>
+    <p><strong>Proactive measures (prevent freezes):</strong></p>
+    <table>
+      <tr><th>Measure</th><th>What It Prevents</th></tr>
+      <tr><td>Subprocess isolation (separate GIL)</td><td>DuckDB C code can never freeze the HTTP server</td></tr>
+      <tr><td>Per-command timeouts (65s ATTACH, 50s query)</td><td>Hung operations auto-kill the worker</td></tr>
+      <tr><td>Skip-if-already-connected in <code>connect_polaris()</code></td><td>Redundant ATTACH calls that caused contention</td></tr>
+      <tr><td>Auto-respawn on worker death</td><td>Fresh DuckDB after any crash, no manual restart</td></tr>
+      <tr><td><code>/api/health</code> endpoint (no auth, no DuckDB)</td><td>Always responds even when worker is hung</td></tr>
+    </table>
+    <p style="margin-top:16px;"><strong>Reactive backup measures:</strong></p>
+    <table>
+      <tr><th>Measure</th><th>What It Catches</th></tr>
+      <tr><td>External systemd watchdog timer (every 60s)</td><td>Curls <code>/api/health</code>, restarts if unresponsive</td></tr>
+      <tr><td>systemd <code>Restart=always</code></td><td>Process-level crashes</td></tr>
+      <tr><td>BrokenPipeError handling</td><td>Client disconnects during response</td></tr>
+      <tr><td>Socket backlog = 64</td><td>Handles queued connections under load</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- TROUBLESHOOTING -->
+<div class="section" id="troubleshooting">
+  <h2 class="section-title">Troubleshooting</h2>
+  <div class="card">
+    <table>
+      <tr><th>Issue</th><th>Cause</th><th>Solution</th></tr>
+      <tr>
+        <td>Port already in use</td>
+        <td>Previous process did not release port 443</td>
+        <td><code>sudo lsof -i :443</code> to find PID, then <code>kill -9 &lt;PID&gt;</code>. <code>SO_REUSEADDR</code> is set but may not help if old process is alive.</td>
+      </tr>
+      <tr>
+        <td>DuckDB freezes / hangs</td>
+        <td>C extension holding GIL during network I/O</td>
+        <td>Subprocess architecture auto-recovers. Worker is killed and respawned on timeout. If the entire server freezes, the systemd watchdog restarts it within 60s.</td>
+      </tr>
+      <tr>
+        <td>SSL certificate errors</td>
+        <td>Expired or missing ZeroSSL cert</td>
+        <td>Check expiry: <code>openssl x509 -enddate -noout -in /usr/sap/gcs_explorer_cert.pem</code>. Renew via ZeroSSL dashboard, replace PEM files, restart service.</td>
+      </tr>
+      <tr>
+        <td>GCS credentials error</td>
+        <td>Missing or expired Application Default Credentials</td>
+        <td>Re-run <code>gcloud auth application-default login</code> (local) or check the service account key on the server.</td>
+      </tr>
+      <tr>
+        <td>Memory pressure / OOM</td>
+        <td>Too many large Parquet tables loaded</td>
+        <td>LRU eviction triggers automatically at 85% memory. Manually unload tables via the UI or restart the service.</td>
+      </tr>
+      <tr>
+        <td>SUSE Python path issues</td>
+        <td><code>sudo</code> uses <code>/usr/bin/python3</code> without duckdb/pyarrow</td>
+        <td>Always use <code>/root/miniconda/bin/python3</code> in service files and direct execution. Never rely on system Python.</td>
+      </tr>
+      <tr>
+        <td>Azure SSL errors on SUSE</td>
+        <td>Default SSL transport fails on SUSE Linux</td>
+        <td>Set <code>azure_transport_option_type='curl'</code> in DuckDB init. The server auto-detects CA bundle paths.</td>
+      </tr>
+      <tr>
+        <td>DuckDB extension install fails under systemd</td>
+        <td>Missing <code>HOME</code> environment variable</td>
+        <td>Set <code>os.environ["HOME"] = "/root"</code> and <code>SET home_directory</code> in DuckDB before installing extensions.</td>
+      </tr>
+      <tr>
+        <td>AWS queries hang forever</td>
+        <td>DuckDB Iceberg ext doesn't send vended-credentials header</td>
+        <td>The <code>_rewrite_aws_query()</code> workaround automatically resolves metadata via REST API and rewrites queries to use <code>iceberg_scan()</code>.</td>
+      </tr>
+      <tr>
+        <td>Worker respawn loses state</td>
+        <td>All DuckDB secrets, catalogs, and tables are lost on respawn</td>
+        <td>Expected behavior. Users need to reconnect catalogs and reload tables after a worker restart.</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  GCS Parquet Explorer &bull; sapidesecc8 &bull; SAP S/4HANA 2023
+</div>
+
+<script>
+function addCopyButtons(container) {
+  container.querySelectorAll('pre').forEach(function(pre) {
+    if (pre.parentNode.classList && pre.parentNode.classList.contains('pre-wrap')) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'pre-wrap';
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.addEventListener('click', function() {
+      navigator.clipboard.writeText(pre.textContent.trim()).then(function() {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+      });
+    });
+    wrap.appendChild(btn);
+  });
+}
+document.addEventListener('DOMContentLoaded', function() { addCopyButtons(document); });
+</script>
+
+</body>
+</html>

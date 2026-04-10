@@ -1,0 +1,1180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP P2Pr Automated Data Generator</title>
+<style>
+  :root {
+    --primary: #1a3a5c;
+    --primary-light: #2a5a8c;
+    --accent: #e67e22;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --step0: #95a5a6;
+    --step1: #2ecc71;
+    --step2: #3498db;
+    --step3: #e67e22;
+    --step4: #9b59b6;
+    --step5: #e74c3c;
+    --step6: #1abc9c;
+    --step7: #34495e;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #4a1a5c 0%, #7b2a8c 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  .header .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+
+  /* Navigation */
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #e8f0fe; }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* Flow Diagram */
+  .flow-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 30px 10px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  .flow-step {
+    text-align: center;
+    min-width: 110px;
+    flex-shrink: 0;
+  }
+  .flow-box {
+    border-radius: 12px;
+    padding: 16px 10px;
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    position: relative;
+  }
+  .flow-box .step-num {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 400;
+    opacity: 0.85;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .flow-sub {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+  .flow-arrow {
+    font-size: 1.6rem;
+    color: #adb5bd;
+    flex-shrink: 0;
+    padding: 0 4px;
+  }
+  .step0-bg { background: linear-gradient(135deg, var(--step0), #7f8c8d); }
+  .step1-bg { background: linear-gradient(135deg, var(--step1), #27ae60); }
+  .step2-bg { background: linear-gradient(135deg, var(--step2), #2980b9); }
+  .step3-bg { background: linear-gradient(135deg, var(--step3), #d35400); }
+  .step4-bg { background: linear-gradient(135deg, var(--step4), #8e44ad); }
+  .step5-bg { background: linear-gradient(135deg, var(--step5), #c0392b); }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* Step detail cards */
+  .step-card {
+    border-left: 4px solid;
+    padding-left: 20px;
+  }
+  .step-card.s0 { border-color: var(--step0); }
+  .step-card.s1 { border-color: var(--step1); }
+  .step-card.s2 { border-color: var(--step2); }
+  .step-card.s3 { border-color: var(--step3); }
+  .step-card.s4 { border-color: var(--step4); }
+  .step-card.s5 { border-color: var(--step5); }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  th {
+    background: var(--primary);
+    color: white;
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:hover td { background: #f8f9fa; }
+  td code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  /* Code blocks */
+  pre {
+    background: #1e2937;
+    color: #e2e8f0;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin-top: 10px;
+  }
+  pre .comment { color: #6b7b8d; }
+  pre .string { color: #7ec699; }
+  pre .keyword { color: #c792ea; }
+
+  /* Info boxes */
+  .info-box {
+    background: #e8f4fd;
+    border-left: 4px solid var(--step2);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+  .warn-box {
+    background: #fef5e7;
+    border-left: 4px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+
+  /* Two-column grid */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 768px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .flow-container { flex-wrap: wrap; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+
+  /* Parameter list */
+  .param-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 4px 16px;
+    font-size: 0.88rem;
+    margin: 8px 0;
+  }
+  .param-grid dt {
+    font-weight: 600;
+    font-family: 'SF Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--primary);
+  }
+  .param-grid dd { color: var(--text-light); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>SAP Plan-to-Produce Workflow</h1>
+  <div class="subtitle">S/4HANA IDES &mdash; Automated P2Pr Data Generator via JCo RFC</div>
+  <span class="badge">Discrete Manufacturing</span>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#connectivity">Connectivity</a>
+    <a href="#materials">Materials</a>
+    <a href="#bom">BOMs &amp; Routing</a>
+    <a href="#flow">Flow Diagram</a>
+    <a href="#step0">Step 0: Stock</a>
+    <a href="#step1">Step 1: Order</a>
+    <a href="#step2">Step 2: Release</a>
+    <a href="#step3">Step 3: Confirm</a>
+    <a href="#tables">SAP Tables</a>
+    <a href="#cds">CDS Views</a>
+    <a href="#usage">Usage</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- OVERVIEW -->
+<div class="section" id="overview">
+  <h2 class="section-title">Overview</h2>
+  <div class="card">
+    <p>
+      <strong>Plan-to-Produce (P2Pr)</strong> automated data generator that creates end-to-end production
+      documents via JCo RFC: production order, release, and confirmation with automatic backflush
+      (goods issue + goods receipt). Generates realistic SAP PP transaction data on S/4HANA IDES using the
+      bike finished goods family (MZ-FG-*).
+    </p>
+    <div class="info-box" style="margin-top:14px;">
+      <strong>Same SAP system as OTC and P2P.</strong> All programs connect to the same S/4HANA IDES instance.
+      No overlap with P2P raw materials (RM12, R-302, etc.) or OTC finished goods (TG11, TG12).
+      Bike family materials (MZ-FG-*, MZ-RM-*) are safe for parallel use.
+    </div>
+    <br>
+    <div class="grid-2">
+      <div>
+        <h4>SAP System</h4>
+        <dl class="param-grid">
+          <dt>System</dt><dd>S/4HANA IDES (SID: S4H)</dd>
+          <dt>Release</dt><dd>758 (HANA DB)</dd>
+          <dt>Client</dt><dd>100</dd>
+          <dt>Company Code</dt><dd>1710</dd>
+          <dt>Plant</dt><dd>1710</dd>
+          <dt>Storage Location</dt><dd>171A / 171C</dd>
+          <dt>Currency</dt><dd>USD</dd>
+        </dl>
+      </div>
+      <div>
+        <h4>Production Configuration</h4>
+        <dl class="param-grid">
+          <dt>Order Type</dt><dd>YBM1 (Standard discrete mfg)</dd>
+          <dt>Finished Goods</dt><dd>9 bike models (MZ-FG-*)</dd>
+          <dt>Raw Materials</dt><dd>61 components (MZ-RM-*)</dd>
+          <dt>BOM Ratio</dt><dd>1:1 (base qty 100,000)</dd>
+          <dt>Routing Ops</dt><dd>2 (Assembly + Inspection)</dd>
+          <dt>Work Centers</dt><dd>Z_ASM*, Z_INSP*</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LOCAL CONNECTIVITY -->
+<div class="section" id="connectivity">
+  <h2 class="section-title">Local Connectivity</h2>
+  <div class="card">
+    <p>Everything runs from the <strong>local Mac</strong> &mdash; no need to SSH into sapidess4 or sapidesecc8.
+    Client <code>100</code> is used for all operations.</p>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+    <div class="card">
+      <h3>SAP RFC via JCo (BAPIs)</h3>
+      <p>Connects directly over the network using JCo 3. No SSH tunnel needed.</p>
+      <table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Host</td><td><code>sapidess4.fivetran-internal-sales.com</code></td></tr>
+        <tr><td>System Number</td><td><code>03</code> (port 3303)</td></tr>
+        <tr><td>Client</td><td><code>100</code></td></tr>
+        <tr><td>User</td><td><code>IDES</code></td></tr>
+        <tr><td>Password</td><td><code>Fivetran?99</code></td></tr>
+        <tr><td>Language</td><td><code>EN</code></td></tr>
+      </table>
+      <p style="margin-top:12px;">Required local files (in <code>../SAPjco/</code>):</p>
+      <ul style="margin:6px 0 0 20px;">
+        <li><code>sapjco3.jar</code> &mdash; Java JCo library</li>
+        <li><code>libsapjco3.dylib</code> &mdash; macOS ARM64 native library</li>
+      </ul>
+<pre style="margin-top:12px;">java -Xmx512m -cp .:../SAPjco/sapjco3.jar \
+  -Djava.library.path=../SAPjco SAPP2PrWorkflow full 1</pre>
+    </div>
+    <div class="card">
+      <h3>HANA Database (direct SQL via hdbcli)</h3>
+      <p>Connect via SSH tunnel for direct SQL. Only the tunnel uses SSH &mdash; you never log into the server.</p>
+      <table>
+        <tr><th>Parameter</th><th>Value</th></tr>
+        <tr><td>Tunnel</td><td><code>localhost:30015</code> &rarr; <code>sapidess4:30015</code></td></tr>
+        <tr><td>Database</td><td><code>FIV</code> (S/4HANA tenant)</td></tr>
+        <tr><td>User</td><td><code>SAPHANADB</code></td></tr>
+        <tr><td>Password</td><td><code>Fivetran1T1D</code></td></tr>
+        <tr><td>Python lib</td><td><code>pip3 install hdbcli</code></td></tr>
+      </table>
+<pre style="margin-top:12px;"># Start SSH tunnel (one-time, runs in background)
+ssh -f -N -L 30015:127.0.0.1:30015 root@sapidess4
+
+# Query via Python
+python3 -c "
+from hdbcli import dbapi
+conn = dbapi.connect(address='localhost', port=30015,
+    user='SAPHANADB', password='Fivetran1T1D', databaseName='FIV')
+cur = conn.cursor()
+cur.execute(\"SELECT AUFNR, OBJNR FROM AUFK WHERE AUART='YBM1'\")
+for row in cur.fetchall(): print(row)
+"</pre>
+    </div>
+  </div>
+</div>
+
+<!-- MATERIALS -->
+<div class="section" id="materials">
+  <h2 class="section-title">Finished Goods (Bike Family)</h2>
+  <div class="card">
+    <p>All finished goods below are FERT materials with BOM + Routing in plant 1710,
+    BESKZ='E' (in-house production), <strong>standard price</strong> (VPRSV=S).</p>
+
+    <table>
+      <tr><th>Material</th><th>Description</th><th>Std Price (USD)</th><th>Components</th></tr>
+      <tr><td><code>MZ-FG-C900</code></td><td>C900 BIKE</td><td>312.88</td><td>7 ROH</td></tr>
+      <tr><td><code>MZ-FG-C950</code></td><td>C950 BIKE</td><td>513.02</td><td>7 ROH</td></tr>
+      <tr><td><code>MZ-FG-C990</code></td><td>C990 Bike</td><td>810.00</td><td>7 ROH</td></tr>
+      <tr><td><code>MZ-FG-M500</code></td><td>M500 BIKE</td><td>668.16</td><td>7 ROH</td></tr>
+      <tr><td><code>MZ-FG-M525</code></td><td>M525 BIKE</td><td>1,119.01</td><td>7 ROH</td></tr>
+      <tr><td><code>MZ-FG-M550</code></td><td>M550 BIKE</td><td>2,842.02</td><td>7 ROH</td></tr>
+      <tr><td><code>MZ-FG-R100</code></td><td>R100 BIKE</td><td>457.63</td><td>7 ROH</td></tr>
+      <tr><td><code>MZ-FG-R200</code></td><td>R200 Bike</td><td>3,100.22</td><td>7 ROH</td></tr>
+      <tr><td><code>MZ-FG-R300</code></td><td>R300 Bike</td><td>5,873.88</td><td>7 ROH</td></tr>
+    </table>
+
+    <h3 style="margin-top:20px;">Raw Materials (63 Components)</h3>
+    <p>Each bike has 7 ROH components following the naming pattern <code>MZ-RM-{model}-01</code> through
+    <code>MZ-RM-{model}-07</code>. 9 models &times; 7 components = 63 raw materials total.</p>
+
+    <table>
+      <tr><th>#</th><th>Part</th><th>Example (C900)</th><th>UoM</th><th>Stock Qty</th></tr>
+      <tr><td>01</td><td>Frame</td><td><code>MZ-RM-C900-01</code></td><td>ST</td><td>10,000</td></tr>
+      <tr><td>02</td><td>Handle Bars</td><td><code>MZ-RM-C900-02</code></td><td>ST</td><td>10,000</td></tr>
+      <tr><td>03</td><td>Seat</td><td><code>MZ-RM-C900-03</code></td><td>ST</td><td>10,000</td></tr>
+      <tr><td>04</td><td>Wheels</td><td><code>MZ-RM-C900-04</code></td><td>ST</td><td>20,000</td></tr>
+      <tr><td>05</td><td>Forks</td><td><code>MZ-RM-C900-05</code></td><td>ST</td><td>10,000</td></tr>
+      <tr><td>06</td><td>Brakes</td><td><code>MZ-RM-C900-06</code></td><td>ST</td><td>10,000</td></tr>
+      <tr><td>07</td><td>Drive Train</td><td><code>MZ-RM-C900-07</code></td><td>ST</td><td>10,000</td></tr>
+    </table>
+
+    <div class="warn-box" style="margin-top:14px;">
+      <strong>Zero initial stock:</strong> All bike raw materials have <strong>zero stock</strong> in IDES.
+      You must run <code>step0-stock</code> (movement type 501, GR without PO) before creating production
+      orders, or Goods Issue (Step 3) will fail with <code>M7/021</code> insufficient stock.
+    </div>
+  </div>
+</div>
+
+<!-- BOM & ROUTING -->
+<div class="section" id="bom">
+  <h2 class="section-title">BOMs &amp; Routing</h2>
+  <div class="card">
+    <h3>Bill of Materials Structure</h3>
+    <p>BOM base quantity = 100,000; component quantity = 100,000 &rarr; <strong>1:1 ratio per unit produced</strong>.
+    BOM type: <code>STLTY='M'</code> (material BOM).</p>
+
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Key Fields</th></tr>
+      <tr><td><code>MAST</code></td><td>Material-to-BOM link</td><td>MATNR, WERKS, STLAN, STLNR</td></tr>
+      <tr><td><code>STKO</code></td><td>BOM header</td><td>STLNR, STLAL, STLTY='M', BMENG (base qty)</td></tr>
+      <tr><td><code>STPO</code></td><td>BOM items (components)</td><td>STLNR, STLKN, IDNRK (component material), MENGE</td></tr>
+    </table>
+
+    <h3 style="margin-top:20px;">Routing</h3>
+    <p>Each bike has a 2-operation routing:</p>
+    <table>
+      <tr><th>Operation</th><th>Work Center</th><th>Description</th></tr>
+      <tr><td><code>0010</code></td><td>Z_ASM1 / Z_ASM2 / Z_ASM3</td><td>Assembly</td></tr>
+      <tr><td><code>0020</code></td><td>Z_INSP1 / Z_INSP2 / Z_INSP3</td><td>Inspection</td></tr>
+    </table>
+
+    <table style="margin-top:14px;">
+      <tr><th>Table</th><th>Description</th><th>Key Fields</th></tr>
+      <tr><td><code>MAPL</code></td><td>Material-to-routing assignment</td><td>MATNR, WERKS, PLNNR, PLNAL</td></tr>
+      <tr><td><code>PLPO</code></td><td>Routing operations</td><td>PLNNR, PLNKN, VORNR, ARBID</td></tr>
+      <tr><td><code>CRHD</code></td><td>Work center header</td><td>OBJID, ARBPL, WERKS</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Verification Query</h4>
+    <pre><code><span class="comment">-- Check BOM structure for all bikes</span>
+SELECT m.MATNR, k.STLNR, k.STLAL, k.BMENG, p.IDNRK, p.MENGE
+FROM MAST m
+JOIN STKO k ON m.STLNR = k.STLNR AND k.STLTY = 'M'
+JOIN STPO p ON k.STLNR = p.STLNR
+WHERE m.MATNR LIKE 'MZ-FG%' AND m.WERKS = '1710'
+ORDER BY m.MATNR, p.STLKN;</code></pre>
+  </div>
+</div>
+
+<!-- FLOW DIAGRAM -->
+<div class="section" id="flow">
+  <h2 class="section-title">End-to-End Flow</h2>
+  <div class="card">
+    <div class="flow-container">
+      <div class="flow-step">
+        <div class="flow-box step0-bg">
+          <span class="step-num">Step 0</span>
+          Stock Post
+        </div>
+        <div class="flow-sub">mvt 501<br>MATDOC</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-box step1-bg">
+          <span class="step-num">Step 1</span>
+          Prod Order
+        </div>
+        <div class="flow-sub">AUFK / AFKO<br>AFPO / RESB</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-box step2-bg">
+          <span class="step-num">Step 2</span>
+          Release
+        </div>
+        <div class="flow-sub">JEST<br>(status)</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-box step4-bg">
+          <span class="step-num">Step 3</span>
+          Confirm
+        </div>
+        <div class="flow-sub">AFRU<br>(yield + time ticket)</div>
+      </div>
+    </div>
+
+    <div style="text-align:center; margin: -10px 0 20px 0;">
+      <div style="display:inline-flex; gap:10px; align-items:center; background:#f8f0ff; padding:10px 20px; border-radius:8px; border:1px solid #d4b5e5;">
+        <span style="font-weight:600; color:#7b2a8c;">Backflush (RGEKZ=1)</span>
+        <span style="color:#666;">&mdash; Confirmation auto-posts:</span>
+        <span style="background:var(--step3); color:white; padding:3px 10px; border-radius:4px; font-size:0.85rem; font-weight:600;">GI mvt 261</span>
+        <span style="color:#666;">+</span>
+        <span style="background:var(--step5); color:white; padding:3px 10px; border-radius:4px; font-size:0.85rem; font-weight:600;">GR mvt 101</span>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>Document Flow:</strong> Order (AUFNR) &rarr; Reservations (RESB.AUFNR) &rarr;
+      Confirmation (AFRU.AUFNR) &rarr; auto GI (MATDOC.AUFNR, mvt 261) + auto GR (MATDOC.AUFNR, mvt 101)
+      &rarr; Accounting (ACDOCA). Use <code>CO03</code> to display order details and document flow.
+    </div>
+
+    <div class="warn-box">
+      <strong>Backflush:</strong> All bike raw materials have <code>RGEKZ=1</code> (Always Backflush) in MARC.
+      During final confirmation, SAP automatically issues components (261) and receives the finished good (101).
+      Manual GI (Step 3) and manual GR (Step 5) are <strong>not needed</strong> in the automated pipeline.
+    </div>
+  </div>
+</div>
+
+<!-- STEP 0: STOCK POSTING -->
+<div class="section" id="step0">
+  <h2 class="section-title">Step 0 &mdash; Raw Material Stock (One-time)</h2>
+  <div class="card step-card s0">
+    <h3><span class="dot" style="background:var(--step0)"></span>Post Initial Raw Material Stock</h3>
+    <p>Posts initial stock for all 63 raw materials using movement type 501 (GR without PO).
+    Uses <code>GM_CODE = 05</code> (Other goods receipts). Checks current MARD stock and only posts the delta.
+    This is a <strong>one-time setup</strong> step.</p>
+
+    <h4 style="margin-top:16px;">BAPI</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th></tr>
+      <tr><td><code>BAPI_GOODSMVT_CREATE</code></td><td>Post goods movement (mvt 501, GM_CODE 05)</td></tr>
+      <tr><td><code>RFC_READ_TABLE</code></td><td>Check current stock in MARD</td></tr>
+      <tr><td><code>BAPI_TRANSACTION_COMMIT</code></td><td>Persist changes (WAIT='X')</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Import Parameters</h4>
+    <table>
+      <tr><th>Structure</th><th>Field</th><th>Value</th></tr>
+      <tr><td><code>GOODSMVT_HEADER</code></td><td>PSTNG_DATE</td><td>Today</td></tr>
+      <tr><td></td><td>DOC_DATE</td><td>Today</td></tr>
+      <tr><td><code>GOODSMVT_CODE</code></td><td>GM_CODE</td><td><code>05</code> (Other goods receipts)</td></tr>
+      <tr><td><code>GOODSMVT_ITEM</code></td><td>MATERIAL</td><td>e.g. <code>MZ-RM-C900-01</code></td></tr>
+      <tr><td></td><td>PLANT</td><td><code>1710</code></td></tr>
+      <tr><td></td><td>STGE_LOC</td><td><code>171A</code></td></tr>
+      <tr><td></td><td>MOVE_TYPE</td><td><code>501</code></td></tr>
+      <tr><td></td><td>ENTRY_QNT</td><td>10,000 (or 20,000 for Wheels)</td></tr>
+      <tr><td></td><td>ENTRY_UOM</td><td><code>ST</code></td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Tables Populated</h4>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Impact</th></tr>
+      <tr><td><code>MATDOC</code></td><td>Material Document</td><td>1 document per material</td></tr>
+      <tr><td><code>MARD</code></td><td>Storage Location Stock</td><td>LABST increased</td></tr>
+      <tr><td><code>MBEW</code></td><td>Material Valuation</td><td>LBKUM (total stock qty) updated</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- STEP 1: PRODUCTION ORDER -->
+<div class="section" id="step1">
+  <h2 class="section-title">Step 1 &mdash; Production Order</h2>
+  <div class="card step-card s1">
+    <h3><span class="dot" style="background:var(--step1)"></span>Create Production Order</h3>
+    <p>Creates a production order for a randomly selected bike finished good with order type
+    <code>YBM1</code> (standard discrete manufacturing). SAP automatically explodes the BOM
+    and creates component reservations in RESB, and copies the routing to order operations (AFVC).</p>
+
+    <h4 style="margin-top:16px;">Transaction Codes</h4>
+    <table>
+      <tr><th>Tcode</th><th>Purpose</th></tr>
+      <tr><td><code>CO01</code></td><td>Create Production Order</td></tr>
+      <tr><td><code>CO02</code></td><td>Change Production Order</td></tr>
+      <tr><td><code>CO03</code></td><td>Display Production Order</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">BAPI</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th></tr>
+      <tr><td><code>BAPI_PRODORD_CREATE</code></td><td>Create production order with material, qty, dates</td></tr>
+      <tr><td><code>BAPI_TRANSACTION_COMMIT</code></td><td>Persist changes (WAIT='X')</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Import Parameters (ORDERDATA structure)</h4>
+    <table>
+      <tr><th>Field</th><th>Value</th><th>Notes</th></tr>
+      <tr><td><code>MATERIAL</code></td><td>e.g. <code>MZ-FG-C900</code></td><td>Random bike from pool of 9</td></tr>
+      <tr><td><code>PLANT</code></td><td><code>1710</code></td><td></td></tr>
+      <tr><td><code>ORDER_TYPE</code></td><td><code>YBM1</code></td><td>Standard discrete manufacturing</td></tr>
+      <tr><td><code>QUANTITY</code></td><td>5&ndash;20 (random) or <code>--qty N</code></td><td></td></tr>
+      <tr><td><code>BASIC_START_DATE</code></td><td>Today</td><td></td></tr>
+      <tr><td><code>BASIC_END_DATE</code></td><td>Today + 5 days</td><td></td></tr>
+    </table>
+
+    <div class="info-box" style="margin-top:14px;">
+      <strong>Export:</strong> <code>ORDER_NUMBER</code> (12-digit, zero-padded).
+      <strong>RETURN</strong> is an <em>export structure</em> (not a table) &mdash;
+      use <code>getExportParameterList().getStructure("RETURN")</code>.
+    </div>
+
+    <h4 style="margin-top:16px;">Tables Populated</h4>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Key Fields Written</th></tr>
+      <tr><td><code>AUFK</code></td><td>Order Master (header)</td><td>AUFNR, AUART='YBM1', AUTYP, OBJNR</td></tr>
+      <tr><td><code>AFKO</code></td><td>Order Header Data (PP)</td><td>AUFNR, PLNBEZ (material), GAMNG (qty), AUFPL, GMEIN</td></tr>
+      <tr><td><code>AFPO</code></td><td>Order Item</td><td>AUFNR, POSNR, MATNR, PSMNG (planned qty), MEINS</td></tr>
+      <tr><td><code>AFVC</code></td><td>Order Operations</td><td>AUFPL, APLZL, VORNR (0010/0020), ARBID</td></tr>
+      <tr><td><code>RESB</code></td><td>Reservations (component requirements)</td><td>RSNUM, RSPOS, AUFNR, MATNR, BDMNG (required qty)</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Verification Query</h4>
+    <pre><code><span class="comment">-- Production order details</span>
+SELECT a.AUFNR, a.PLNBEZ, a.GAMNG, a.GMEIN, a.IGMNG
+FROM AFKO a WHERE a.AUFNR = '000001XXXXXX';
+
+<span class="comment">-- Component reservations</span>
+SELECT RSNUM, RSPOS, MATNR, BDMNG, ENMNG, MEINS
+FROM RESB WHERE AUFNR = '000001XXXXXX';</code></pre>
+  </div>
+</div>
+
+<!-- STEP 2: RELEASE -->
+<div class="section" id="step2">
+  <h2 class="section-title">Step 2 &mdash; Release Order</h2>
+  <div class="card step-card s2">
+    <h3><span class="dot" style="background:var(--step2)"></span>Release Production Order</h3>
+    <p>Changes order status from CRTD (Created) to REL (Released), enabling goods movements.
+    A released order can have components issued and finished goods received.</p>
+
+    <h4 style="margin-top:16px;">Transaction Codes</h4>
+    <table>
+      <tr><th>Tcode</th><th>Purpose</th></tr>
+      <tr><td><code>CO02</code> (Release button)</td><td>Release individual order</td></tr>
+      <tr><td><code>COHV</code></td><td>Mass processing (release multiple orders)</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">BAPI</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th></tr>
+      <tr><td><code>BAPI_PRODORD_RELEASE</code></td><td>Release one or more production orders</td></tr>
+      <tr><td><code>BAPI_TRANSACTION_COMMIT</code></td><td>Persist changes (WAIT='X')</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Parameters</h4>
+    <table>
+      <tr><th>Parameter</th><th>Type</th><th>Notes</th></tr>
+      <tr><td><code>ORDERS</code> table</td><td>Table</td><td>ORDER_NUMBER field (12-digit)</td></tr>
+      <tr><td><code>RETURN</code></td><td>Export structure</td><td>Use <code>getExportParameterList().getStructure("RETURN")</code></td></tr>
+      <tr><td><code>DETAIL_RETURN</code></td><td>Table</td><td>Detailed messages per order</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Tables Updated</h4>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Impact</th></tr>
+      <tr><td><code>AUFK</code></td><td>Order Master</td><td>Status object (OBJNR) updated</td></tr>
+      <tr><td><code>JEST</code></td><td>Individual Object Status</td><td>STAT='I0002' (REL) activated, STAT='I0001' (CRTD) deactivated</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- STEP 3: CONFIRMATION (with auto backflush GI + GR) -->
+<div class="section" id="step3">
+  <h2 class="section-title">Step 3 &mdash; Confirmation (auto GI + GR)</h2>
+  <div class="card step-card s4">
+    <h3><span class="dot" style="background:var(--step4)"></span>Confirm Production Order (Time Ticket)</h3>
+    <p>Reports yield (completed quantity) per operation using <strong>time ticket confirmation</strong>.
+    Reads AFKO for order qty, AFVC for operations, then posts confirmations with
+    <strong>final confirmation</strong> (FIN_CONF='X') on the last operation. Because all raw materials have
+    <code>RGEKZ=1</code> (Always Backflush), the confirmation automatically posts GI (261) and GR (101).</p>
+
+    <h4 style="margin-top:16px;">Transaction Codes</h4>
+    <table>
+      <tr><th>Tcode</th><th>Purpose</th></tr>
+      <tr><td><code>CO11N</code></td><td>Enter Confirmation (Time Ticket)</td></tr>
+      <tr><td><code>CO14</code></td><td>Display Confirmation</td></tr>
+      <tr><td><code>CO13</code></td><td>Cancel Confirmation</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">BAPIs</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th></tr>
+      <tr><td><code>RFC_READ_TABLE</code></td><td>Read AFKO for order quantity (GAMNG, GMEIN, PLNBEZ)</td></tr>
+      <tr><td><code>RFC_READ_TABLE</code></td><td>Read AFVC for operations (VORNR list)</td></tr>
+      <tr><td><code>BAPI_PRODORDCONF_CREATE_TT</code></td><td>Post time ticket confirmation (per operation)</td></tr>
+      <tr><td><code>BAPI_TRANSACTION_COMMIT</code></td><td>Persist changes (WAIT='X')</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">TIMETICKETS Table Fields (one row per operation)</h4>
+    <table>
+      <tr><th>Field</th><th>Value</th><th>Notes</th></tr>
+      <tr><td><code>ORDERID</code></td><td>Production order number</td><td>12-digit</td></tr>
+      <tr><td><code>OPERATION</code></td><td>Operation number (from AFVC)</td><td>e.g., 0010, 0020</td></tr>
+      <tr><td><code>POSTG_DATE</code></td><td>Today</td><td></td></tr>
+      <tr><td><code>YIELD</code></td><td>Order quantity (from AFKO.GAMNG)</td><td></td></tr>
+      <tr><td><code>CONF_ACTI_UNIT1</code></td><td><code>H</code></td><td>Activity unit (hours)</td></tr>
+      <tr><td><code>CONF_ACTIVITY1</code></td><td>1.0 (or 0.5 for last op)</td><td>Explicit activity qty &mdash; bypasses cost rate lookup</td></tr>
+      <tr><td><code>EXEC_START_DATE</code></td><td>Today</td><td></td></tr>
+      <tr><td><code>EXEC_FIN_DATE</code></td><td>Today</td><td></td></tr>
+      <tr><td><code>FIN_CONF</code></td><td><code>X</code> (last op only)</td><td>Final confirmation &mdash; triggers backflush GI+GR</td></tr>
+      <tr><td><code>CLEAR_RES</code></td><td><code>X</code> (last op only)</td><td>Clear remaining open reservations</td></tr>
+    </table>
+
+    <div class="info-box" style="margin-top:14px;">
+      <strong>Why TT instead of HDR?</strong> The header-level BAPI (<code>BAPI_PRODORDCONF_CREATE_HDR</code>)
+      triggers cost rate lookup via CSSL/COST tables, which requires activity rates for the current fiscal year.
+      The time ticket BAPI (<code>BAPI_PRODORDCONF_CREATE_TT</code>) accepts explicit activity quantities per operation,
+      bypassing the cost rate lookup entirely. This avoids <code>RU/085</code> errors.
+    </div>
+
+    <h4 style="margin-top:16px;">Backflush Behavior (RGEKZ=1)</h4>
+    <p>When the final confirmation is posted, SAP automatically performs:</p>
+    <table>
+      <tr><th>Auto-Posting</th><th>Mvt Type</th><th>GM_CODE</th><th>Effect</th></tr>
+      <tr><td>Goods Issue (components)</td><td><code>261</code></td><td>03</td><td>Raw material stock decreased, 1 MATDOC item per component</td></tr>
+      <tr><td>Goods Receipt (finished good)</td><td><code>101</code></td><td>02</td><td>Finished good stock increased, MBEW updated</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Tables Populated</h4>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Impact</th></tr>
+      <tr><td><code>AFRU</code></td><td>Order Confirmations</td><td>One row per operation: AUFNR, VORNR, LMNGA (yield), BUDAT</td></tr>
+      <tr><td><code>MATDOC</code></td><td>Material Document (GI)</td><td>BWART='261', 1 item per component (auto backflush)</td></tr>
+      <tr><td><code>MATDOC</code></td><td>Material Document (GR)</td><td>BWART='101', finished good receipt (auto backflush)</td></tr>
+      <tr><td><code>MARD</code></td><td>Storage Location Stock</td><td>LABST decreased (components) and increased (finished good)</td></tr>
+      <tr><td><code>MBEW</code></td><td>Material Valuation</td><td>LBKUM, SALK3 updated for finished good</td></tr>
+      <tr><td><code>RESB</code></td><td>Reservations</td><td>ENMNG (withdrawn qty) updated by backflush</td></tr>
+      <tr><td><code>ACDOCA</code></td><td>Universal Journal</td><td>GI: consumption debit (GBB) + stock credit (BSX). GR: stock debit (BSX) + production variance (PRD)</td></tr>
+      <tr><td><code>JEST</code></td><td>Object Status</td><td>DLV (Delivered) + CNF (Confirmed) activated</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Verification Query</h4>
+    <pre><code><span class="comment">-- Confirmations for order</span>
+SELECT AUFNR, VORNR, LMNGA, GMNGA, BUDAT, ERSDA
+FROM AFRU WHERE AUFNR = '000001XXXXXX';
+
+<span class="comment">-- Material documents (GI 261 + GR 101) created by backflush</span>
+SELECT MBLNR, BWART, MATNR, MENGE, MEINS, AUFNR
+FROM MATDOC WHERE AUFNR = '000001XXXXXX';</code></pre>
+  </div>
+</div>
+
+<!-- SAP TABLES REFERENCE -->
+<div class="section" id="tables">
+  <h2 class="section-title">SAP Tables Reference</h2>
+
+  <div class="card">
+    <h3>Production Planning Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th><th>Populated By</th></tr>
+      <tr><td><code>AUFK</code></td><td>Order Master (header)</td><td>Order Header</td><td>Step 1</td></tr>
+      <tr><td><code>AFKO</code></td><td>Order Header Data (PP specific)</td><td>Order Master</td><td>Step 1</td></tr>
+      <tr><td><code>AFPO</code></td><td>Order Item</td><td>Order Items</td><td>Step 1</td></tr>
+      <tr><td><code>AFVC</code></td><td>Order Operations</td><td>Operations</td><td>Step 1</td></tr>
+      <tr><td><code>RESB</code></td><td>Reservation / Dependent Requirements</td><td>Reservations</td><td>Step 1, updated Step 3 (backflush)</td></tr>
+      <tr><td><code>AFRU</code></td><td>Order Confirmations</td><td>Confirmations</td><td>Step 3</td></tr>
+      <tr><td><code>JEST</code></td><td>Individual Object Status</td><td>Status</td><td>Steps 1, 2, 3</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>BOM &amp; Routing Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th></tr>
+      <tr><td><code>MAST</code></td><td>Material BOM Link</td><td>BOM Assignment</td></tr>
+      <tr><td><code>STKO</code></td><td>BOM Header</td><td>BOM Header</td></tr>
+      <tr><td><code>STPO</code></td><td>BOM Items (Components)</td><td>BOM Items</td></tr>
+      <tr><td><code>MAPL</code></td><td>Material-to-Routing Assignment</td><td>Routing Assignment</td></tr>
+      <tr><td><code>PLPO</code></td><td>Routing Operations</td><td>Routing Ops</td></tr>
+      <tr><td><code>CRHD</code></td><td>Work Center Header</td><td>Work Centers</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Materials Management Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th><th>Populated By</th></tr>
+      <tr><td><code>MATDOC</code></td><td>Material Document (S/4HANA unified)</td><td>Mat. Document</td><td>Steps 0, 3 (backflush GI 261 + GR 101)</td></tr>
+      <tr><td><code>MARD</code></td><td>Storage Location Stock</td><td>Stock Levels</td><td>Steps 0, 3 (updated by backflush)</td></tr>
+      <tr><td><code>MBEW</code></td><td>Material Valuation</td><td>Valuation</td><td>Steps 0, 3 (updated by backflush GR)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Financial Accounting Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th><th>Populated By</th></tr>
+      <tr><td><code>ACDOCA</code></td><td>Universal Journal Entry (S/4HANA)</td><td>Universal Journal</td><td>Step 3 (backflush GI + GR)</td></tr>
+      <tr><td><code>BKPF</code></td><td>Accounting Document Header</td><td>FI Doc Header</td><td>Step 3 (backflush GI + GR)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Material Master Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th></tr>
+      <tr><td><code>MARA</code></td><td>Material General Data</td><td>General</td></tr>
+      <tr><td><code>MARC</code></td><td>Material Plant Data (MRP, Production)</td><td>Plant</td></tr>
+      <tr><td><code>MARD</code></td><td>Storage Location Stock</td><td>Stock</td></tr>
+      <tr><td><code>MAKT</code></td><td>Material Descriptions</td><td>Texts</td></tr>
+      <tr><td><code>MBEW</code></td><td>Material Valuation</td><td>Valuation</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Configuration Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Purpose</th></tr>
+      <tr><td><code>T001</code></td><td>Company Codes</td><td>Company code 1710</td></tr>
+      <tr><td><code>T001K</code></td><td>Valuation Area</td><td>Plant-to-company code assignment</td></tr>
+      <tr><td><code>T001W</code></td><td>Plants</td><td>Plant definitions</td></tr>
+      <tr><td><code>T003O</code></td><td>Order Types</td><td>YBM1, PP01, PP02</td></tr>
+      <tr><td><code>T030</code></td><td>Account Determination (OBYC)</td><td>BSX, GBB, PRD transaction keys</td></tr>
+      <tr><td><code>MARV</code></td><td>MM Posting Period</td><td>Current posting period (LFMON/LFGJA)</td></tr>
+      <tr><td><code>CKMLHD</code></td><td>ML Material Header</td><td>Material Ledger header per material</td></tr>
+      <tr><td><code>CKMLPP</code></td><td>ML Period Records</td><td>Period status (continuous, no gaps)</td></tr>
+      <tr><td><code>CKMLCR</code></td><td>ML Currency Records</td><td>CURTP 10+30 per period</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Movement Types</h3>
+    <table>
+      <tr><th>Mvt Type</th><th>GM_CODE</th><th>Description</th><th>Step</th></tr>
+      <tr><td><code>501</code></td><td>05</td><td>GR without PO (initial stock posting)</td><td>Step 0</td></tr>
+      <tr><td><code>261</code></td><td>03</td><td>GI for production order (components)</td><td>Step 3 (auto backflush)</td></tr>
+      <tr><td><code>101</code></td><td>02</td><td>GR for production order (finished good)</td><td>Step 3 (auto backflush)</td></tr>
+      <tr><td><code>262</code></td><td>04</td><td>Return of GI 261 (reversal)</td><td>&mdash;</td></tr>
+      <tr><td><code>102</code></td><td>06</td><td>GR reversal</td><td>&mdash;</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Order Types</h3>
+    <table>
+      <tr><th>Type</th><th>Description</th><th>Notes</th></tr>
+      <tr><td><code>YBM1</code></td><td>Standard discrete manufacturing</td><td>Used by automation (bike family)</td></tr>
+      <tr><td><code>YBM3</code></td><td>Configurable production</td><td>Not used</td></tr>
+      <tr><td><code>PP01</code></td><td>Standard SAP production</td><td>SAP default</td></tr>
+      <tr><td><code>PP02</code></td><td>Standard SAP process</td><td>Process manufacturing</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>S/4HANA vs ECC Table Changes</h3>
+    <table>
+      <tr><th>Area</th><th>ECC Tables</th><th>S/4HANA Table</th><th>Notes</th></tr>
+      <tr><td>Material Documents</td><td><code>MKPF + MSEG</code></td><td><code><strong>MATDOC</strong></code></td><td>Single unified table</td></tr>
+      <tr><td>Accounting</td><td><code>BSEG + FAGLFLEXA + COEP</code></td><td><code><strong>ACDOCA</strong></code></td><td>Universal Journal</td></tr>
+      <tr><td>Stock</td><td><code>MCHB, MSKA, MSSL</code></td><td><code><strong>MARD + MATDOC</strong></code></td><td>Consolidated</td></tr>
+      <tr><td>Material Ledger</td><td>Optional</td><td><strong>Always active</strong></td><td>ML infrastructure mandatory in S/4</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- CDS VIEWS -->
+<div class="section" id="cds">
+  <h2 class="section-title">CDS Views Reference</h2>
+
+  <div class="card">
+    <h3>Production Order CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_ProductionOrder</code></td><td>Production order header</td><td>AUFK, AFKO</td></tr>
+      <tr><td><code>I_ProductionOrderItem</code></td><td>Production order items</td><td>AFPO</td></tr>
+      <tr><td><code>I_ProductionOrderOperation</code></td><td>Order operations</td><td>AFVC</td></tr>
+      <tr><td><code>I_ProductionOrderComponent</code></td><td>Order components (reservations)</td><td>RESB</td></tr>
+      <tr><td><code>I_MfgOrderConfirmation</code></td><td>Order confirmations</td><td>AFRU</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Material Document CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_MaterialDocumentHeader_2</code></td><td>Material document header</td><td>MATDOC</td></tr>
+      <tr><td><code>I_MaterialDocumentItem_2</code></td><td>Material document items</td><td>MATDOC</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Material Master CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_Product</code></td><td>Product (material) master</td><td>MARA, MAKT</td></tr>
+      <tr><td><code>I_ProductPlantBasic</code></td><td>Plant-level data</td><td>MARC</td></tr>
+      <tr><td><code>I_ProductValuation</code></td><td>Valuation data</td><td>MBEW</td></tr>
+      <tr><td><code>I_BillOfMaterial</code></td><td>BOM header</td><td>STKO</td></tr>
+      <tr><td><code>I_BillOfMaterialItem</code></td><td>BOM items</td><td>STPO</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Fiori Apps</h3>
+    <table>
+      <tr><th>App ID</th><th>Name</th><th>Step</th></tr>
+      <tr><td>F2430</td><td>Manage Production Orders</td><td>Order</td></tr>
+      <tr><td>F3703</td><td>Release Production Orders</td><td>Release</td></tr>
+      <tr><td>F3422</td><td>Confirm Production Order</td><td>Confirmation</td></tr>
+      <tr><td>F0843</td><td>Post GR for PO</td><td>GR</td></tr>
+      <tr><td>F2432</td><td>Order Progress Overview</td><td>Analytics</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- USAGE -->
+<div class="section" id="usage">
+  <h2 class="section-title">Scripts &amp; Usage</h2>
+
+  <div class="card">
+    <h3>Quick Start (p2prgen.sh)</h3>
+    <p>Generate N production cycles, stopping at any stage:</p>
+    <pre><code><span class="comment"># First time: post raw material stock</span>
+./p2prwf.sh step0-stock --verbose
+
+<span class="comment"># Then generate production cycles</span>
+./p2prgen.sh 1                    <span class="comment"># 1 full cycle (Order&rarr;Release&rarr;Confirm)</span>
+./p2prgen.sh 10 order             <span class="comment"># 10 production orders only</span>
+./p2prgen.sh 100 release          <span class="comment"># 100x Order&rarr;Release</span>
+./p2prgen.sh 100 confirm          <span class="comment"># 100x full pipeline (auto GI+GR)</span>
+./p2prgen.sh 10 confirm --qty 10 --verbose</code></pre>
+  </div>
+
+  <div class="card">
+    <h3>Individual Steps (p2prwf.sh)</h3>
+    <pre><code>./p2prwf.sh step0-stock --verbose               <span class="comment"># Post raw material stock</span>
+./p2prwf.sh step1-order 5 --verbose              <span class="comment"># Create 5 production orders</span>
+./p2prwf.sh step2-release &lt;orderNumber&gt;          <span class="comment"># Release order</span>
+./p2prwf.sh step4-confirm &lt;orderNumber&gt;          <span class="comment"># Confirm (auto GI+GR via backflush)</span>
+./p2prwf.sh status &lt;orderNumber&gt;                 <span class="comment"># Show order details</span></code></pre>
+  </div>
+
+  <div class="card">
+    <h3>Stages</h3>
+    <table>
+      <tr><th>Stage</th><th>Pipeline</th><th>SAP Tables Created</th></tr>
+      <tr><td><code>order</code></td><td>Create order</td><td>AUFK, AFKO, AFPO, AFVC, RESB</td></tr>
+      <tr><td><code>release</code></td><td>Order &rarr; Release</td><td>+ JEST (status)</td></tr>
+      <tr><td><code>confirm</code></td><td>Order &rarr; Release &rarr; Confirm (auto GI+GR)</td><td>+ AFRU, MATDOC (261+101), ACDOCA</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Options</h3>
+    <table>
+      <tr><th>Flag</th><th>Description</th></tr>
+      <tr><td><code>--verbose</code></td><td>Print BAPI details and all return messages</td></tr>
+      <tr><td><code>--dry-run</code></td><td>Validate only (no BAPI_TRANSACTION_COMMIT)</td></tr>
+      <tr><td><code>--stop-at STAGE</code></td><td>Stop after stage: order, release, confirm (default: confirm)</td></tr>
+      <tr><td><code>--pause N</code></td><td>Seconds between steps (default: 3)</td></tr>
+      <tr><td><code>--qty N</code></td><td>Fixed production quantity per order (default: random 5-20)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Project Structure</h3>
+    <pre><code>.
+&boxdr;&boxh;&boxh; SAPP2PrWorkflow.java              <span class="comment"># Main automation program</span>
+&boxdr;&boxh;&boxh; p2prgen.sh                        <span class="comment"># Bulk data generator script</span>
+&boxdr;&boxh;&boxh; p2prwf.sh                         <span class="comment"># Workflow wrapper script</span>
+&boxdr;&boxh;&boxh; compile.sh                        <span class="comment"># Compilation helper</span>
+&boxdr;&boxh;&boxh; docs/
+&boxv;   &boxur;&boxh;&boxh; SAP_PP_Workflow_Documentation.html  <span class="comment"># This document</span>
+&boxur;&boxh;&boxh; skill/
+    &boxur;&boxh;&boxh; plan-to-produce.md              <span class="comment"># Claude Code skill file</span></code></pre>
+  </div>
+</div>
+
+<!-- TROUBLESHOOTING -->
+<div class="section" id="troubleshooting">
+  <h2 class="section-title">Troubleshooting</h2>
+
+  <div class="card">
+    <h3>Common Errors</h3>
+    <table>
+      <tr><th>Error</th><th>Cause</th><th>Fix</th></tr>
+      <tr>
+        <td><code>C+/065</code> ML header missing</td>
+        <td>Material Ledger header (CKMLHD) not found</td>
+        <td>Insert CKMLHD for MANDT='100' with KALN1 from client 100 MBEW</td>
+      </tr>
+      <tr>
+        <td><code>C+/073</code> ML period missing</td>
+        <td>Material Ledger periods have gaps</td>
+        <td>Insert continuous CKMLPP+CKMLCR (CURTP 10+30) for all months, no gaps</td>
+      </tr>
+      <tr>
+        <td><code>M7/021</code> Insufficient stock</td>
+        <td>Component raw materials have no stock</td>
+        <td>Run <code>step0-stock</code> first to post 10,000 units per material</td>
+      </tr>
+      <tr>
+        <td><code>M3/351</code> Material not maintained</td>
+        <td>Material does not exist in plant 1710</td>
+        <td>Verify material exists in MARC for plant 1710. Remove from material list if not present.</td>
+      </tr>
+      <tr>
+        <td><code>RU/085</code> Error in determining actual costs</td>
+        <td>CSSL/COST activity rate tables missing for current fiscal year</td>
+        <td>Use <code>BAPI_PRODORDCONF_CREATE_TT</code> with explicit CONF_ACTIVITY1 to bypass cost rate lookup</td>
+      </tr>
+      <tr>
+        <td><code>M7/509</code> No movements for reservation</td>
+        <td>Backflush materials (RGEKZ=1) have XWAOK='X' &mdash; reservation-based GI not possible</td>
+        <td>Do NOT post manual GI. Backflush handles GI automatically during confirmation.</td>
+      </tr>
+      <tr>
+        <td><code>M7/022</code> Order quantity exceeded</td>
+        <td>Manual GR attempted after backflush already posted GR</td>
+        <td>Do NOT post manual GR. Backflush handles GR automatically during confirmation.</td>
+      </tr>
+      <tr>
+        <td>No reservations found</td>
+        <td>BOM not exploded or order doesn't exist</td>
+        <td>Verify order in AFKO. Check BOM exists in MAST for plant 1710.</td>
+      </tr>
+      <tr>
+        <td>Order stuck in CRTD</td>
+        <td>Release (Step 2) not performed or failed</td>
+        <td>Run step2-release with <code>--verbose</code> to see DETAIL_RETURN</td>
+      </tr>
+      <tr>
+        <td>Confirmation rejected</td>
+        <td>Order not released, or already finally confirmed</td>
+        <td>Check status with <code>status</code> command. FIN_CONF=X means final.</td>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Material Ledger Prerequisites</h3>
+    <div class="warn-box">
+      <p>SAP S/4HANA requires <strong>continuous</strong> CKMLPP period records with no gaps for any
+      goods movement. The same Material Ledger issues documented in the P2P workflow apply here.</p>
+    </div>
+    <table>
+      <tr><th>Table</th><th>Requirements</th></tr>
+      <tr><td><code>CKMLHD</code></td><td>One row per material. KALN1 from MBEW. MANDT='100'.</td></tr>
+      <tr><td><code>CKMLPP</code></td><td>One row per month. STATUS='10' (closed) or '01' (open). No gaps from material creation to current period.</td></tr>
+      <tr><td><code>CKMLCR</code></td><td>Two rows per period: CURTP 10 (company code currency) and CURTP 30 (group currency).</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">ML Verification Query</h4>
+    <pre><code><span class="comment">-- Check ML headers for bike materials</span>
+SELECT MATNR, BWKEY, KALN1 FROM MBEW
+WHERE MATNR LIKE 'MZ-RM%' AND BWKEY = '1710';
+
+<span class="comment">-- Check ML periods (should be continuous)</span>
+SELECT KALNR, BDATJ, PESSION, STATUS FROM CKMLPP
+WHERE KALNR IN (SELECT KALN1 FROM MBEW WHERE MATNR LIKE 'MZ-RM%' AND BWKEY = '1710')
+ORDER BY KALNR, BDATJ, PESSION;</code></pre>
+  </div>
+
+  <div class="card">
+    <h3>BAPI Parameter Gotchas</h3>
+    <table>
+      <tr><th>BAPI</th><th>Gotcha</th><th>Correct Approach</th></tr>
+      <tr>
+        <td><code>BAPI_PRODORD_CREATE</code></td>
+        <td>RETURN is export structure, not table. No table parameters at all.</td>
+        <td><code>getExportParameterList().getStructure("RETURN")</code></td>
+      </tr>
+      <tr>
+        <td><code>BAPI_PRODORD_CREATE</code></td>
+        <td>Date fields are BASIC_START_DATE / BASIC_END_DATE</td>
+        <td>Not BASIC_START / BASIC_END</td>
+      </tr>
+      <tr>
+        <td><code>BAPI_PRODORD_RELEASE</code></td>
+        <td>RETURN is export structure. DETAIL_RETURN is table.</td>
+        <td>Check both for errors</td>
+      </tr>
+      <tr>
+        <td><code>BAPI_PRODORDCONF_CREATE_TT</code></td>
+        <td>Confirmation table is TIMETICKETS, one row per operation</td>
+        <td><code>getTableParameterList().getTable("TIMETICKETS")</code></td>
+      </tr>
+      <tr>
+        <td><code>BAPI_PRODORDCONF_CREATE_TT</code></td>
+        <td>Must set CONF_ACTIVITY1 + CONF_ACTI_UNIT1 to bypass cost rate lookup (RU/085)</td>
+        <td>Set FIN_CONF='X' and CLEAR_RES='X' only on the last operation</td>
+      </tr>
+      <tr>
+        <td><code>BAPI_GOODSMVT_CREATE</code></td>
+        <td>GOODSMVT_CODE is a structure, not a string</td>
+        <td><code>getStructure("GOODSMVT_CODE").setValue("GM_CODE","03")</code></td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+<!-- TEST RESULTS -->
+<div class="section" id="testing">
+  <h2 class="section-title">Test Results</h2>
+  <div class="card">
+    <h3>Step 0 &mdash; Initial Stock Posting</h3>
+    <table>
+      <tr><th>Test</th><th>Result</th><th>Details</th></tr>
+      <tr><td>Post stock for 61 raw materials</td><td style="color:var(--success);font-weight:700;">PASS</td><td>MatDocs 4900007748&ndash;4900007808, 10,000&ndash;20,000 EA per material</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Single Full Cycle</h3>
+    <table>
+      <tr><th>Step</th><th>Result</th><th>Details</th></tr>
+      <tr><td>Order</td><td style="color:var(--success);font-weight:700;">PASS</td><td>Order 1002162 (MZ-FG-C950 &times; 17)</td></tr>
+      <tr><td>Release</td><td style="color:var(--success);font-weight:700;">PASS</td><td>Status CRTD &rarr; REL</td></tr>
+      <tr><td>Confirm (auto GI+GR)</td><td style="color:var(--success);font-weight:700;">PASS</td><td>2 ops confirmed. MatDoc 4900007817 (GR 101) + 4900007818 (GI 261)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Bulk Test &mdash; 3 Cycles</h3>
+    <table>
+      <tr><th>Metric</th><th>Value</th></tr>
+      <tr><td>Orders created</td><td>1002163, 1002164, 1002165</td></tr>
+      <tr><td>Total completed</td><td>3 / 3</td></tr>
+      <tr><td>Failures</td><td>0</td></tr>
+    </table>
+    <div class="info-box" style="margin-top:14px;">
+      All tests performed on SAP S/4HANA IDES, client 100, plant 1710.
+      Confirmation uses <code>BAPI_PRODORDCONF_CREATE_TT</code> (time ticket) with explicit activity quantities.
+    </div>
+  </div>
+</div>
+
+</div><!-- container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  SAP S/4HANA Plan-to-Produce (P2Pr) Workflow Documentation &mdash; Generated 2026-04-09
+</div>
+
+</body>
+</html>

@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP Housekeeping & Job Scheduler</title>
+<style>
+  :root {
+    --primary: #922b21;
+    --primary-light: #c0392b;
+    --accent: #2980b9;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --warning: #f39c12;
+    --danger: #e74c3c;
+    --ok-bg: #eafaf1;
+    --warn-bg: #fef9e7;
+    --danger-bg: #fdedec;
+    --step0: #c0392b;
+    --step1: #2980b9;
+    --step2: #27ae60;
+    --step3: #8e44ad;
+    --step4: #d35400;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #922b21 0%, #641e16 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  .header .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+
+  /* Navigation */
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #f9e0de; }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* Overview Grid */
+  .overview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .overview-item {
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    text-align: center;
+  }
+  .overview-item .label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--text-light); margin-bottom: 4px; }
+  .overview-item .value { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+  .overview-item .detail { font-size: 0.85rem; color: var(--text-light); margin-top: 4px; }
+
+  /* Status indicator */
+  .status-ok { color: var(--success); font-weight: 700; }
+  .status-warn { color: var(--warning); font-weight: 700; }
+  .status-danger { color: var(--danger); font-weight: 700; }
+  .status-box {
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .status-box.ok { background: var(--ok-bg); border-left: 4px solid var(--success); }
+  .status-box.warn { background: var(--warn-bg); border-left: 4px solid var(--warning); }
+  .status-box.danger { background: var(--danger-bg); border-left: 4px solid var(--danger); }
+  .status-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .status-text { flex: 1; }
+  .status-text strong { display: block; margin-bottom: 2px; }
+  .status-text small { color: var(--text-light); }
+
+  /* Flow Diagram */
+  .flow-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 30px 10px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  .flow-step {
+    text-align: center;
+    min-width: 140px;
+    flex-shrink: 0;
+  }
+  .flow-box {
+    border-radius: 12px;
+    padding: 16px 12px;
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+  }
+  .flow-box .step-num {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 400;
+    opacity: 0.85;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .flow-sub {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+  .flow-arrow {
+    font-size: 1.6rem;
+    color: #adb5bd;
+    flex-shrink: 0;
+    padding: 0 4px;
+  }
+  .step0-bg { background: linear-gradient(135deg, var(--step0), #7b241c); }
+  .step1-bg { background: linear-gradient(135deg, var(--step1), #1a6da0); }
+  .step2-bg { background: linear-gradient(135deg, var(--step2), #1e8449); }
+  .step3-bg { background: linear-gradient(135deg, var(--step3), #6c3483); }
+  .step4-bg { background: linear-gradient(135deg, var(--step4), #a04000); }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--code-bg); font-weight: 600; font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-light); }
+  tr:hover td { background: #fafbfc; }
+
+  /* Code blocks */
+  pre {
+    background: var(--code-bg);
+    border-radius: 8px;
+    padding: 16px;
+    overflow-x: auto;
+    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin: 12px 0;
+  }
+  code {
+    font-family: 'SF Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+    font-size: 0.88em;
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+  pre code { background: none; padding: 0; }
+
+  /* Two-column cards */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* Callout */
+  .callout {
+    background: #f9e0de;
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 16px 0;
+    font-size: 0.92rem;
+  }
+
+  /* Impact matrix */
+  .impact-cell { text-align: center !important; font-size: 0.85rem; }
+  .impact-yes { background: #eafaf1; color: #1e8449; font-weight: 600; }
+  .impact-no { background: #f8f9fa; color: #adb5bd; }
+
+  /* Calendar */
+  .calendar-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .calendar-item:last-child { border-bottom: none; }
+  .calendar-freq {
+    min-width: 90px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    color: var(--primary);
+    text-transform: uppercase;
+  }
+  .calendar-desc { flex: 1; }
+  .calendar-desc strong { display: block; margin-bottom: 2px; }
+  .calendar-desc small { color: var(--text-light); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <h1>SAP Housekeeping &amp; Job Scheduler</h1>
+  <div class="subtitle">Automated data health maintenance for S/4HANA IDES — all business processes</div>
+  <div class="badge">Client 100 &middot; Company 1710 &middot; Plant 1710</div>
+</div>
+
+<!-- Navigation -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#health">Health Dashboard</a>
+    <a href="#jobs">Scheduled Jobs</a>
+    <a href="#flow">Scheduling Flow</a>
+    <a href="#bapis">BAPIs</a>
+    <a href="#areas">Health Areas</a>
+    <a href="#impact">Cross-Process Impact</a>
+    <a href="#connectivity">Connectivity</a>
+    <a href="#usage">Usage</a>
+    <a href="#calendar">Maintenance Calendar</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- Overview -->
+<div class="section" id="overview">
+  <h2 class="section-title">Overview</h2>
+  <p style="margin-bottom:20px;">
+    The SAP Housekeeping Job Scheduler maintains data health across all four business
+    processes (P2P, PP, MRP, OTC) by scheduling periodic background jobs in SAP and
+    monitoring critical system areas. It runs locally via JCo RFC — no SSH into SAP needed.
+  </p>
+  <div class="overview-grid">
+    <div class="overview-item">
+      <div class="label">Scheduled Jobs</div>
+      <div class="value">1</div>
+      <div class="detail">MM Period Opening (monthly)</div>
+    </div>
+    <div class="overview-item">
+      <div class="label">Health Checks</div>
+      <div class="value">4</div>
+      <div class="detail">MM, FI, ML Periods + Number Ranges</div>
+    </div>
+    <div class="overview-item">
+      <div class="label">Processes Covered</div>
+      <div class="value">4</div>
+      <div class="detail">P2P, PP, MRP, OTC</div>
+    </div>
+    <div class="overview-item">
+      <div class="label">Execution</div>
+      <div class="value">Local</div>
+      <div class="detail">JCo RFC from Mac</div>
+    </div>
+  </div>
+</div>
+
+<!-- Health Dashboard -->
+<div class="section" id="health">
+  <h2 class="section-title">Health Dashboard</h2>
+  <p style="margin-bottom:16px;">Run <code>./jobsched.sh status</code> to see live values. Snapshot as of initial setup:</p>
+
+  <div class="status-box ok">
+    <div class="status-icon">&#10003;</div>
+    <div class="status-text">
+      <strong>MM Period — OK</strong>
+      <small>Company 1710: Period 2026/04 (current). Automatic monthly opening scheduled.</small>
+    </div>
+  </div>
+  <div class="status-box ok">
+    <div class="status-icon">&#10003;</div>
+    <div class="status-text">
+      <strong>FI Posting Periods — OK</strong>
+      <small>Open 2000/001 through 2030/012. No maintenance needed until 2030.</small>
+    </div>
+  </div>
+  <div class="status-box ok">
+    <div class="status-icon">&#10003;</div>
+    <div class="status-text">
+      <strong>Material Ledger Periods — OK (2026)</strong>
+      <small>All 12 periods exist for 2026. 105 cost estimate numbers covered.</small>
+    </div>
+  </div>
+  <div class="status-box warn">
+    <div class="status-icon">&#9888;</div>
+    <div class="status-text">
+      <strong>Material Ledger Periods — 2027 Missing</strong>
+      <small>No CKMLPP/CKMLCR rows for 2027. Run <code>extend-ml</code> before January 2027.</small>
+    </div>
+  </div>
+  <div class="status-box ok">
+    <div class="status-icon">&#10003;</div>
+    <div class="status-text">
+      <strong>Number Ranges — OK</strong>
+      <small>All ranges below 1% utilization. Extensive headroom for all processes.</small>
+    </div>
+  </div>
+</div>
+
+<!-- Scheduled Jobs -->
+<div class="section" id="jobs">
+  <h2 class="section-title">Scheduled Jobs</h2>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--step0);"></span> Z_MM_PERIOD_OPEN_1710</h3>
+    <table>
+      <tr><th style="width:160px;">Property</th><th>Value</th></tr>
+      <tr><td>ABAP Program</td><td><code>RMMMPERI</code> (MM Period Shift)</td></tr>
+      <tr><td>Variant</td><td><code>Z_AUTO_1710</code></td></tr>
+      <tr><td>Schedule</td><td>Monthly — 1st of each month at 00:30</td></tr>
+      <tr><td>Purpose</td><td>Opens the next MM posting period for company code 1710</td></tr>
+      <tr><td>SAP Tcode</td><td>MMPV</td></tr>
+      <tr><td>SAP Table</td><td>MARV (BUKRS, LFGJA, LFMON)</td></tr>
+    </table>
+    <div class="callout" style="margin-top:16px;">
+      <strong>Why this matters:</strong> Without an open MM period, ALL goods movements fail —
+      stock postings (501), goods issues (261), goods receipts (101), and PGI (601).
+      This blocks every business process.
+    </div>
+    <p style="margin-top:12px;"><strong>Variant parameters:</strong></p>
+    <table>
+      <tr><th>Parameter</th><th>Value</th><th>Description</th></tr>
+      <tr><td><code>I_VBUKR</code></td><td><code>1710</code></td><td>Company code</td></tr>
+      <tr><td><code>I_ACTDAT</code></td><td><code>X</code></td><td>Use actual date to determine period</td></tr>
+      <tr><td><code>I_XCOMP</code></td><td><code>X</code></td><td>Complete closing (full period shift)</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Scheduling Flow -->
+<div class="section" id="flow">
+  <h2 class="section-title">Job Scheduling Flow</h2>
+  <p style="margin-bottom:10px;">How jobs are created and scheduled via JCo RFC:</p>
+  <div class="flow-container">
+    <div class="flow-step">
+      <div class="flow-box step0-bg">
+        <span class="step-num">Step 1</span>
+        Create Variant
+      </div>
+      <div class="flow-sub">RS_CREATE_<br>VARIANT_RFC</div>
+    </div>
+    <div class="flow-arrow">&#x2192;</div>
+    <div class="flow-step">
+      <div class="flow-box step1-bg">
+        <span class="step-num">Step 2</span>
+        Open Job
+      </div>
+      <div class="flow-sub">BAPI_XBP_<br>JOB_OPEN</div>
+    </div>
+    <div class="flow-arrow">&#x2192;</div>
+    <div class="flow-step">
+      <div class="flow-box step2-bg">
+        <span class="step-num">Step 3</span>
+        Add Step
+      </div>
+      <div class="flow-sub">BAPI_XBP_JOB_<br>ADD_ABAP_STEP</div>
+    </div>
+    <div class="flow-arrow">&#x2192;</div>
+    <div class="flow-step">
+      <div class="flow-box step3-bg">
+        <span class="step-num">Step 4</span>
+        Release
+      </div>
+      <div class="flow-sub">BAPI_XBP_<br>JOB_CLOSE</div>
+    </div>
+    <div class="flow-arrow">&#x2192;</div>
+    <div class="flow-step">
+      <div class="flow-box step4-bg">
+        <span class="step-num">Step 5</span>
+        Set Periodic
+      </div>
+      <div class="flow-sub">BAPI_XBP_JOB_<br>HEADER_MODIFY</div>
+    </div>
+  </div>
+  <div class="callout">
+    <strong>Key discovery:</strong> <code>RS_CREATE_VARIANT</code> cannot be called remotely, but
+    <code>RS_CREATE_VARIANT_RFC</code> can. This is the RFC-enabled version that allows
+    creating report variants (selection screen values) from outside SAP.
+  </div>
+</div>
+
+<!-- BAPIs -->
+<div class="section" id="bapis">
+  <h2 class="section-title">BAPIs &amp; Function Modules</h2>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--step0);"></span> Job Scheduling</h3>
+    <table>
+      <tr><th>BAPI</th><th>Purpose</th><th>Key Parameters</th></tr>
+      <tr><td><code>RS_CREATE_VARIANT_RFC</code></td><td>Create report variant</td><td>CURR_REPORT, CURR_VARIANT, VARI_CONTENTS</td></tr>
+      <tr><td><code>BAPI_XBP_JOB_OPEN</code></td><td>Create background job</td><td>JOBNAME → returns JOBCOUNT</td></tr>
+      <tr><td><code>BAPI_XBP_JOB_ADD_ABAP_STEP</code></td><td>Add program step</td><td>ABAP_PROGRAM_NAME, ABAP_VARIANT_NAME</td></tr>
+      <tr><td><code>BAPI_XBP_JOB_CLOSE</code></td><td>Release/schedule job</td><td>JOBNAME, JOBCOUNT</td></tr>
+      <tr><td><code>BAPI_XBP_JOB_HEADER_MODIFY</code></td><td>Set periodic scheduling</td><td>JOB_HEADER.PERIODIC, PRDMONTHS, SDLSTRTDT</td></tr>
+      <tr><td><code>BAPI_XBP_JOB_DELETE</code></td><td>Delete a job</td><td>JOBNAME, JOBCOUNT</td></tr>
+      <tr><td><code>BAPI_XBP_JOB_START_IMMEDIATELY</code></td><td>Run job now</td><td>JOBNAME, JOBCOUNT</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--step1);"></span> Key SAP Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Content</th><th>Key Fields</th></tr>
+      <tr><td><code>TBTCO</code></td><td>Job catalog</td><td>JOBNAME, JOBCOUNT, STATUS, PERIODIC, SDLDATE</td></tr>
+      <tr><td><code>TBTCP</code></td><td>Job steps</td><td>JOBNAME, JOBCOUNT, PROGNAME, VARIANT</td></tr>
+      <tr><td><code>VARID</code></td><td>Variant catalog</td><td>REPORT, VARIANT, ENAME, EDAT</td></tr>
+      <tr><td><code>VARIT</code></td><td>Variant descriptions</td><td>REPORT, VARIANT, LANGU, VTEXT</td></tr>
+      <tr><td><code>MARV</code></td><td>MM period control</td><td>BUKRS, LFGJA (year), LFMON (period)</td></tr>
+      <tr><td><code>T001B</code></td><td>FI posting periods</td><td>BUKRS, account type, from/to period</td></tr>
+      <tr><td><code>CKMLPP</code></td><td>ML period data</td><td>KALNR, BDATJ, POPER</td></tr>
+      <tr><td><code>CKMLCR</code></td><td>ML currency data</td><td>KALNR, BDATJ, POPER, CURTP</td></tr>
+      <tr><td><code>NRIV</code></td><td>Number ranges</td><td>OBJECT, NRRANGENR, FROMNUMBER, TONUMBER, NRLEVEL</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--step2);"></span> Job Status Codes (TBTCO.STATUS)</h3>
+    <table>
+      <tr><th>Code</th><th>Meaning</th><th>Icon</th></tr>
+      <tr><td><code>S</code></td><td>Scheduled (waiting for start time)</td><td style="color:var(--accent);">&#9200;</td></tr>
+      <tr><td><code>R</code></td><td>Active (currently running)</td><td style="color:var(--warning);">&#9654;</td></tr>
+      <tr><td><code>F</code></td><td>Finished successfully</td><td style="color:var(--success);">&#10003;</td></tr>
+      <tr><td><code>A</code></td><td>Aborted (failed)</td><td style="color:var(--danger);">&#10007;</td></tr>
+      <tr><td><code>P</code></td><td>Planned (not yet released)</td><td style="color:var(--text-light);">&#8226;</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Health Areas -->
+<div class="section" id="areas">
+  <h2 class="section-title">Health Check Areas</h2>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--step0);"></span> MM Period (MARV)</h3>
+    <p>Controls which period goods movements post into. Must be current or ahead of calendar month.</p>
+    <table>
+      <tr><th>Check</th><th>Condition</th><th>Error if Failed</th></tr>
+      <tr><td>Period is current</td><td><code>LFGJA/LFMON >= current year/month</code></td><td><code>M7 059</code> — posting period not open</td></tr>
+    </table>
+    <p style="margin-top:10px;"><strong>Automated:</strong> Job <code>Z_MM_PERIOD_OPEN_1710</code> runs RMMMPERI monthly.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--step1);"></span> FI Posting Periods (T001B)</h3>
+    <p>Controls which fiscal periods accept accounting documents (ACDOCA).</p>
+    <table>
+      <tr><th>Current Config</th><th>Status</th></tr>
+      <tr><td>Open from 2000/001 to 2030/012 (all account types)</td><td><span class="status-ok">No maintenance until 2030</span></td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--step3);"></span> Material Ledger Periods (CKMLPP / CKMLCR)</h3>
+    <p>Every material with ML valuation needs period rows. Missing rows cause production confirmation to fail.</p>
+    <table>
+      <tr><th>Table</th><th>Rows Required</th><th>Per Material Per Month</th></tr>
+      <tr><td><code>CKMLPP</code></td><td>1 row</td><td>KALNR + BDATJ + POPER</td></tr>
+      <tr><td><code>CKMLCR</code></td><td>2 rows</td><td>CURTP 10 (company) + CURTP 30 (group)</td></tr>
+    </table>
+    <div class="callout" style="margin-top:12px;">
+      <strong>No standard ABAP program</strong> exists for ML period extension.
+      The <code>extend-ml</code> command generates a Python/hdbcli script that inserts
+      rows directly via HANA SQL. Run annually before the new year begins.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background:var(--step4);"></span> Number Ranges (NRIV)</h3>
+    <p>Number ranges for orders, documents, and planned orders. Currently all below 1% utilization.</p>
+    <table>
+      <tr><th>Object</th><th>Range</th><th>Description</th><th>Max</th></tr>
+      <tr><td><code>AUFTRAG</code></td><td>01</td><td>Production / internal orders</td><td>1,999,999</td></tr>
+      <tr><td><code>MATBELEG</code></td><td>01</td><td>Material documents (01xx)</td><td>199,999,999</td></tr>
+      <tr><td><code>MATBELEG</code></td><td>02</td><td>Material documents (49xx)</td><td>4,999,999,999</td></tr>
+      <tr><td><code>RV_BELEG</code></td><td>01</td><td>Sales documents</td><td>4,999,999</td></tr>
+      <tr><td><code>PLAF</code></td><td>04</td><td>Planned orders</td><td>4,999,999,999</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- Cross-Process Impact -->
+<div class="section" id="impact">
+  <h2 class="section-title">Cross-Process Impact</h2>
+  <p style="margin-bottom:16px;">Which health areas affect which business processes:</p>
+  <table>
+    <tr>
+      <th>Health Area</th>
+      <th class="impact-cell">P2P</th>
+      <th class="impact-cell">PP</th>
+      <th class="impact-cell">MRP</th>
+      <th class="impact-cell">OTC</th>
+    </tr>
+    <tr>
+      <td><strong>MM Period</strong></td>
+      <td class="impact-cell impact-yes">GR (101), IR</td>
+      <td class="impact-cell impact-yes">GI (261), GR (101)</td>
+      <td class="impact-cell impact-no">-</td>
+      <td class="impact-cell impact-yes">PGI (601)</td>
+    </tr>
+    <tr>
+      <td><strong>ML Periods</strong></td>
+      <td class="impact-cell impact-no">-</td>
+      <td class="impact-cell impact-yes">Confirm (C+/073)</td>
+      <td class="impact-cell impact-no">-</td>
+      <td class="impact-cell impact-no">-</td>
+    </tr>
+    <tr>
+      <td><strong>FI Periods</strong></td>
+      <td class="impact-cell impact-yes">Invoice posting</td>
+      <td class="impact-cell impact-yes">ACDOCA entries</td>
+      <td class="impact-cell impact-no">-</td>
+      <td class="impact-cell impact-yes">Billing</td>
+    </tr>
+    <tr>
+      <td><strong>Number Ranges</strong></td>
+      <td class="impact-cell impact-yes">PO numbers</td>
+      <td class="impact-cell impact-yes">Order numbers</td>
+      <td class="impact-cell impact-yes">Planned orders</td>
+      <td class="impact-cell impact-yes">Sales orders</td>
+    </tr>
+  </table>
+</div>
+
+<!-- Connectivity -->
+<div class="section" id="connectivity">
+  <h2 class="section-title">Connectivity</h2>
+  <p style="margin-bottom:16px;">Everything runs from the local Mac — no SSH into SAP servers. Client <code>100</code> for all operations.</p>
+  <div class="two-col">
+    <div class="card">
+      <h3><span class="dot" style="background:var(--step0);"></span> SAP RFC (JCo)</h3>
+      <p style="margin-bottom:10px;">BAPIs and RFC function modules via SAP JCo 3.</p>
+      <table>
+        <tr><td><strong>Host</strong></td><td><code>sapidess4.fivetran-internal-sales.com</code></td></tr>
+        <tr><td><strong>SYSNR</strong></td><td><code>03</code> (port 3303)</td></tr>
+        <tr><td><strong>Client</strong></td><td><code>100</code></td></tr>
+        <tr><td><strong>User</strong></td><td><code>IDES</code></td></tr>
+        <tr><td><strong>Password</strong></td><td><code>Fivetran?99</code></td></tr>
+        <tr><td><strong>Language</strong></td><td><code>EN</code></td></tr>
+      </table>
+      <p style="margin-top:10px;font-size:0.85rem;color:var(--text-light);">
+        Required: <code>../SAPjco/sapjco3.jar</code> + <code>libsapjco3.dylib</code>
+      </p>
+    </div>
+    <div class="card">
+      <h3><span class="dot" style="background:var(--step1);"></span> HANA Database (hdbcli)</h3>
+      <p style="margin-bottom:10px;">Direct SQL via SSH tunnel (tunnel only, no server login).</p>
+      <table>
+        <tr><td><strong>Tunnel</strong></td><td><code>localhost:30015</code></td></tr>
+        <tr><td><strong>Database</strong></td><td><code>FIV</code></td></tr>
+        <tr><td><strong>User</strong></td><td><code>SAPHANADB</code></td></tr>
+        <tr><td><strong>Password</strong></td><td><code>Fivetran1T1D</code></td></tr>
+      </table>
+      <pre style="margin-top:10px;"><code>ssh -f -N -L 30015:127.0.0.1:30015 root@sapidess4</code></pre>
+      <p style="font-size:0.85rem;color:var(--text-light);">
+        Python: <code>pip3 install hdbcli</code>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Usage -->
+<div class="section" id="usage">
+  <h2 class="section-title">Usage</h2>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--step0);"></span> Commands</h3>
+    <table>
+      <tr><th>Command</th><th>Description</th></tr>
+      <tr><td><code>setup</code></td><td>Create variants + schedule all periodic jobs</td></tr>
+      <tr><td><code>status</code></td><td>Health dashboard: MM, FI, ML periods + number ranges</td></tr>
+      <tr><td><code>list</code></td><td>List all Z_* maintenance jobs and variants</td></tr>
+      <tr><td><code>run-now &lt;job&gt;</code></td><td>Run a specific job immediately</td></tr>
+      <tr><td><code>delete-jobs</code></td><td>Remove all Z_* maintenance jobs</td></tr>
+      <tr><td><code>extend-ml</code></td><td>Generate ML period extension script for next year</td></tr>
+    </table>
+    <p style="margin-top:10px;"><strong>Options:</strong> <code>--verbose</code>, <code>--dry-run</code></p>
+  </div>
+  <div class="card">
+    <h3><span class="dot" style="background:var(--step1);"></span> Quick Start</h3>
+<pre><code># Compile
+./compile.sh
+
+# First time: create variants + schedule all periodic jobs
+./jobsched.sh setup --verbose
+
+# Health check dashboard
+./jobsched.sh status
+
+# List all scheduled maintenance jobs
+./jobsched.sh list
+
+# Run MM period opening immediately
+./jobsched.sh run-now Z_MM_PERIOD_OPEN_1710
+
+# Preview what delete would do
+./jobsched.sh delete-jobs --dry-run
+
+# Show ML period extension script for 2027
+./jobsched.sh extend-ml</code></pre>
+  </div>
+</div>
+
+<!-- Maintenance Calendar -->
+<div class="section" id="calendar">
+  <h2 class="section-title">Annual Maintenance Calendar</h2>
+  <div class="card">
+    <div class="calendar-item">
+      <div class="calendar-freq">Monthly</div>
+      <div class="calendar-desc">
+        <strong>MM Period Opening</strong>
+        <small>Runs automatically via <code>Z_MM_PERIOD_OPEN_1710</code>. Verify with <code>./jobsched.sh status</code>.</small>
+      </div>
+    </div>
+    <div class="calendar-item">
+      <div class="calendar-freq">Quarterly</div>
+      <div class="calendar-desc">
+        <strong>Number Range Check</strong>
+        <small>Run <code>./jobsched.sh status</code> to verify all ranges are below 75% utilization.</small>
+      </div>
+    </div>
+    <div class="calendar-item">
+      <div class="calendar-freq">Nov / Dec</div>
+      <div class="calendar-desc">
+        <strong>Extend ML Periods for Next Year</strong>
+        <small>Run <code>./jobsched.sh extend-ml</code> and execute the generated Python script via hdbcli. Must complete before January 1st.</small>
+      </div>
+    </div>
+    <div class="calendar-item">
+      <div class="calendar-freq">After Restart</div>
+      <div class="calendar-desc">
+        <strong>Verify Scheduled Jobs</strong>
+        <small>Run <code>./jobsched.sh list</code> to confirm periodic jobs are still active after SAP system restarts.</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Troubleshooting -->
+<div class="section" id="troubleshooting">
+  <h2 class="section-title">Troubleshooting</h2>
+  <table>
+    <tr><th style="width:220px;">Error</th><th>Fix</th></tr>
+    <tr>
+      <td><code>M7 059</code> — Posting period not open</td>
+      <td>Run <code>./jobsched.sh run-now Z_MM_PERIOD_OPEN_1710</code> or <code>setup</code></td>
+    </tr>
+    <tr>
+      <td><code>C+/073</code> — ML period missing</td>
+      <td>Run <code>./jobsched.sh extend-ml</code> and execute the Python script</td>
+    </tr>
+    <tr>
+      <td>Variant does not exist</td>
+      <td>Run <code>./jobsched.sh setup</code> to recreate variants via RS_CREATE_VARIANT_RFC</td>
+    </tr>
+    <tr>
+      <td>Job status = A (aborted)</td>
+      <td>Check SM37 job log in SAP GUI; variant parameters may be incorrect</td>
+    </tr>
+    <tr>
+      <td>Number range exhausted</td>
+      <td>Extend range via tcode SNRO (very rare — ranges are below 1% used)</td>
+    </tr>
+    <tr>
+      <td><code>RS_CREATE_VARIANT</code> not remote</td>
+      <td>Use <code>RS_CREATE_VARIANT_RFC</code> — the RFC-enabled version</td>
+    </tr>
+    <tr>
+      <td>Job not running after SAP restart</td>
+      <td>Run <code>./jobsched.sh list</code> — if missing, run <code>setup</code> again</td>
+    </tr>
+  </table>
+</div>
+
+</div><!-- /container -->
+
+<!-- Footer -->
+<div class="footer">
+  SAP Housekeeping &amp; Job Scheduler &middot; S/4HANA IDES Client 100 &middot; Company 1710 &middot;
+  Automated via JCo RFC + XBP BAPIs
+</div>
+
+</body>
+</html>

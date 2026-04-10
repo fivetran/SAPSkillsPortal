@@ -1,0 +1,1504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP PTP Automated Data Generator</title>
+<style>
+  :root {
+    --primary: #1a3a5c;
+    --primary-light: #2a5a8c;
+    --accent: #e67e22;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --step1: #2ecc71;
+    --step2: #3498db;
+    --step3: #e67e22;
+    --step4: #9b59b6;
+    --step5: #e74c3c;
+    --step6: #1abc9c;
+    --step7: #34495e;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1a5c3a 0%, #2a8c5a 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  .header .badge {
+    display: inline-block;
+    background: var(--accent);
+    color: white;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+
+  /* Navigation */
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #e8f0fe; }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* Flow Diagram */
+  .flow-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    padding: 30px 10px;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+  }
+  .flow-step {
+    text-align: center;
+    min-width: 120px;
+    flex-shrink: 0;
+  }
+  .flow-box {
+    border-radius: 12px;
+    padding: 16px 10px;
+    color: white;
+    font-weight: 700;
+    font-size: 0.9rem;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+    position: relative;
+  }
+  .flow-box .step-num {
+    display: block;
+    font-size: 0.72rem;
+    font-weight: 400;
+    opacity: 0.85;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .flow-sub {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+  .flow-arrow {
+    font-size: 1.6rem;
+    color: #adb5bd;
+    flex-shrink: 0;
+    padding: 0 4px;
+  }
+  .step1-bg { background: linear-gradient(135deg, var(--step1), #27ae60); }
+  .step2-bg { background: linear-gradient(135deg, var(--step2), #2980b9); }
+  .step3-bg { background: linear-gradient(135deg, var(--step3), #d35400); }
+  .step4-bg { background: linear-gradient(135deg, var(--step4), #8e44ad); }
+  .step5-bg { background: linear-gradient(135deg, var(--step5), #c0392b); }
+  .step6-bg { background: linear-gradient(135deg, var(--step6), #16a085); }
+  .step7-bg { background: linear-gradient(135deg, var(--step7), #2c3e50); }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* Step detail cards */
+  .step-card {
+    border-left: 4px solid;
+    padding-left: 20px;
+  }
+  .step-card.s1 { border-color: var(--step1); }
+  .step-card.s2 { border-color: var(--step2); }
+  .step-card.s3 { border-color: var(--step3); }
+  .step-card.s4 { border-color: var(--step4); }
+  .step-card.s5 { border-color: var(--step5); }
+  .step-card.s6 { border-color: var(--step6); }
+  .step-card.s7 { border-color: var(--step7); }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  th {
+    background: var(--primary);
+    color: white;
+    text-align: left;
+    padding: 10px 14px;
+    font-weight: 600;
+    font-size: 0.82rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  td {
+    padding: 9px 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  tr:hover td { background: #f8f9fa; }
+  td code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+  }
+
+  /* Code blocks */
+  pre {
+    background: #1e2937;
+    color: #e2e8f0;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin-top: 10px;
+  }
+  pre .comment { color: #6b7b8d; }
+  pre .string { color: #7ec699; }
+  pre .keyword { color: #c792ea; }
+
+  /* Info boxes */
+  .info-box {
+    background: #e8f4fd;
+    border-left: 4px solid var(--step2);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+  .warn-box {
+    background: #fef5e7;
+    border-left: 4px solid var(--accent);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+  .tbd-box {
+    background: #f8f0ff;
+    border-left: 4px solid var(--step4);
+    padding: 12px 16px;
+    border-radius: 0 6px 6px 0;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+
+  /* Two-column grid */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 768px) {
+    .grid-2 { grid-template-columns: 1fr; }
+    .flow-container { flex-wrap: wrap; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+
+  /* Parameter list */
+  .param-grid {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 4px 16px;
+    font-size: 0.88rem;
+    margin: 8px 0;
+  }
+  .param-grid dt {
+    font-weight: 600;
+    font-family: 'SF Mono', monospace;
+    font-size: 0.82rem;
+    color: var(--primary);
+  }
+  .param-grid dd { color: var(--text-light); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>SAP Procure-to-Pay Workflow</h1>
+  <div class="subtitle">S/4HANA IDES &mdash; Automated PTP Data Generator via JCo RFC</div>
+  <span class="badge">Operational</span>
+</div>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#vendors">Vendors</a>
+    <a href="#materials">Materials</a>
+    <a href="#flow">Flow Diagram</a>
+    <a href="#step1">Step 1: PR</a>
+    <a href="#step2">Step 2: PO</a>
+    <a href="#step3">Step 3: GR</a>
+    <a href="#step4">Step 4: Invoice</a>
+    <a href="#step5">Step 5: Payment</a>
+    <a href="#step6">Step 6: GR/IR</a>
+    <a href="#tables">SAP Tables</a>
+    <a href="#cds">CDS Views</a>
+    <a href="#bapis">BAPIs / RFCs</a>
+    <a href="#hana">HANA Access</a>
+    <a href="#usage">Usage</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- OVERVIEW -->
+<div class="section" id="overview">
+  <h2 class="section-title">Overview</h2>
+  <div class="card">
+    <p>
+      <strong>Procure-to-Pay (PTP)</strong> automated data generator that creates end-to-end P2P documents
+      via JCo RFC: purchase requisition, purchase order, goods receipt, and invoice verification.
+      This tool generates realistic SAP transaction data on S/4HANA IDES, similar to the OTC data generator.
+    </p>
+    <div class="info-box" style="margin-top:14px;">
+      <strong>Same SAP system as OTC.</strong> All programs connect to the same S/4HANA IDES instance.
+      HANA SQL access is available via SSH tunnel + Python <code>hdbcli</code>.
+    </div>
+    <br>
+    <div class="grid-2">
+      <div>
+        <h4>SAP System</h4>
+        <dl class="param-grid">
+          <dt>System</dt><dd>S/4HANA IDES (SID: S4H)</dd>
+          <dt>Release</dt><dd>758 (HANA DB)</dd>
+          <dt>Client</dt><dd>100</dd>
+          <dt>Host</dt><dd>sapidess4.fivetran-internal-sales.com</dd>
+          <dt>Instance Nr</dt><dd>03</dd>
+          <dt>User</dt><dd>IDES</dd>
+          <dt>Password</dt><dd><code>Fivetran?99</code></dd>
+        </dl>
+      </div>
+      <div>
+        <h4>Purchasing Organization</h4>
+        <dl class="param-grid">
+          <dt>Company Code</dt><dd>1710</dd>
+          <dt>Purchasing Org</dt><dd>1710 (Purch. Org. 1710)</dd>
+          <dt>Purchasing Group</dt><dd>001 (Group 001), 002, 003</dd>
+          <dt>Plant</dt><dd>1710</dd>
+          <dt>Storage Locations</dt><dd>171A (primary)</dd>
+          <dt>Currency</dt><dd>USD</dd>
+        </dl>
+      </div>
+    </div>
+    <div class="grid-2" style="margin-top:16px;">
+      <div>
+        <h4>HANA Database</h4>
+        <dl class="param-grid">
+          <dt>Tenant DB</dt><dd>FIV</dd>
+          <dt>Instance</dt><dd>HDB00</dd>
+          <dt>Schema</dt><dd>SAPHANADB</dd>
+          <dt>User</dt><dd>SAPHANADB</dd>
+          <dt>Password</dt><dd><code>Fivetran1T1D</code></dd>
+          <dt>Local Port</dt><dd>30015 (via SSH tunnel)</dd>
+        </dl>
+      </div>
+      <div>
+        <h4>Local Environment</h4>
+        <dl class="param-grid">
+          <dt>Project Dir</dt><dd><code>/Users/antonio.carbone/P2P/</code></dd>
+          <dt>Java</dt><dd>OpenJDK 17 (Homebrew)</dd>
+          <dt>JCo</dt><dd>sapjco3.jar + libsapjco3.dylib (ARM64)</dd>
+          <dt>HANA Client</dt><dd>hdbcli (Python pip)</dd>
+          <dt>Platform</dt><dd>macOS (Apple Silicon)</dd>
+        </dl>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- VENDOR POOL -->
+<div class="section" id="vendors">
+  <h2 class="section-title">Vendor Pool</h2>
+  <div class="card">
+    <p>All vendors below have company code 1710 (LFB1) + purchasing org 1710 (LFM1), USD currency, not blocked.
+    Reconciliation account <code>0021100000</code> (AP domestic).</p>
+    <table>
+      <tr><th>Vendor</th><th>Name</th><th>Payment Terms</th><th>Notes</th></tr>
+      <tr><td><code>0017300001</code></td><td>Domestic US Supplier 1</td><td>0004</td><td>Most info records, primary vendor</td></tr>
+      <tr><td><code>0017300002</code></td><td>Domestic US Supplier 2</td><td>0004</td><td>Several info records</td></tr>
+      <tr><td><code>0017300006</code></td><td>Domestic US Supplier 6 (Returns)</td><td>0004</td><td>QM materials</td></tr>
+      <tr><td><code>0017300010</code></td><td>Domestic US Supplier 10</td><td>0004</td><td></td></tr>
+      <tr><td><code>0017300080</code></td><td>Domestic US Supplier (Ariba Network)</td><td>0004</td><td></td></tr>
+      <tr><td><code>0017300081</code></td><td>Domestic US Supplier (Ariba Sourcing)</td><td>0004</td><td></td></tr>
+      <tr><td><code>0017300082</code></td><td>Domestic US Supplier (Ariba Sourcing)</td><td>0004</td><td></td></tr>
+      <tr><td><code>0017300083</code></td><td>Domestic US Supplier (Ariba Sourcing)</td><td>0004</td><td></td></tr>
+      <tr><td><code>0017300273</code></td><td>Domestic US Supplier CPD</td><td>0004</td><td></td></tr>
+      <tr><td><code>EWM17-SU01</code></td><td>(EWM Supplier)</td><td>0004</td><td>EWMS4 materials</td></tr>
+    </table>
+
+    <div class="warn-box" style="margin-top:14px;">
+      <strong>Excluded vendors:</strong>
+      <code>0017300003</code> (ERS),
+      <code>0017300007</code> (subcontractor),
+      <code>0017300031/50/51</code> (foreign currency EUR/CAD),
+      <code>0017300015/16/17/19</code> (supplier financing/VCard),
+      <code>0017300030/32/33/34</code> (withholding tax),
+      <code>0017300090</code> (Ariba FIN),
+      <code>0017300095/96</code> (commission/royalties).
+    </div>
+  </div>
+</div>
+
+<!-- MATERIAL POOL -->
+<div class="section" id="materials">
+  <h2 class="section-title">Material Pool (Purchasable)</h2>
+  <div class="card">
+    <p>All ROH (raw material) materials below have BESKZ='F' (external procurement), <strong>standard price</strong>
+    (VPRSV=S), and purchasing info records with vendor <code>0017300001</code> in purch org <code>1710</code>.</p>
+
+    <div class="info-box" style="margin-top:14px;">
+      <strong>No overlap with OTC materials</strong> (TG11, TG12, MZ-FG-R100, MZ-FG-R300, MZ-TG-Y240, F-10A).
+      P2P uses ROH/HIBE materials only. Safe for parallel use with no risk to OTC workflow.
+    </div>
+
+    <h3 style="margin-top:16px;">Standard Price Materials (Recommended)</h3>
+    <table>
+      <tr><th>Material</th><th>Description</th><th>UoM</th><th>Std Price</th><th>Vendor Price</th><th>Purch Group</th></tr>
+      <tr><td><code>RM12</code></td><td>RAW12, Repetitive Manuf.</td><td>ST</td><td>$1.00</td><td>$1.05</td><td>001</td></tr>
+      <tr><td><code>RM120</code></td><td>RAW120, Quality Managed</td><td>ST</td><td>$1.25</td><td>$1.31</td><td>002</td></tr>
+      <tr><td><code>RM15</code></td><td>RAW15</td><td>ST</td><td>$0.20</td><td>$0.21</td><td>001</td></tr>
+      <tr><td><code>RM16</code></td><td>RAW16</td><td>ST</td><td>$0.25</td><td>$0.24</td><td>001</td></tr>
+      <tr><td><code>R-302</code></td><td>RAW302, PD</td><td>ST</td><td>$0.08</td><td>$0.60</td><td>001</td></tr>
+      <tr><td><code>R-401</code></td><td>RAW401, D1</td><td>ST</td><td>$1.00</td><td>$0.80</td><td>001</td></tr>
+      <tr><td><code>R-410</code></td><td>RAW410, PD</td><td>ST</td><td>&mdash;</td><td>$1.00</td><td>001</td></tr>
+      <tr><td><code>R-411</code></td><td>RAW411, PD</td><td>ST</td><td>&mdash;</td><td>$3.00</td><td>001</td></tr>
+      <tr><td><code>R-412</code></td><td>RAW412, PD</td><td>ST</td><td>&mdash;</td><td>$2.00</td><td>001</td></tr>
+      <tr><td><code>MZ-RM-R100-01</code></td><td>BKR-100 Frame</td><td>ST</td><td>$145.87</td><td>&mdash;</td><td>Z90</td></tr>
+      <tr><td><code>MZ-RM-R100-02</code></td><td>BKR-100 Handle Bars</td><td>ST</td><td>$2.86</td><td>&mdash;</td><td>Z90</td></tr>
+    </table>
+
+    <h3 style="margin-top:16px;">Moving Average Price Materials (Use with Caution)</h3>
+    <table>
+      <tr><th>Material</th><th>Description</th><th>UoM</th><th>Mov Avg Price</th><th>Vendor Price</th><th>Purch Group</th></tr>
+      <tr><td><code>HB01</code></td><td>Operating Supply 01</td><td>ST</td><td>$51.00</td><td>$60.00</td><td>002</td></tr>
+    </table>
+    <p style="font-size:0.85rem; color:var(--text-light); margin-top:8px;">
+      Moving average price materials will have their MBEW.VERPR updated on GR/IR posting.
+      This is normal SAP behavior but means the valuation price may shift over time.
+    </p>
+  </div>
+</div>
+
+<!-- FLOW DIAGRAM -->
+<div class="section" id="flow">
+  <h2 class="section-title">End-to-End Flow</h2>
+  <div class="card">
+    <div class="flow-container">
+      <div class="flow-step">
+        <div class="flow-box step1-bg">
+          <span class="step-num">Step 1</span>
+          Purchase Req
+        </div>
+        <div class="flow-sub">EBAN<br>EBKN</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-box step2-bg">
+          <span class="step-num">Step 2</span>
+          Purchase Order
+        </div>
+        <div class="flow-sub">EKKO / EKPO<br>EKET / EKKN</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-box step3-bg">
+          <span class="step-num">Step 3</span>
+          Goods Receipt
+        </div>
+        <div class="flow-sub">MATDOC<br>(MKPF / MSEG)</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-box step4-bg">
+          <span class="step-num">Step 4</span>
+          Invoice
+        </div>
+        <div class="flow-sub">RBKP / RSEG</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-box step5-bg">
+          <span class="step-num">Step 5</span>
+          Payment
+        </div>
+        <div class="flow-sub">ACDOCA<br>REGUH / REGUP</div>
+      </div>
+      <div class="flow-arrow">&rarr;</div>
+      <div class="flow-step">
+        <div class="flow-box step6-bg">
+          <span class="step-num">Step 6</span>
+          GR/IR Clear
+        </div>
+        <div class="flow-sub">ACDOCA<br>BKPF / BSEG</div>
+      </div>
+    </div>
+
+    <div class="info-box">
+      <strong>Document Flow:</strong> PR &rarr; PO (EBAN.EBELN) &rarr; GR (MATDOC.EBELN/EBELP, EKBE.VGABE=1)
+      &rarr; IR (RSEG.EBELN/EBELP, EKBE.VGABE=2) &rarr; Payment (ACDOCA) &rarr; GR/IR Clearing (MR11).
+      Use <code>ME23N</code> &rarr; Environment &rarr; Document Flow to trace the complete chain.
+    </div>
+  </div>
+</div>
+
+<!-- STEP 1: PURCHASE REQUISITION -->
+<div class="section" id="step1">
+  <h2 class="section-title">Step 1 &mdash; Purchase Requisition</h2>
+  <div class="card step-card s1">
+    <h3><span class="dot" style="background:var(--step1)"></span>Create Purchase Requisition</h3>
+    <p>Creates an internal request for procurement. Can be created manually, via MRP, or programmatically
+    via BAPI. The PR triggers the purchasing workflow and may require release approval.</p>
+
+    <h4 style="margin-top:16px;">Transaction Codes</h4>
+    <table>
+      <tr><th>Tcode</th><th>Purpose</th></tr>
+      <tr><td><code>ME51N</code></td><td>Create Purchase Requisition</td></tr>
+      <tr><td><code>ME52N</code></td><td>Change Purchase Requisition</td></tr>
+      <tr><td><code>ME53N</code></td><td>Display Purchase Requisition</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">BAPI</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th></tr>
+      <tr><td><code>BAPI_PR_CREATE</code></td><td>Create purchase requisition with items and account assignments</td></tr>
+      <tr><td><code>BAPI_PR_CHANGE</code></td><td>Change existing purchase requisition</td></tr>
+      <tr><td><code>BAPI_PR_GETDETAIL</code></td><td>Read purchase requisition details</td></tr>
+      <tr><td><code>BAPI_TRANSACTION_COMMIT</code></td><td>Persist changes (WAIT='X')</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Tables Populated</h4>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Key Fields Written</th></tr>
+      <tr><td><code>EBAN</code></td><td>Purchase Requisition</td><td>BANFN, BNFPO, BSART, MATNR, TXZ01, MENGE, MEINS, WERKS, LGORT, EKGRP, EKORG, AFNAM, LFDAT, PREIS, PEINH, WAERS</td></tr>
+      <tr><td><code>EBKN</code></td><td>PR Account Assignment</td><td>BANFN, BNFPO, ZEBKN, SAKTO, KOSTL, AUFNR, PS_PSP_PNR, WRBTR</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Release Strategy</h4>
+    <table>
+      <tr><th>Config Table</th><th>Description</th></tr>
+      <tr><td><code>T16FC</code></td><td>Release groups</td></tr>
+      <tr><td><code>T16FD</code></td><td>Release codes (approval steps)</td></tr>
+      <tr><td><code>T16FS</code></td><td>Release strategies</td></tr>
+      <tr><td><code>T16FE</code></td><td>Release strategy assignment (characteristics)</td></tr>
+    </table>
+    <p style="font-size:0.9rem; margin-top:6px;">
+      EBAN fields: <code>FRGKZ</code> (release indicator), <code>FRGST</code> (release status),
+      <code>FRGRL</code> (complete flag), <code>FRGSX</code> (release strategy).
+      Workflow template: <code>WS20000075</code>.
+    </p>
+
+    <h4 style="margin-top:16px;">Test Results (2026-04-09)</h4>
+    <table>
+      <tr><th>PR Number</th><th>Item</th><th>Material</th><th>Qty</th><th>Vendor</th><th>Released</th><th>Status</th></tr>
+      <tr><td><code>0010001494</code></td><td>00010</td><td>R-302</td><td>97 ST</td><td>0017300001</td><td>FRGRL=X</td><td style="color:var(--success);font-weight:600;">OK</td></tr>
+    </table>
+    <p style="font-size:0.9rem; margin-top:6px;">
+      <strong>BAPI:</strong> <code>BAPI_PR_CREATE</code> &rarr; <code>BAPI_TRANSACTION_COMMIT</code> (WAIT='X').<br>
+      <strong>Header:</strong> PR_TYPE='NB' (standard).<br>
+      <strong>Item fields:</strong> PREQ_ITEM, MATERIAL, PLANT, QUANTITY, UNIT, DELIV_DATE, PURCH_ORG, PUR_GROUP, PREQ_NAME, DES_VENDOR.<br>
+      <strong>Note:</strong> Item structure is <code>BAPIMEREQITEMIMP</code> &mdash; uses <code>DES_VENDOR</code> (not VENDOR), no <code>DOC_TYPE</code> at item level.<br>
+      <strong>Warning:</strong> <code>06/418</code> &ldquo;Can delivery date be met?&rdquo; &mdash; normal when using today's date (lead time ~15 days).
+    </p>
+
+    <h4 style="margin-top:16px;">Verification Query</h4>
+    <div class="code-block">
+      <code>-- HANA SQL: Verify PR<br>
+SELECT BANFN, BNFPO, MATNR, MENGE, FRGRL, EBELN FROM EBAN WHERE BANFN = '0010001494';</code>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 2: PURCHASE ORDER -->
+<div class="section" id="step2">
+  <h2 class="section-title">Step 2 &mdash; Purchase Order</h2>
+  <div class="card step-card s2">
+    <h3><span class="dot" style="background:var(--step2)"></span>Create Purchase Order</h3>
+    <p>Creates a purchase order (doc type <code>NB</code> = standard PO) with header, items, schedule lines,
+    and account assignments. Can reference a PR or be created directly.</p>
+
+    <h4 style="margin-top:16px;">Transaction Codes</h4>
+    <table>
+      <tr><th>Tcode</th><th>Purpose</th></tr>
+      <tr><td><code>ME21N</code></td><td>Create Purchase Order</td></tr>
+      <tr><td><code>ME22N</code></td><td>Change Purchase Order</td></tr>
+      <tr><td><code>ME23N</code></td><td>Display Purchase Order</td></tr>
+      <tr><td><code>ME29N</code></td><td>Release Purchase Order</td></tr>
+      <tr><td><code>ME28</code></td><td>Mass Release POs</td></tr>
+      <tr><td><code>ME59N</code></td><td>Automatic PO Generation from PRs</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">BAPI</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th></tr>
+      <tr><td><code>BAPI_PO_CREATE1</code></td><td>Create PO with header, items, schedule lines, account assignments</td></tr>
+      <tr><td><code>BAPI_PO_CHANGE</code></td><td>Change existing PO</td></tr>
+      <tr><td><code>BAPI_PO_GETDETAIL1</code></td><td>Read PO details</td></tr>
+      <tr><td><code>BAPI_PO_RELEASE</code></td><td>Release PO programmatically</td></tr>
+      <tr><td><code>BAPI_TRANSACTION_COMMIT</code></td><td>Persist changes (WAIT='X')</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Import Parameters (BAPI_PO_CREATE1)</h4>
+    <table>
+      <tr><th>Structure</th><th>Field</th><th>Value</th></tr>
+      <tr><td><code>POHEADER</code></td><td>COMP_CODE</td><td><code>1710</code></td></tr>
+      <tr><td></td><td>DOC_TYPE</td><td><code>NB</code> (Standard PO)</td></tr>
+      <tr><td></td><td>VENDOR</td><td>Vendor number</td></tr>
+      <tr><td></td><td>PURCH_ORG</td><td>Purchasing organization</td></tr>
+      <tr><td></td><td>PUR_GROUP</td><td>Purchasing group</td></tr>
+      <tr><td><code>POHEADERX</code></td><td>COMP_CODE, DOC_TYPE, VENDOR, PURCH_ORG, PUR_GROUP</td><td><code>X</code> (flags)</td></tr>
+      <tr><td><code>POITEM</code></td><td>PO_ITEM, MATERIAL, PLANT, STGE_LOC, QUANTITY, PO_UNIT, NET_PRICE, PRICE_UNIT, TAX_CODE</td><td>Per item</td></tr>
+      <tr><td><code>POSCHEDULE</code></td><td>PO_ITEM, SCHED_LINE, DELIVERY_DATE, QUANTITY</td><td>One schedule line per item</td></tr>
+      <tr><td><code>POACCOUNT</code></td><td>PO_ITEM, SERIAL_NO, GL_ACCOUNT, COSTCENTER</td><td>For account-assigned items</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Tables Populated</h4>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Key Fields Written</th></tr>
+      <tr><td><code>EKKO</code></td><td>PO Header</td><td>EBELN, BUKRS, BSTYP='F', BSART, LIFNR, EKORG, EKGRP, WAERS, BEDAT</td></tr>
+      <tr><td><code>EKPO</code></td><td>PO Items</td><td>EBELN, EBELP, MATNR, TXZ01, MENGE, MEINS, NETPR, PEINH, WERKS, LGORT, MWSKZ</td></tr>
+      <tr><td><code>EKET</code></td><td>Schedule Lines</td><td>EBELN, EBELP, ETENR, EINDT, MENGE</td></tr>
+      <tr><td><code>EKKN</code></td><td>Account Assignment</td><td>EBELN, EBELP, ZEKKN, SAKTO, KOSTL, AUFNR</td></tr>
+      <tr><td><code>PRCD_ELEMENTS</code></td><td>Pricing Conditions</td><td>KNUMV, KPOSN, KSCHL, KBETR, KWERT</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">PO Release Strategy</h4>
+    <p style="font-size:0.9rem;">
+      Same T16F* tables as PR. EKKO fields: <code>FRGKE</code> (release status), <code>FRGSX</code>
+      (strategy), <code>FRGRL</code> (complete). Release docs in <code>EKAB</code>.
+      Workflow template: <code>WS20000076</code>.
+    </p>
+
+    <h4 style="margin-top:16px;">Test Results (2026-04-09)</h4>
+    <table>
+      <tr><th>PO Number</th><th>Item</th><th>Material</th><th>Qty</th><th>Net Price</th><th>From PR</th><th>Status</th></tr>
+      <tr><td><code>4500001819</code></td><td>00010</td><td>R-302</td><td>97 ST</td><td>0.60 USD</td><td>0010001494</td><td style="color:var(--success);font-weight:600;">OK</td></tr>
+    </table>
+    <p style="font-size:0.9rem; margin-top:6px;">
+      <strong>BAPI:</strong> <code>BAPI_PO_CREATE1</code> &rarr; <code>BAPI_TRANSACTION_COMMIT</code> (WAIT='X').<br>
+      <strong>Export field:</strong> <code>EXPPURCHASEORDER</code> (not PURCHASEORDER).<br>
+      <strong>PR linkage:</strong> Set <code>PREQ_NO</code> and <code>PREQ_ITEM</code> in POITEM to link PO to PR. Verified EBAN.EBELN updated.<br>
+      <strong>Warning:</strong> Price difference: info record price (0.60) vs material std price (0.08) &mdash; normal for IDES.
+    </p>
+  </div>
+</div>
+
+<!-- STEP 3: GOODS RECEIPT -->
+<div class="section" id="step3">
+  <h2 class="section-title">Step 3 &mdash; Goods Receipt</h2>
+  <div class="card step-card s3">
+    <h3><span class="dot" style="background:var(--step3)"></span>Post Goods Receipt</h3>
+    <p>Posts a goods receipt against the purchase order (movement type <code>101</code>).
+    Creates a material document and triggers accounting postings (stock debit / GR-IR clearing credit).</p>
+
+    <h4 style="margin-top:16px;">Transaction Codes</h4>
+    <table>
+      <tr><th>Tcode</th><th>Purpose</th></tr>
+      <tr><td><code>MIGO</code></td><td>Goods Movement (GR against PO, mvt type 101)</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">BAPI</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th></tr>
+      <tr><td><code>BAPI_GOODSMVT_CREATE</code></td><td>Post goods movement (GR, GI, transfer posting)</td></tr>
+      <tr><td><code>BAPI_TRANSACTION_COMMIT</code></td><td>Persist changes (WAIT='X')</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Import Parameters (BAPI_GOODSMVT_CREATE)</h4>
+    <table>
+      <tr><th>Structure</th><th>Field</th><th>Value</th></tr>
+      <tr><td><code>GOODSMVT_HEADER</code></td><td>PSTNG_DATE</td><td>Today (posting date)</td></tr>
+      <tr><td></td><td>DOC_DATE</td><td>Today (document date)</td></tr>
+      <tr><td></td><td>REF_DOC_NO</td><td>PO number (cross-reference)</td></tr>
+      <tr><td><code>GOODSMVT_CODE</code></td><td>GM_CODE</td><td><code>01</code> (GR for purchase order)</td></tr>
+      <tr><td><code>GOODSMVT_ITEM</code></td><td>MATERIAL</td><td>Material number</td></tr>
+      <tr><td></td><td>PLANT</td><td>Plant</td></tr>
+      <tr><td></td><td>STGE_LOC</td><td>Storage location</td></tr>
+      <tr><td></td><td>MOVE_TYPE</td><td><code>101</code> (GR against PO)</td></tr>
+      <tr><td></td><td>ENTRY_QNT</td><td>Quantity received</td></tr>
+      <tr><td></td><td>ENTRY_UOM</td><td>Unit of measure</td></tr>
+      <tr><td></td><td>PO_NUMBER</td><td>PO number</td></tr>
+      <tr><td></td><td>PO_ITEM</td><td>PO item number</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Movement Types</h4>
+    <table>
+      <tr><th>Mvt Type</th><th>Description</th></tr>
+      <tr><td><code>101</code></td><td>GR against purchase order</td></tr>
+      <tr><td><code>102</code></td><td>GR reversal</td></tr>
+      <tr><td><code>103</code></td><td>GR to blocked stock</td></tr>
+      <tr><td><code>105</code></td><td>Release from blocked stock</td></tr>
+      <tr><td><code>122</code></td><td>Return to vendor</td></tr>
+      <tr><td><code>161</code></td><td>Return delivery</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Tables Populated</h4>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Key Fields Written</th></tr>
+      <tr><td><code>MATDOC</code></td><td>Material Document (S/4HANA unified)</td><td>MBLNR, MJAHR, ZEESSION, BWART='101', MATNR, WERKS, LGORT, MENGE, EBELN, EBELP, SHKZG, BUDAT</td></tr>
+      <tr><td><code>MKPF</code></td><td>Material Doc Header (compat view)</td><td>MBLNR, MJAHR, BUDAT, USNAM</td></tr>
+      <tr><td><code>MSEG</code></td><td>Material Doc Items (compat view)</td><td>MBLNR, MJAHR, ZEILE, BWART, MATNR, MENGE</td></tr>
+      <tr><td><code>EKBE</code></td><td>PO History (updated)</td><td>EBELN, EBELP, VGABE='1' (GR), BELNR, GJAHR</td></tr>
+      <tr><td><code>MARD</code></td><td>Storage Location Stock (updated)</td><td>MATNR, WERKS, LGORT, LABST (increased)</td></tr>
+      <tr><td><code>ACDOCA</code></td><td>Universal Journal</td><td>Stock account debit (BSX), GR/IR clearing credit (WRX)</td></tr>
+    </table>
+
+    <div class="info-box" style="margin-top:14px;">
+      <strong>Accounting Impact:</strong> GR creates two ACDOCA entries via automatic account
+      determination (OBYC/T030): Stock account debit (transaction key BSX) and GR/IR clearing
+      account credit (transaction key WRX).
+    </div>
+
+    <h4 style="margin-top:16px;">Test Results (2026-04-09)</h4>
+    <table>
+      <tr><th>Mat Doc</th><th>Year</th><th>PO</th><th>Material</th><th>Qty</th><th>Amount</th><th>EKBE.VGABE</th><th>Status</th></tr>
+      <tr><td><code>5000002450</code></td><td>2026</td><td>4500001819</td><td>R-302</td><td>97 ST</td><td>58.20 USD</td><td>1 (GR)</td><td style="color:var(--success);font-weight:600;">OK</td></tr>
+    </table>
+    <p style="font-size:0.9rem; margin-top:6px;">
+      <strong>BAPI:</strong> <code>BAPI_GOODSMVT_CREATE</code> &rarr; <code>BAPI_TRANSACTION_COMMIT</code>.<br>
+      <strong>GOODSMVT_CODE:</strong> is a <em>structure</em> (not string) &mdash; set <code>gmCode.setValue("GM_CODE", "01")</code>.<br>
+      <strong>MVT_IND:</strong> set to <code>B</code> (PO reference) on each item.<br>
+      <strong>Material Ledger fix:</strong> Required inserting continuous CKMLHD + CKMLPP + CKMLCR records
+      (client 100, 2022/012 &rarr; 2026/012) for all P2P materials. Error <code>C+/065</code> = missing CKMLHD,
+      <code>C+/073</code> = missing period records. No gaps allowed in period chain.
+    </p>
+  </div>
+</div>
+
+<!-- STEP 4: INVOICE VERIFICATION -->
+<div class="section" id="step4">
+  <h2 class="section-title">Step 4 &mdash; Invoice Verification</h2>
+  <div class="card step-card s4">
+    <h3><span class="dot" style="background:var(--step4)"></span>Post Supplier Invoice</h3>
+    <p>Enters and verifies the vendor's invoice against the purchase order and goods receipt.
+    Creates an invoice document (RBKP/RSEG) and corresponding accounting entries.</p>
+
+    <h4 style="margin-top:16px;">Transaction Codes</h4>
+    <table>
+      <tr><th>Tcode</th><th>Purpose</th></tr>
+      <tr><td><code>MIRO</code></td><td>Enter Incoming Invoice</td></tr>
+      <tr><td><code>MIR4</code></td><td>Display Invoice</td></tr>
+      <tr><td><code>MIR7</code></td><td>Park Invoice</td></tr>
+      <tr><td><code>MIRA</code></td><td>FastEntry (background)</td></tr>
+      <tr><td><code>MRBR</code></td><td>Release Blocked Invoices</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">BAPI</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th></tr>
+      <tr><td><code>BAPI_INCOMINGINVOICE_CREATE</code></td><td>Post supplier invoice with PO reference</td></tr>
+      <tr><td><code>BAPI_INCOMINGINVOICE_CHANGE</code></td><td>Change existing invoice</td></tr>
+      <tr><td><code>BAPI_TRANSACTION_COMMIT</code></td><td>Persist changes (WAIT='X')</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Import Parameters (BAPI_INCOMINGINVOICE_CREATE)</h4>
+    <table>
+      <tr><th>Structure</th><th>Field</th><th>Value</th></tr>
+      <tr><td><code>HEADERDATA</code></td><td>INVOICE_IND</td><td><code>X</code> (invoice, not credit memo)</td></tr>
+      <tr><td></td><td>DOC_TYPE</td><td><code>RE</code> (incoming invoice)</td></tr>
+      <tr><td></td><td>DOC_DATE</td><td>Invoice date</td></tr>
+      <tr><td></td><td>PSTNG_DATE</td><td>Posting date</td></tr>
+      <tr><td></td><td>COMP_CODE</td><td><code>1710</code></td></tr>
+      <tr><td></td><td>CURRENCY</td><td><code>USD</code></td></tr>
+      <tr><td></td><td>GROSS_AMOUNT</td><td>Invoice gross amount</td></tr>
+      <tr><td></td><td>CALC_TAX_IND</td><td><code>X</code> (calculate tax)</td></tr>
+      <tr><td><code>ITEMDATA</code></td><td>INVOICE_DOC_ITEM</td><td>Item number</td></tr>
+      <tr><td></td><td>PO_NUMBER</td><td>PO reference</td></tr>
+      <tr><td></td><td>PO_ITEM</td><td>PO item</td></tr>
+      <tr><td></td><td>TAX_CODE</td><td>Tax code</td></tr>
+      <tr><td></td><td>ITEM_AMOUNT</td><td>Item net amount</td></tr>
+      <tr><td></td><td>QUANTITY</td><td>Invoice quantity</td></tr>
+      <tr><td></td><td>PO_UNIT</td><td>Unit of measure</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Tables Populated</h4>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Key Fields Written</th></tr>
+      <tr><td><code>RBKP</code></td><td>Invoice Doc Header</td><td>BELNR, GJAHR, BLART, BLDAT, BUDAT, BUKRS, LIFNR, WAERS, RMWWR, WMWST1</td></tr>
+      <tr><td><code>RSEG</code></td><td>Invoice Doc Items</td><td>BELNR, GJAHR, BUZEI, EBELN, EBELP, MENGE, WRBTR, MWSKZ</td></tr>
+      <tr><td><code>RBCO</code></td><td>Account Assignment</td><td>BELNR, GJAHR, BUZEI, SAKTO, KOSTL</td></tr>
+      <tr><td><code>EKBE</code></td><td>PO History (updated)</td><td>EBELN, EBELP, VGABE='2' (IR), BELNR, GJAHR</td></tr>
+      <tr><td><code>BKPF</code></td><td>Accounting Doc Header</td><td>BUKRS, BELNR, GJAHR, BLART, BUDAT (auto-created)</td></tr>
+      <tr><td><code>ACDOCA</code></td><td>Universal Journal</td><td>GR/IR clearing debit, Vendor liability credit, Tax</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Tolerances</h4>
+    <table>
+      <tr><th>Config Table</th><th>Description</th></tr>
+      <tr><td><code>T169</code></td><td>Tolerance keys (AN=amount, AP=amount/item, BD=qty, BW=%)</td></tr>
+      <tr><td><code>T169P</code></td><td>Tolerance limits per company code</td></tr>
+    </table>
+    <p style="font-size:0.9rem; margin-top:6px;">
+      Invoices exceeding tolerance are blocked (RBKP.ZLSPR). Release via <code>MRBR</code>.
+      Workflow template: <code>WS20001000</code>.
+    </p>
+
+    <div class="info-box" style="margin-top:14px;">
+      <strong>Accounting Impact:</strong> Invoice creates ACDOCA entries: GR/IR clearing account
+      debit (clears the GR posting) and vendor liability credit. Three-way match: PO quantity/price
+      vs GR quantity vs Invoice quantity/amount.
+    </div>
+
+    <h4 style="margin-top:16px;">Test Results (2026-04-09)</h4>
+    <table>
+      <tr><th>Inv Doc</th><th>Year</th><th>PO</th><th>Gross Amount</th><th>Tax Code</th><th>EKBE.VGABE</th><th>Status</th></tr>
+      <tr><td><code>5100001337</code></td><td>2026</td><td>4500001819</td><td>58.20 USD</td><td>I0</td><td>2 (IR)</td><td style="color:var(--success);font-weight:600;">OK</td></tr>
+    </table>
+    <p style="font-size:0.9rem; margin-top:6px;">
+      <strong>BAPI:</strong> <code>BAPI_INCOMINGINVOICE_CREATE</code> &rarr; <code>BAPI_TRANSACTION_COMMIT</code>.<br>
+      <strong>Export field:</strong> <code>INVOICEDOCNUMBER</code>, <code>FISCALYEAR</code>.<br>
+      <strong>Tax code:</strong> Use <code>I0</code> (A/P Sales Tax, exempt) for TAXUSJ procedure. <code>V0</code> is invalid.<br>
+      <strong>DIFF_INV:</strong> Set to vendor number (invoicing party).<br>
+      <strong>REF_DOC_NO:</strong> External invoice reference (free text).
+    </p>
+  </div>
+</div>
+
+<!-- STEP 5: PAYMENT -->
+<div class="section" id="step5">
+  <h2 class="section-title">Step 5 &mdash; Vendor Payment</h2>
+  <div class="card step-card s5">
+    <h3><span class="dot" style="background:var(--step5)"></span>Post Vendor Payment</h3>
+    <p>Pays the vendor by creating an outgoing payment document. Can be done manually (F-53)
+    or via the Automatic Payment Program (F110). Debits the vendor account and credits the bank account.</p>
+
+    <h4 style="margin-top:16px;">Transaction Codes</h4>
+    <table>
+      <tr><th>Tcode</th><th>Purpose</th></tr>
+      <tr><td><code>F110</code></td><td>Automatic Payment Program</td></tr>
+      <tr><td><code>F-53</code></td><td>Manual outgoing payment</td></tr>
+      <tr><td><code>FBL1N</code></td><td>Vendor line items</td></tr>
+      <tr><td><code>F.13</code></td><td>Automatic clearing</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">BAPI</h4>
+    <table>
+      <tr><th>Function Module</th><th>Purpose</th></tr>
+      <tr><td><code>BAPI_ACC_DOCUMENT_POST</code></td><td>Post outgoing payment (GL credit + vendor debit)</td></tr>
+      <tr><td><code>RFC_READ_TABLE</code></td><td>Read open vendor items (BSIK) for payment amount</td></tr>
+      <tr><td><code>BAPI_TRANSACTION_COMMIT</code></td><td>Persist changes (WAIT='X')</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Document Header (DOCUMENTHEADER)</h4>
+    <table>
+      <tr><th>Field</th><th>Value</th><th>Notes</th></tr>
+      <tr><td><code>BUS_ACT</code></td><td><code>RFBU</code></td><td>Business transaction type</td></tr>
+      <tr><td><code>USERNAME</code></td><td><code>IDES</code></td><td>Posting user</td></tr>
+      <tr><td><code>COMP_CODE</code></td><td><code>1710</code></td><td>Company code</td></tr>
+      <tr><td><code>DOC_TYPE</code></td><td><code>KZ</code></td><td>Vendor payment document type</td></tr>
+      <tr><td><code>DOC_DATE</code></td><td>Today</td><td>Document date</td></tr>
+      <tr><td><code>PSTNG_DATE</code></td><td>Today</td><td>Posting date</td></tr>
+      <tr><td><code>REF_DOC_NO</code></td><td>Invoice doc number</td><td>Cross-reference</td></tr>
+      <tr><td><code>HEADER_TXT</code></td><td><code>P2P Workflow Payment</code></td><td>Header text</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Line Items</h4>
+    <table>
+      <tr><th>Line</th><th>Table</th><th>Account</th><th>Amount</th><th>Details</th></tr>
+      <tr>
+        <td>001</td>
+        <td><code>ACCOUNTPAYABLE</code></td>
+        <td>Vendor number</td>
+        <td>+ (debit)</td>
+        <td>Clears the vendor open item from invoice</td>
+      </tr>
+      <tr>
+        <td>002</td>
+        <td><code>ACCOUNTGL</code></td>
+        <td>Bank GL account</td>
+        <td>&minus; (credit)</td>
+        <td>HOUSEBANKID, HOUSEBANKACCTID</td>
+      </tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Tables Populated</h4>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Key Fields Written</th></tr>
+      <tr><td><code>BKPF</code></td><td>Accounting Document Header</td><td>BUKRS, BELNR, GJAHR, BLART='KZ'</td></tr>
+      <tr><td><code>ACDOCA</code></td><td>Universal Journal</td><td>Vendor debit + Bank credit</td></tr>
+      <tr><td><code>BSAK</code></td><td>Cleared Vendor Items (index)</td><td>Vendor payment clearing</td></tr>
+      <tr><td><code>REGUH</code></td><td>Payment Data (settlement)</td><td>LAUFD, LAUFI, LIFNR, VBLNR, RBETR (F110 only)</td></tr>
+      <tr><td><code>REGUP</code></td><td>Payment Items</td><td>LAUFD, LAUFI, BUKRS, BELNR, GJAHR (F110 only)</td></tr>
+      <tr><td><code>PAYR</code></td><td>Payment Medium</td><td>Check/wire details (F110 only)</td></tr>
+    </table>
+
+    <div class="warn-box" style="margin-top:14px;">
+      <strong>Note:</strong> REGUH/REGUP/PAYR are only populated when using the Automatic Payment
+      Program (F110). Manual payments via BAPI_ACC_DOCUMENT_POST only create BKPF/ACDOCA entries.
+    </div>
+
+    <h4 style="margin-top:20px;">Payment Method Configuration (IDES 1710)</h4>
+    <div class="warn-box" style="margin-bottom:12px;">
+      <strong>Important:</strong> Vendor <code>0017300001</code> has <code>LFB1.ZWELS = CDIP</code>,
+      meaning only payment methods <strong>C</strong> (Check), <strong>D</strong> (ACH CCD),
+      <strong>I</strong> (ISO PAIN.001), <strong>P</strong> (ACH PPD) are allowed.
+      Method <strong>T</strong> (ACH CTX) is <em>not</em> in the vendor master &mdash; F110 will reject it.
+    </div>
+    <table>
+      <tr><th>Method</th><th>Description</th><th>T042Z</th><th>T042E (1710)</th><th>Vendor LFB1</th></tr>
+      <tr><td><code>C</code></td><td>Check</td><td>Yes</td><td>Yes</td><td style="color:var(--success);font-weight:600;">Yes</td></tr>
+      <tr><td><code>D</code></td><td>Bank transfer (ACH CCD)</td><td>Yes</td><td>Yes</td><td style="color:var(--success);font-weight:600;">Yes</td></tr>
+      <tr><td><code>I</code></td><td>ISO PAIN.001 Credit Transfer</td><td>Yes</td><td>Yes</td><td style="color:var(--success);font-weight:600;">Yes</td></tr>
+      <tr><td><code>P</code></td><td>Bank transfer (ACH PPD)</td><td>Yes</td><td>Yes</td><td style="color:var(--success);font-weight:600;">Yes</td></tr>
+      <tr><td><code>T</code></td><td>Bank transfer (ACH CTX)</td><td>Yes</td><td>Yes</td><td style="color:var(--warning);font-weight:600;">No</td></tr>
+    </table>
+    <p style="font-size:0.9rem; margin-top:6px;">
+      <strong>House bank:</strong> <code>USBK1</code> / Account <code>0001</code> (T012K, company 1710).<br>
+      <strong>Doc type:</strong> All methods use <code>BLART = ZP</code> (payment document).
+    </p>
+
+    <div class="warn-box" style="margin-top:12px;">
+      <strong>IDES open items warning:</strong> Vendor 0017300001 has ~150 old open items (BSIK)
+      from 2019&ndash;2022 totaling hundreds of thousands of USD. F110 picks up <em>all</em> due items
+      for the vendor, causing a &ldquo;doc.balance not zero&rdquo; error when the total exceeds
+      limits. Use <strong>Free Selection</strong> to filter by document number, or use <strong>F-53</strong>
+      for individual invoice payment.
+    </div>
+
+    <h4 style="margin-top:20px;">SAP GUI Procedure &mdash; Option A: Automatic Payment (F110)</h4>
+    <p style="font-size:0.9rem; margin-bottom:8px;">Recommended for production-like testing. Use payment method <code>D</code> and filter to specific invoices.</p>
+    <table>
+      <tr><th style="min-width:30px;">#</th><th>Action</th><th>Details</th></tr>
+      <tr><td>1</td><td>Open <code>F110</code></td><td>Automatic Payment Transactions</td></tr>
+      <tr><td>2</td><td>Fill <strong>Header</strong></td><td>Run Date: today (e.g. <code>09.04.2026</code>), Identification: unique ID (e.g. <code>P2P2</code>)</td></tr>
+      <tr><td>3</td><td>Fill <strong>Parameter</strong> tab</td><td>
+        Company Code: <code>1710</code><br>
+        Payment methods: <code>D</code> (ACH CCD) &mdash; must be in vendor's LFB1.ZWELS<br>
+        Next payment date: today or future<br>
+        Vendor: <code>0017300001</code> to <code>0017300001</code>
+      </td></tr>
+      <tr><td>4</td><td>Fill <strong>Free Selection</strong> tab</td><td>
+        Add field <code>BELNR</code> (document number)<br>
+        Values: <code>5100001337</code> to <code>5100001338</code><br>
+        This restricts F110 to only the P2P invoices, excluding old IDES open items.
+      </td></tr>
+      <tr><td>5</td><td>Run <strong>Proposal</strong></td><td>Click Proposal &rarr; Start immediately. Wait for completion, then check <strong>Proposal log</strong>. Invoices should appear as payable items.</td></tr>
+      <tr><td>6</td><td>Run <strong>Payment</strong></td><td>Click Payment run &rarr; Start immediately. Check <strong>Payment log</strong> for payment document number.</td></tr>
+      <tr><td>7</td><td><strong>Verify</strong></td><td><code>FBL1N</code>: vendor 0017300001, company 1710 &mdash; invoices should show as cleared.</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">SAP GUI Procedure &mdash; Option B: Manual Payment (F-53)</h4>
+    <p style="font-size:0.9rem; margin-bottom:8px;">Simpler, single-invoice payment. Avoids the old open items problem entirely.</p>
+    <table>
+      <tr><th style="min-width:30px;">#</th><th>Action</th><th>Details</th></tr>
+      <tr><td>1</td><td>Open <code>F-53</code></td><td>Post Outgoing Payment</td></tr>
+      <tr><td>2</td><td>Fill header fields</td><td>
+        Document Date: today<br>
+        Company Code: <code>1710</code><br>
+        Currency: <code>USD</code><br>
+        Bank Account (G/L): look up via T012K &rarr; HKONT for HBKID=<code>USBK1</code>, HKTID=<code>0001</code><br>
+        Amount: <code>58.20</code> or <code>31.80</code> (matching the invoice)<br>
+        Vendor: <code>0017300001</code>
+      </td></tr>
+      <tr><td>3</td><td>Process Open Items</td><td>Press <strong>Process Open Items</strong> &mdash; all open invoices appear. Double-click only the P2P invoice to select it (deselect everything else).</td></tr>
+      <tr><td>4</td><td>Post</td><td>Click <strong>Post</strong> (Ctrl+S). Note the payment document number.</td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Prerequisites</h4>
+    <table>
+      <tr><th>Requirement</th><th>Config Location</th><th>IDES 1710 Value</th></tr>
+      <tr><td>House bank configured</td><td><code>T012</code> (house bank), <code>T012K</code> (account)</td><td>HBKID=<code>USBK1</code>, HKTID=<code>0001</code></td></tr>
+      <tr><td>Payment method on vendor</td><td><code>LFB1.ZWELS</code></td><td><code>CDIP</code> &mdash; use C or D in F110</td></tr>
+      <tr><td>Payment method per company</td><td><code>T042E</code> (ZBUKR + ZLSCH)</td><td>C, D, I, P, T all configured</td></tr>
+      <tr><td>Payment method definition</td><td><code>T042Z</code> (LAND1 + ZLSCH)</td><td>Country US, all methods BLART=ZP</td></tr>
+      <tr><td>Bank G/L account</td><td><code>T012K.HKONT</code></td><td>Check via <code>SELECT HKONT FROM T012K WHERE BUKRS='1710'</code></td></tr>
+    </table>
+
+    <h4 style="margin-top:16px;">Verification Queries</h4>
+    <div class="code-block"><code>-- Vendor open items (before payment)<br>
+SELECT BUKRS, BELNR, GJAHR, BUZEI, DMBTR, ZLSCH FROM BSIK<br>
+WHERE LIFNR = '0017300001' AND BUKRS = '1710' AND GJAHR = '2026';<br><br>
+-- Vendor cleared items (after payment)<br>
+SELECT BUKRS, BELNR, GJAHR, AUGBL, AUGDT FROM BSAK<br>
+WHERE LIFNR = '0017300001' AND BUKRS = '1710' AND GJAHR = '2026';<br><br>
+-- Payment run details (F110 only)<br>
+SELECT LAUFD, LAUFI, LIFNR, VBLNR, RBETR FROM REGUH<br>
+WHERE LIFNR = '0017300001' AND ZBUKR = '1710';</code>
+    </div>
+  </div>
+</div>
+
+<!-- STEP 6: GR/IR CLEARING -->
+<div class="section" id="step6">
+  <h2 class="section-title">Step 6 &mdash; GR/IR Clearing</h2>
+  <div class="card step-card s6">
+    <h3><span class="dot" style="background:var(--step6)"></span>GR/IR Account Clearing</h3>
+    <p>Clears the GR/IR clearing account (differences between goods receipt and invoice receipt amounts).
+    This is a periodic maintenance step, not part of the individual transaction flow.</p>
+
+    <h4 style="margin-top:16px;">Transaction Codes</h4>
+    <table>
+      <tr><th>Tcode</th><th>Purpose</th></tr>
+      <tr><td><code>MR11</code></td><td>GR/IR Account Maintenance (maintain clearing account)</td></tr>
+      <tr><td><code>F.13</code></td><td>Automatic Clearing</td></tr>
+    </table>
+
+    <div class="info-box" style="margin-top:14px;">
+      <strong>When GR and IR match exactly</strong> (same quantity and price), the GR/IR clearing
+      account nets to zero automatically. MR11 is needed when there are residual differences.
+    </div>
+  </div>
+</div>
+
+<!-- SAP TABLES REFERENCE -->
+<div class="section" id="tables">
+  <h2 class="section-title">SAP Tables Reference</h2>
+
+  <div class="card">
+    <h3>Purchasing Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th><th>Populated By</th></tr>
+      <tr><td><code>EBAN</code></td><td>Purchase Requisition Items</td><td>PR</td><td>Step 1</td></tr>
+      <tr><td><code>EBKN</code></td><td>PR Account Assignment</td><td>PR</td><td>Step 1</td></tr>
+      <tr><td><code>EKKO</code></td><td>Purchasing Document Header</td><td>PO Header</td><td>Step 2</td></tr>
+      <tr><td><code>EKPO</code></td><td>Purchasing Document Item</td><td>PO Items</td><td>Step 2</td></tr>
+      <tr><td><code>EKET</code></td><td>Schedule Lines</td><td>PO Schedule</td><td>Step 2</td></tr>
+      <tr><td><code>EKKN</code></td><td>Account Assignment</td><td>PO Acct Assgmt</td><td>Step 2</td></tr>
+      <tr><td><code>EKBE</code></td><td>PO History (GR, IR, etc.)</td><td>PO History</td><td>Steps 3, 4</td></tr>
+      <tr><td><code>EKAB</code></td><td>PO Release Documentation</td><td>PO Release</td><td>Step 2</td></tr>
+      <tr><td><code>EKPA</code></td><td>Partner Functions in Purchasing</td><td>PO Partners</td><td>Step 2</td></tr>
+      <tr><td><code>PRCD_ELEMENTS</code></td><td>Pricing Conditions (S/4HANA)</td><td>Pricing</td><td>Step 2</td></tr>
+      <tr><td><code>EINA</code></td><td>Purchasing Info Record (General)</td><td>Master Data</td><td>Config</td></tr>
+      <tr><td><code>EINE</code></td><td>Purchasing Info Record (Purch Org)</td><td>Master Data</td><td>Config</td></tr>
+      <tr><td><code>EORD</code></td><td>Source List</td><td>Master Data</td><td>Config</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Materials Management (MM) Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th><th>Populated By</th></tr>
+      <tr><td><code>MATDOC</code></td><td>Material Document (S/4HANA unified)</td><td>Mat. Document</td><td>Step 3</td></tr>
+      <tr><td><code>MKPF</code></td><td>Material Doc Header (compat view)</td><td>Mat. Doc Header</td><td>Step 3</td></tr>
+      <tr><td><code>MSEG</code></td><td>Material Doc Items (compat view)</td><td>Mat. Doc Items</td><td>Step 3</td></tr>
+      <tr><td><code>MARD</code></td><td>Storage Location Stock</td><td>Stock Levels</td><td>Step 3 (updated)</td></tr>
+      <tr><td><code>MBEW</code></td><td>Material Valuation</td><td>Valuation</td><td>Step 3 (updated)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Invoice Verification Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th><th>Populated By</th></tr>
+      <tr><td><code>RBKP</code></td><td>Invoice Document Header</td><td>Invoice Header</td><td>Step 4</td></tr>
+      <tr><td><code>RSEG</code></td><td>Invoice Document Items</td><td>Invoice Items</td><td>Step 4</td></tr>
+      <tr><td><code>RBCO</code></td><td>Invoice Account Assignment</td><td>Invoice Acct</td><td>Step 4</td></tr>
+      <tr><td><code>RBWS</code></td><td>Tax Data per Invoice Item</td><td>Invoice Tax</td><td>Step 4</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Financial Accounting (FI) Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th><th>Populated By</th></tr>
+      <tr><td><code>ACDOCA</code></td><td>Universal Journal Entry (S/4HANA)</td><td>Universal Journal</td><td>Steps 3, 4, 5</td></tr>
+      <tr><td><code>BKPF</code></td><td>Accounting Document Header</td><td>FI Doc Header</td><td>Steps 4, 5</td></tr>
+      <tr><td><code>BSEG</code></td><td>Accounting Document Segment (compat view)</td><td>FI Doc Items</td><td>Steps 4, 5</td></tr>
+      <tr><td><code>BSIK</code></td><td>Open Vendor Items (secondary index)</td><td>AP Open Items</td><td>Step 4</td></tr>
+      <tr><td><code>BSAK</code></td><td>Cleared Vendor Items (secondary index)</td><td>AP Cleared Items</td><td>Step 5</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Payment Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th><th>Populated By</th></tr>
+      <tr><td><code>REGUH</code></td><td>Payment Data (Settlement)</td><td>Payment Header</td><td>Step 5 (F110)</td></tr>
+      <tr><td><code>REGUP</code></td><td>Payment Items</td><td>Payment Items</td><td>Step 5 (F110)</td></tr>
+      <tr><td><code>PAYR</code></td><td>Payment Medium (Check/Wire)</td><td>Payment Medium</td><td>Step 5 (F110)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Vendor Master Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th></tr>
+      <tr><td><code>BUT000</code></td><td>Business Partner General (S/4HANA primary)</td><td>BP General</td></tr>
+      <tr><td><code>BUT020</code></td><td>BP Addresses</td><td>BP Addresses</td></tr>
+      <tr><td><code>BUT100</code></td><td>BP Roles (FLVN01 = supplier)</td><td>BP Roles</td></tr>
+      <tr><td><code>LFA1</code></td><td>Vendor General Data (synced via CVI)</td><td>Vendor General</td></tr>
+      <tr><td><code>LFB1</code></td><td>Vendor Company Code Data</td><td>Vendor CoCode</td></tr>
+      <tr><td><code>LFM1</code></td><td>Vendor Purchasing Org Data</td><td>Vendor PurchOrg</td></tr>
+      <tr><td><code>LFBK</code></td><td>Vendor Bank Details</td><td>Vendor Bank</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Material Master Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Category</th></tr>
+      <tr><td><code>MARA</code></td><td>Material General Data</td><td>General</td></tr>
+      <tr><td><code>MARC</code></td><td>Material Plant Data (MRP, Purchasing)</td><td>Plant</td></tr>
+      <tr><td><code>MARD</code></td><td>Storage Location Stock</td><td>Stock</td></tr>
+      <tr><td><code>MAKT</code></td><td>Material Descriptions</td><td>Texts</td></tr>
+      <tr><td><code>MBEW</code></td><td>Material Valuation</td><td>Valuation</td></tr>
+      <tr><td><code>MARM</code></td><td>Material Units of Measure</td><td>UoM</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Configuration Tables</h3>
+    <table>
+      <tr><th>Table</th><th>Description</th><th>Purpose</th></tr>
+      <tr><td><code>T001</code></td><td>Company Codes</td><td>Company code 1710</td></tr>
+      <tr><td><code>T001K</code></td><td>Valuation Area</td><td>Plant-to-company code assignment</td></tr>
+      <tr><td><code>T001W</code></td><td>Plants</td><td>Plant definitions</td></tr>
+      <tr><td><code>T001L</code></td><td>Storage Locations</td><td>Storage location definitions</td></tr>
+      <tr><td><code>T024E</code></td><td>Purchasing Organizations</td><td>Purch org definitions</td></tr>
+      <tr><td><code>T024</code></td><td>Purchasing Groups</td><td>Buyer group definitions</td></tr>
+      <tr><td><code>T030</code></td><td>Account Determination (OBYC)</td><td>BSX, WRX, GBB, PRD transaction keys</td></tr>
+      <tr><td><code>T161</code></td><td>Purchasing Document Types</td><td>NB=standard PO, etc.</td></tr>
+      <tr><td><code>T169/T169P</code></td><td>Tolerance Keys / Limits</td><td>Invoice verification tolerances</td></tr>
+      <tr><td><code>T16FC/FD/FS/FE</code></td><td>Release Strategy Config</td><td>PR and PO approval workflow</td></tr>
+      <tr><td><code>T042/T042Z</code></td><td>Payment Methods</td><td>Payment method configuration</td></tr>
+      <tr><td><code>T052</code></td><td>Payment Terms</td><td>Due dates, discounts</td></tr>
+      <tr><td><code>MARV</code></td><td>MM Posting Period</td><td>Current posting period (LFMON/LFGJA)</td></tr>
+      <tr><td><code>CKMLPP/CKMLCR</code></td><td>ML Period/Currency Records</td><td>Material Ledger period data</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Account Determination (OBYC / T030)</h3>
+    <table>
+      <tr><th>Transaction Key</th><th>Account Type</th><th>Posting</th></tr>
+      <tr><td><code>BSX</code></td><td>Stock account</td><td>GR debit (stock increase)</td></tr>
+      <tr><td><code>WRX</code></td><td>GR/IR clearing account</td><td>GR credit / IR debit</td></tr>
+      <tr><td><code>GBB</code></td><td>Offsetting entry</td><td>Cost of goods consumed</td></tr>
+      <tr><td><code>PRD</code></td><td>Price difference account</td><td>Standard price variance</td></tr>
+      <tr><td><code>KDM</code></td><td>Exchange rate difference</td><td>FX differences on invoice</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>S/4HANA vs ECC Table Changes</h3>
+    <table>
+      <tr><th>Area</th><th>ECC Tables</th><th>S/4HANA Table</th><th>Notes</th></tr>
+      <tr><td>Material Documents</td><td><code>MKPF + MSEG</code></td><td><code><strong>MATDOC</strong></code></td><td>Single unified table</td></tr>
+      <tr><td>Accounting</td><td><code>BSEG + FAGLFLEXA + COEP</code></td><td><code><strong>ACDOCA</strong></code></td><td>Universal Journal</td></tr>
+      <tr><td>Pricing</td><td><code>KONV</code></td><td><code><strong>PRCD_ELEMENTS</strong></code></td><td>Pricing in documents</td></tr>
+      <tr><td>Stock</td><td><code>MCHB, MSKA, MSSL, etc.</code></td><td><code><strong>MARD + MATDOC</strong></code></td><td>Consolidated</td></tr>
+      <tr><td>Vendor Master</td><td><code>LFA1 (standalone)</code></td><td><code><strong>BUT000 (BP)</strong></code> + CVI</td><td>BP mandatory</td></tr>
+      <tr><td>Material Ledger</td><td>Optional</td><td><strong>Always active</strong></td><td>ML infrastructure mandatory</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- CDS VIEWS -->
+<div class="section" id="cds">
+  <h2 class="section-title">CDS Views Reference</h2>
+
+  <div class="card">
+    <h3>Purchase Requisition CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_PurchaseRequisition</code></td><td>PR header composite</td><td>EBAN</td></tr>
+      <tr><td><code>I_PurchaseRequisitionItem</code></td><td>PR item with all fields</td><td>EBAN</td></tr>
+      <tr><td><code>I_PurReqnAcctAssgmt</code></td><td>PR account assignment</td><td>EBKN</td></tr>
+      <tr><td><code>I_PurReqnItemPurOrdRef</code></td><td>PR item to PO reference</td><td>EBAN</td></tr>
+      <tr><td><code>C_PurchaseReqnHeader</code></td><td>Consumption: Manage PRs</td><td>EBAN</td></tr>
+      <tr><td><code>C_Purreqnreleasestatus</code></td><td>Consumption: PR release overview</td><td>EBAN</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Purchase Order CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_PurchaseOrder</code></td><td>PO header</td><td>EKKO</td></tr>
+      <tr><td><code>I_PurchaseOrderAPI01</code></td><td>PO header (API)</td><td>EKKO</td></tr>
+      <tr><td><code>I_PurchaseOrderItem</code></td><td>PO item</td><td>EKPO</td></tr>
+      <tr><td><code>I_PurchaseOrderItemAPI01</code></td><td>PO item (API)</td><td>EKPO</td></tr>
+      <tr><td><code>I_PurchaseOrderScheduleLine</code></td><td>PO schedule line</td><td>EKET</td></tr>
+      <tr><td><code>I_PurchaseOrderHistory</code></td><td>PO history (GR, IR)</td><td>EKBE</td></tr>
+      <tr><td><code>I_PurchaseOrderItemAccountAssignment</code></td><td>PO account assignment</td><td>EKKN</td></tr>
+      <tr><td><code>I_PurchaseOrderPricingElement</code></td><td>PO pricing conditions</td><td>PRCD_ELEMENTS</td></tr>
+      <tr><td><code>I_PurchaseOrderPartner</code></td><td>PO partner functions</td><td>EKPA</td></tr>
+      <tr><td><code>I_PurOrdReleaseStatus</code></td><td>PO release status</td><td>EKKO</td></tr>
+      <tr><td><code>C_PurchaseOrderHeader</code></td><td>Consumption: Manage POs</td><td>EKKO</td></tr>
+      <tr><td><code>C_PurchaseOrderItem</code></td><td>Consumption: PO items</td><td>EKPO</td></tr>
+      <tr><td><code>C_PORelOverviewPage</code></td><td>Consumption: PO release overview</td><td>EKKO</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Material Document / Goods Receipt CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_MaterialDocumentHeader_2</code></td><td>Material doc header</td><td>MATDOC</td></tr>
+      <tr><td><code>I_MaterialDocumentItem_2</code></td><td>Material doc item</td><td>MATDOC</td></tr>
+      <tr><td><code>I_GoodsMovementItem</code></td><td>Goods movement item</td><td>MATDOC</td></tr>
+      <tr><td><code>I_MaterialStock</code></td><td>Material stock overview</td><td>MARD</td></tr>
+      <tr><td><code>C_MaterialDocumentItem</code></td><td>Consumption: Mat doc items</td><td>MATDOC</td></tr>
+      <tr><td><code>C_GoodsReceiptForPurOrd</code></td><td>Consumption: GR for PO</td><td>MATDOC, EKPO</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Supplier Invoice CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_SupplierInvoice</code></td><td>Invoice header</td><td>RBKP</td></tr>
+      <tr><td><code>I_SupplierInvoiceAPI01</code></td><td>Invoice header (API)</td><td>RBKP</td></tr>
+      <tr><td><code>I_SupplierInvoiceItem</code></td><td>Invoice item</td><td>RSEG</td></tr>
+      <tr><td><code>I_SupplierInvoiceItemPurOrdRef</code></td><td>Invoice to PO reference</td><td>RSEG</td></tr>
+      <tr><td><code>I_SupplierInvoiceItemAcctAssgmt</code></td><td>Invoice account assignment</td><td>RBCO</td></tr>
+      <tr><td><code>I_SupplierInvoiceTax</code></td><td>Invoice tax data</td><td>RBWS</td></tr>
+      <tr><td><code>C_SupplierInvoiceHeader</code></td><td>Consumption: Manage invoices</td><td>RBKP</td></tr>
+      <tr><td><code>C_SuplrInvcItemBlkd</code></td><td>Consumption: Blocked invoices</td><td>RBKP</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Accounting / Payment CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_JournalEntry</code></td><td>Accounting doc header</td><td>ACDOCA, BKPF</td></tr>
+      <tr><td><code>I_JournalEntryItem</code></td><td>Accounting line item</td><td>ACDOCA</td></tr>
+      <tr><td><code>I_OperationalAcctgDocItem</code></td><td>Operational accounting</td><td>ACDOCA</td></tr>
+      <tr><td><code>I_GLAccountLineItem</code></td><td>G/L line items</td><td>ACDOCA</td></tr>
+      <tr><td><code>I_VendorLineItem</code></td><td>Vendor line items</td><td>ACDOCA</td></tr>
+      <tr><td><code>I_VendorOpenItem</code></td><td>Vendor open items</td><td>ACDOCA</td></tr>
+      <tr><td><code>I_VendorClearedItem</code></td><td>Vendor cleared items</td><td>ACDOCA</td></tr>
+      <tr><td><code>I_APAccountBalance</code></td><td>Accounts payable balance</td><td>ACDOCA</td></tr>
+      <tr><td><code>I_PaymentProposal</code></td><td>Payment proposal</td><td>REGUH</td></tr>
+      <tr><td><code>I_PaymentRun</code></td><td>Payment run</td><td>REGUH</td></tr>
+      <tr><td><code>C_APOpenItems</code></td><td>Consumption: AP open items</td><td>ACDOCA</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Master Data CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
+      <tr><td><code>I_Supplier</code></td><td>Supplier general data</td><td>LFA1, BUT000</td></tr>
+      <tr><td><code>I_SupplierCompany</code></td><td>Supplier company code data</td><td>LFB1</td></tr>
+      <tr><td><code>I_SupplierPurchasingOrg</code></td><td>Supplier purchasing org data</td><td>LFM1</td></tr>
+      <tr><td><code>I_SupplierBankAccount</code></td><td>Supplier bank details</td><td>LFBK</td></tr>
+      <tr><td><code>I_BusinessPartner</code></td><td>Business Partner general</td><td>BUT000</td></tr>
+      <tr><td><code>I_Product</code></td><td>Product/material general</td><td>MARA</td></tr>
+      <tr><td><code>I_ProductPlantBasic</code></td><td>Product plant data</td><td>MARC</td></tr>
+      <tr><td><code>I_ProductPlantProcurement</code></td><td>Product procurement data</td><td>MARC</td></tr>
+      <tr><td><code>I_ProductValuation</code></td><td>Product valuation</td><td>MBEW</td></tr>
+      <tr><td><code>I_PurchasingInfoRecord</code></td><td>Info record general</td><td>EINA</td></tr>
+      <tr><td><code>I_PurchasingInfoRecordOrgData</code></td><td>Info record purch org</td><td>EINE</td></tr>
+      <tr><td><code>I_SourceOfSupply</code></td><td>Source of supply</td><td>EORD</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>OData Services (Strategic APIs for S/4HANA 2023)</h3>
+    <table>
+      <tr><th>Service</th><th>Purpose</th></tr>
+      <tr><td><code>API_PURCHASEREQ_PROCESS_SRV</code></td><td>Purchase Requisition CRUD</td></tr>
+      <tr><td><code>API_PURCHASEORDER_PROCESS_SRV</code></td><td>Purchase Order CRUD</td></tr>
+      <tr><td><code>API_MATERIAL_DOCUMENT_SRV</code></td><td>Goods Movements</td></tr>
+      <tr><td><code>API_SUPPLIERINVOICE_PROCESS_SRV</code></td><td>Invoice Verification</td></tr>
+      <tr><td><code>API_BUSINESS_PARTNER</code></td><td>BP/Vendor Master CRUD</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- BAPIs -->
+<div class="section" id="bapis">
+  <h2 class="section-title">BAPIs &amp; Function Modules</h2>
+  <div class="card">
+    <table>
+      <tr><th>Step</th><th>Function Module</th><th>Type</th><th>Purpose</th></tr>
+      <tr><td>1</td><td><code>BAPI_PR_CREATE</code></td><td>BAPI</td><td>Create purchase requisition</td></tr>
+      <tr><td>1</td><td><code>BAPI_PR_CHANGE</code></td><td>BAPI</td><td>Change purchase requisition</td></tr>
+      <tr><td>2</td><td><code>BAPI_PO_CREATE1</code></td><td>BAPI</td><td>Create purchase order with header, items, schedules, accounts</td></tr>
+      <tr><td>2</td><td><code>BAPI_PO_CHANGE</code></td><td>BAPI</td><td>Change existing purchase order</td></tr>
+      <tr><td>2</td><td><code>BAPI_PO_RELEASE</code></td><td>BAPI</td><td>Release purchase order</td></tr>
+      <tr><td>3</td><td><code>BAPI_GOODSMVT_CREATE</code></td><td>BAPI</td><td>Post goods receipt (mvt type 101 against PO)</td></tr>
+      <tr><td>4</td><td><code>BAPI_INCOMINGINVOICE_CREATE</code></td><td>BAPI</td><td>Post supplier invoice with PO reference</td></tr>
+      <tr><td>5</td><td><code>BAPI_ACC_DOCUMENT_POST</code></td><td>BAPI</td><td>Post outgoing payment (vendor debit + bank credit)</td></tr>
+      <tr><td>5</td><td><code>RFC_READ_TABLE</code></td><td>RFC</td><td>Read open vendor items for payment amount</td></tr>
+      <tr><td>*</td><td><code>BAPI_TRANSACTION_COMMIT</code></td><td>BAPI</td><td>Commit transaction (WAIT='X') &mdash; after every step</td></tr>
+    </table>
+  </div>
+</div>
+
+<!-- HANA ACCESS -->
+<div class="section" id="hana">
+  <h2 class="section-title">HANA Database Access</h2>
+  <div class="card">
+    <p style="margin-bottom:14px;">
+      Direct HANA SQL access is available for configuration changes, debugging, and ad-hoc queries.
+      Requires an SSH tunnel since HANA is not exposed publicly.
+      <strong>Same connection as the OTC workflow.</strong>
+    </p>
+
+    <h3>Start SSH Tunnel</h3>
+    <pre><span class="comment"># Start the tunnel (runs in background, idempotent)</span>
+ssh -f -N -L 30015:127.0.0.1:30015 root@sapidess4</pre>
+
+    <h3 style="margin-top:20px;">Run SQL Queries</h3>
+    <pre><span class="comment"># Using the shared hana_sql.py tool</span>
+python3 /tmp/sap-otc-workflow/hana_sql.py "SELECT * FROM EBAN WHERE BANFN='0010000001'"
+
+<span class="comment"># Interactive SQL prompt</span>
+python3 /tmp/sap-otc-workflow/hana_sql.py interactive</pre>
+
+    <h3 style="margin-top:20px;">Common P2P Queries</h3>
+    <pre><span class="comment"># Check purchasing organizations</span>
+python3 /tmp/sap-otc-workflow/hana_sql.py "SELECT EKORG,EKOTX,BUKRS FROM T024E WHERE BUKRS='1710'"
+
+<span class="comment"># Check purchasing groups</span>
+python3 /tmp/sap-otc-workflow/hana_sql.py "SELECT EKGRP,EKNAM FROM T024"
+
+<span class="comment"># Check vendors for company code 1710</span>
+python3 /tmp/sap-otc-workflow/hana_sql.py "SELECT LIFNR,AKONT,ZTERM FROM LFB1 WHERE BUKRS='1710'"
+
+<span class="comment"># Check PO history</span>
+python3 /tmp/sap-otc-workflow/hana_sql.py "SELECT EBELN,EBELP,VGABE,BELNR,GJAHR FROM EKBE WHERE EBELN='4500000001'"
+
+<span class="comment"># Check MM posting period</span>
+python3 /tmp/sap-otc-workflow/hana_sql.py "SELECT BUKRS,LFMON,LFGJA FROM MARV WHERE BUKRS='1710'"
+
+<span class="comment"># Check open vendor items</span>
+python3 /tmp/sap-otc-workflow/hana_sql.py "SELECT BUKRS,LIFNR,BELNR,GJAHR,DMBTR,SHKZG FROM BSIK WHERE BUKRS='1710' AND LIFNR='0000100000'"
+
+<span class="comment"># Check GR/IR clearing account balance</span>
+python3 /tmp/sap-otc-workflow/hana_sql.py "SELECT RACCT,SUM(HSL) FROM ACDOCA WHERE RBUKRS='1710' AND RACCT='0021100000' GROUP BY RACCT"</pre>
+
+    <h3 style="margin-top:20px;">Connection Details</h3>
+    <table>
+      <tr><th>Parameter</th><th>Value</th><th>Notes</th></tr>
+      <tr><td>Host</td><td><code>localhost</code></td><td>Via SSH tunnel</td></tr>
+      <tr><td>Port</td><td><code>30015</code></td><td>HANA indexserver (instance 00)</td></tr>
+      <tr><td>Tenant DB</td><td><code>FIV</code></td><td>S/4HANA data lives here</td></tr>
+      <tr><td>Schema</td><td><code>SAPHANADB</code></td><td>All SAP tables</td></tr>
+      <tr><td>User</td><td><code>SAPHANADB</code></td><td>Schema owner, full read/write access</td></tr>
+      <tr><td>Password</td><td><code>Fivetran1T1D</code></td><td>Lifetime disabled, no expiry</td></tr>
+    </table>
+
+    <div class="warn-box" style="margin-top:14px;">
+      <strong>Buffered tables:</strong> HANA SQL changes to buffered SAP tables
+      (T001K, T024E, T169, MARV, etc.) require a buffer refresh (<code>/$SYNC</code> or <code>/$TAB</code>)
+      to take effect in the application layer.
+    </div>
+  </div>
+</div>
+
+<!-- USAGE -->
+<div class="section" id="usage">
+  <h2 class="section-title">Usage</h2>
+  <div class="card">
+    <h3>Program: SAPP2PWorkflow.java</h3>
+    <p>Located at <code>/Users/antonio.carbone/P2P/SAPP2PWorkflow.java</code>. Uses JCo RFC to drive the P2P process.</p>
+
+    <h4 style="margin-top:12px;">Compilation</h4>
+    <div class="code-block"><code>cd /Users/antonio.carbone/P2P<br>
+javac -cp .:../SAPjco/sapjco3.jar SAPP2PWorkflow.java</code></div>
+
+    <h4 style="margin-top:12px;">Shell Scripts</h4>
+    <table>
+      <tr><th>Script</th><th>Purpose</th></tr>
+      <tr><td><code>./ptpgen.sh &lt;count&gt; [stage]</code></td><td>Bulk data generator &mdash; create N cycles stopping at chosen stage</td></tr>
+      <tr><td><code>./ptpwf.sh &lt;command&gt; [args]</code></td><td>Passthrough wrapper to SAPP2PWorkflow</td></tr>
+    </table>
+
+    <h4 style="margin-top:12px;">Quick Examples (ptpgen.sh)</h4>
+    <div class="code-block"><code>./ptpgen.sh 1              # 1 full cycle (PR&rarr;PO&rarr;GR&rarr;INV)<br>
+./ptpgen.sh 10 po          # 10x PR&rarr;PO only<br>
+./ptpgen.sh 100 gr         # 100x PR&rarr;PO&rarr;GR<br>
+./ptpgen.sh 100 ir         # 100x full pipeline<br>
+./ptpgen.sh 10 gr --items 3 --verbose</code></div>
+
+    <h4 style="margin-top:12px;">Direct Java Commands</h4>
+    <div class="code-block"><code># Individual steps<br>
+./ptpwf.sh step1-pr 1 --verbose<br>
+./ptpwf.sh step2-po &lt;prNumber&gt;<br>
+./ptpwf.sh step3-gr &lt;poNumber&gt;<br>
+./ptpwf.sh step4-ir &lt;poNumber&gt;<br><br>
+# Full cycle with stage control<br>
+./ptpwf.sh full 10 --stop-at gr --items 3<br><br>
+# Check document status<br>
+./ptpwf.sh status &lt;docNumber&gt;</code></div>
+
+    <h4 style="margin-top:12px;">Options</h4>
+    <table>
+      <tr><th>Flag</th><th>Description</th></tr>
+      <tr><td><code>--verbose</code></td><td>Print BAPI details and all return messages</td></tr>
+      <tr><td><code>--dry-run</code></td><td>Validate only (no BAPI_TRANSACTION_COMMIT)</td></tr>
+      <tr><td><code>--items N</code></td><td>Max items per document (default: 2)</td></tr>
+      <tr><td><code>--stop-at STAGE</code></td><td>Stop after stage: <code>pr</code>, <code>po</code>, <code>gr</code>, <code>ir</code> (default: ir)</td></tr>
+      <tr><td><code>--pause N</code></td><td>Seconds between steps (default: 3)</td></tr>
+    </table>
+
+    <h3 style="margin-top:18px;">Test Results (2026-04-09)</h3>
+    <p style="font-size:0.9rem; margin-bottom:8px;">Individual step testing, then full end-to-end cycle.</p>
+    <table>
+      <tr><th>Run</th><th>PR</th><th>PO</th><th>GR (MatDoc)</th><th>Invoice</th><th>Amount</th><th>Status</th></tr>
+      <tr>
+        <td>Individual</td>
+        <td><code>0010001494</code></td><td><code>4500001819</code></td>
+        <td><code>5000002450</code></td><td><code>5100001337</code></td>
+        <td>58.20 USD</td>
+        <td style="color:var(--success);font-weight:600;">4/4 OK</td>
+      </tr>
+      <tr>
+        <td>Full cycle</td>
+        <td><code>0010001495</code></td><td><code>4500001820</code></td>
+        <td><code>5000002451</code></td><td><code>5100001338</code></td>
+        <td>31.80 USD</td>
+        <td style="color:var(--success);font-weight:600;">4/4 OK</td>
+      </tr>
+    </table>
+    <p style="font-size:0.9rem; margin-top:8px; color:var(--success); font-weight:600;">
+      2/2 cycles &mdash; 100% success rate across Steps 1-4. Step 5 (Payment) via F110 in SAP GUI.
+    </p>
+  </div>
+</div>
+
+<!-- TROUBLESHOOTING -->
+<div class="section" id="troubleshooting">
+  <h2 class="section-title">Troubleshooting</h2>
+  <div class="card">
+    <table>
+      <tr><th style="min-width:220px;">Error</th><th>Cause</th><th>Fix</th></tr>
+      <tr>
+        <td><code>DOC_TYPE is not a member of BAPIMEREQITEMIMP</code></td>
+        <td>BAPI_PR_CREATE item structure has no DOC_TYPE field</td>
+        <td>Set PR_TYPE in <code>PRHEADER</code> only; use <code>DES_VENDOR</code> for vendor at item level</td>
+      </tr>
+      <tr>
+        <td><code>06/418</code> Can delivery date be met?</td>
+        <td>Requested delivery date is within lead time window</td>
+        <td>Warning only &mdash; PR/PO is still created. Use future date (+15 days) to avoid</td>
+      </tr>
+      <tr>
+        <td><code>PURCHASEORDER not in OUTPUT</code></td>
+        <td>BAPI_PO_CREATE1 export field name is different</td>
+        <td>Use <code>EXPPURCHASEORDER</code> (not PURCHASEORDER)</td>
+      </tr>
+      <tr>
+        <td><code>GOODSMVT_CODE conversion error</code></td>
+        <td>GOODSMVT_CODE is a structure, not a string</td>
+        <td>Use <code>getStructure("GOODSMVT_CODE").setValue("GM_CODE", "01")</code></td>
+      </tr>
+      <tr>
+        <td><code>C+/065</code> Error reading ML header</td>
+        <td>No CKMLHD record for client 100 (only client 400 exists)</td>
+        <td>Insert CKMLHD with MANDT='100' for each material's KALN1 from MBEW</td>
+      </tr>
+      <tr>
+        <td><code>C+/073</code> Error reading ML period</td>
+        <td>Gap in CKMLPP period records (e.g. 2022/011 &rarr; 2026/004)</td>
+        <td>Insert continuous CKMLPP + CKMLCR (CURTP 10+30) for all missing months. STATUS='10' for closed, '01' for open</td>
+      </tr>
+      <tr>
+        <td><code>FICORE/704</code> Tax code V0 invalid</td>
+        <td>V0 does not exist in TAXUSJ (US tax procedure)</td>
+        <td>Use <code>I0</code> (A/P Sales Tax, exempt) for tax-free invoices</td>
+      </tr>
+      <tr>
+        <td><code>F110</code> &ldquo;Pmnt method T should not be considered&rdquo;</td>
+        <td>Vendor LFB1.ZWELS = <code>CDIP</code> &mdash; method T not in vendor master</td>
+        <td>Use method <code>D</code> (ACH CCD) or <code>C</code> (Check) in F110 Parameter tab</td>
+      </tr>
+      <tr>
+        <td><code>F110</code> &ldquo;doc.balance not zero&rdquo;</td>
+        <td>~150 old IDES open items (2019&ndash;2022) summed with P2P invoices</td>
+        <td>Use <strong>Free Selection</strong> tab to filter by BELNR, or use <strong>F-53</strong> for manual payment</td>
+      </tr>
+    </table>
+  </div>
+</div>
+
+</div><!-- container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  <p>SAP PTP Automated Data Generator &mdash; S/4HANA IDES (SID: S4H, Client 100, Company Code 1710)</p>
+  <p style="margin-top:4px;">Created 2026-04-09 &mdash; Operational &mdash; Same SAP system as OTC workflow</p>
+</div>
+
+</body>
+</html>
