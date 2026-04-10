@@ -3838,6 +3838,57 @@ class Handler(http.server.BaseHTTPRequestHandler):
             self.wfile.write(resp)
             return
 
+        # --- SAP Skills Admin API (POST endpoints) ---
+        if parsed.path.startswith("/sap_skills/api/admin/"):
+            import sys
+            if "/usr/sap/sap_skills" not in sys.path:
+                sys.path.insert(0, "/usr/sap/sap_skills")
+            import vault_manager
+            import importlib
+            importlib.reload(vault_manager)
+
+            length = int(self.headers.get("Content-Length", 0))
+            body = self.rfile.read(length)
+            try:
+                data = json.loads(body) if body else {}
+            except Exception:
+                data = {}
+
+            master = data.get("master_password", "")
+            action = parsed.path.split("/")[-1]
+
+            # Authenticate via vault — master password must be valid
+            if vault_manager.list_systems(master) is None:
+                resp = json.dumps({"status": "error", "message": "Wrong master password"}).encode()
+            elif action == "restart_production":
+                import subprocess
+                try:
+                    # Send response first, then restart (this server will restart itself)
+                    resp = json.dumps({"status": "ok", "message": "Restarting production server..."}).encode()
+                    self.send_response(200)
+                    self.send_header("Content-Type", "application/json")
+                    self.send_header("Content-Length", str(len(resp)))
+                    self.end_headers()
+                    self.wfile.write(resp)
+                    self.wfile.flush()
+                    # Schedule restart in background so the response completes
+                    subprocess.Popen(
+                        ["bash", "-c", "sleep 1 && systemctl restart gcs-explorer"],
+                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+                    )
+                    return
+                except Exception as e:
+                    resp = json.dumps({"status": "error", "message": str(e)}).encode()
+            else:
+                resp = json.dumps({"status": "error", "message": "Unknown admin action"}).encode()
+
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.send_header("Content-Length", str(len(resp)))
+            self.end_headers()
+            self.wfile.write(resp)
+            return
+
         route = self._strip_base(parsed.path)
         if route is None:
             self.send_response(404)
