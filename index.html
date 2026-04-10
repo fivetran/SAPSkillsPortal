@@ -1128,14 +1128,6 @@ function showGuide(id, mode) {
     h += '<p>You should see no errors. If you get "javac: command not found", go back to the Java installation step.</p>';
 
     // ──────────────────────────────────────────
-    // STEP: Connect to VPN
-    // ──────────────────────────────────────────
-    h += '<h3>' + sn(s, step++) + 'Connect to VPN</h3>';
-    h += '<p>The SAP system is on the Fivetran internal network. Make sure your VPN is connected, then test:</p>';
-    h += '<pre>nc -zv sapidess4.fivetran-internal-sales.com 3303</pre>';
-    h += '<p>You should see <code>Connection to sapidess4... succeeded!</code>. If it times out, check your VPN.</p>';
-
-    // ──────────────────────────────────────────
     // STEP: Run
     // ──────────────────────────────────────────
     h += '<h3>' + sn(s, step++) + 'Run the Skill</h3>';
@@ -1147,7 +1139,7 @@ function showGuide(id, mode) {
     h += '</ul>';
     h += '<div class="note"><strong>Troubleshooting:</strong><br>';
     h += '<code>UnsatisfiedLinkError</code> &rarr; JCo native library not found. Check <code>libsapjco3.dylib</code> is in the right place.<br>';
-    h += '<code>JCoException</code> &rarr; SAP connection failed. Check VPN is connected.<br>';
+    h += '<code>JCoException</code> &rarr; SAP connection failed. Check network connectivity.<br>';
     h += '<code>ClassNotFoundException</code> &rarr; Compilation failed. Re-run the compile step.</div>';
 
   } else {
