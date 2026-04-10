@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP Skills Portal — Server Documentation</title>
+<style>
+  :root {
+    --primary: #d4a017;
+    --primary-light: #e6b830;
+    --primary-dark: #a67c00;
+    --accent: #d4a017;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #d4a017 0%, #a67c00 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  .header .badge {
+    display: inline-block;
+    background: rgba(255,255,255,0.2);
+    color: white;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+
+  /* Navigation */
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary-dark);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #fef9e7; }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: #fef9e7;
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  tr:hover td { background: #fffdf0; }
+
+  /* Code */
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    margin: 12px 0;
+  }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: #c0392b;
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+
+  /* Copy button */
+  .pre-wrap {
+    position: relative;
+  }
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255,255,255,0.12);
+    color: #cdd6f4;
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 3px 12px;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    z-index: 2;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.22); }
+  .copy-btn.copied { background: #27ae60; color: white; border-color: #27ae60; }
+
+  /* Step boxes */
+  .step-box {
+    background: linear-gradient(135deg, #fef9e7 0%, #fdf2d5 100%);
+    border: 1px solid #f0d78c;
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .step-box h4 {
+    color: var(--primary-dark);
+    margin-bottom: 8px;
+    font-size: 1.05rem;
+  }
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-right: 8px;
+  }
+
+  /* Info boxes */
+  .info-box {
+    background: #fef9e7;
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+  .warning-box {
+    background: #fdf2f2;
+    border-left: 4px solid #e74c3c;
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>SAP Skills Portal</h1>
+  <div class="subtitle">Server Administration, Backup & Disaster Recovery</div>
+  <div class="badge">SAP S/4HANA 2023</div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#server">Server</a>
+    <a href="#ssh">SSH Access</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#ssl">SSL Certificate</a>
+    <a href="#resilience">Resilience</a>
+    <a href="#backup">Backup</a>
+    <a href="#restore">Restore</a>
+    <a href="#deployment">Deployment</a>
+    <a href="#skills">Skills</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+    <a href="/sap_skills/">Back to Portal</a>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="container">
+
+  <!-- Server Details -->
+  <div class="section" id="server">
+    <div class="section-title">Server Details</div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>Web Server</h3>
+      <table>
+        <tr><th>Property</th><th>Value</th></tr>
+        <tr><td>Hostname</td><td><code>sapidesecc8.fivetran-internal-sales.com</code></td></tr>
+        <tr><td>Operating System</td><td>SUSE Linux Enterprise Server 15 SP5</td></tr>
+        <tr><td>Python</td><td><code>/root/miniconda/bin/python3</code> (3.13.9)</td></tr>
+        <tr><td>Web Port (Production)</td><td>443 (HTTPS)</td></tr>
+        <tr><td>Web Port (Dev)</td><td>8443 (HTTPS)</td></tr>
+        <tr><td>Server Process</td><td><code>gcs_explorer_server.py</code></td></tr>
+        <tr><td>Static Files</td><td><code>/usr/sap/sap_skills/</code></td></tr>
+        <tr><td>Portal URL</td><td><a href="https://sapidesecc8.fivetran-internal-sales.com/sap_skills/" style="color:var(--primary-dark)">https://sapidesecc8.fivetran-internal-sales.com/sap_skills/</a></td></tr>
+      </table>
+    </div>
+
+    <div class="info-box">
+      <strong>Important:</strong> Always use <code>/root/miniconda/bin/python3</code>, NOT <code>/usr/bin/python3</code> (the system Python lacks duckdb/pyarrow).
+    </div>
+  </div>
+
+  <!-- SSH Access -->
+  <div class="section" id="ssh">
+    <div class="section-title">SSH Access</div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>Connecting to the Server</h3>
+      <p>The portal runs on <code>sapidesecc8</code>. Connect via SSH as root:</p>
+      <pre>ssh root@sapidesecc8</pre>
+      <p style="margin-top:8px">Password: <code>Fivetran?99</code></p>
+      <p style="margin-top:12px">You can also use the full hostname:</p>
+      <pre>ssh root@sapidesecc8.fivetran-internal-sales.com</pre>
+      <p style="margin-top:12px">Accept the host key fingerprint on first connection. Once connected, you have full root access to the server.</p>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>Common SSH Commands</h3>
+      <table>
+        <tr><th>Action</th><th>Command</th></tr>
+        <tr><td>Check server status</td><td><code>ssh root@sapidesecc8 "systemctl status gcs-explorer --no-pager"</code></td></tr>
+        <tr><td>Restart production</td><td><code>ssh root@sapidesecc8 "systemctl restart gcs-explorer"</code></td></tr>
+        <tr><td>Restart dev</td><td><code>ssh root@sapidesecc8 "systemctl restart gcs-explorer-dev"</code></td></tr>
+        <tr><td>View logs</td><td><code>ssh root@sapidesecc8 "tail -20 /var/log/gcs_explorer.log"</code></td></tr>
+        <tr><td>List portal files</td><td><code>ssh root@sapidesecc8 "ls -la /usr/sap/sap_skills/"</code></td></tr>
+        <tr><td>Check disk space</td><td><code>ssh root@sapidesecc8 "df -h /"</code></td></tr>
+        <tr><td>Check cron jobs</td><td><code>ssh root@sapidesecc8 "crontab -l"</code></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Architecture -->
+  <div class="section" id="architecture">
+    <div class="section-title">Architecture</div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>How It Works</h3>
+      <p>The SAP Skills Portal is a set of static HTML files served by the GCS Parquet Explorer web server. The server is a Python HTTPS application running on port 443.</p>
+      <pre>Browser
+  |
+  | HTTPS (port 443)
+  v
+sapidesecc8 (gcs_explorer_server.py)
+  |
+  |-- /sap_skills/          --> /usr/sap/sap_skills/index.html (static)
+  |-- /sap_skills/docs/*    --> /usr/sap/sap_skills/docs/*.html (static)
+  |-- /sap_skills/downloads --> /usr/sap/sap_skills/downloads/ (JCo JARs)
+  |-- /datalake_reader/     --> GCS Parquet Explorer (dynamic, auth required)</pre>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>Directory Structure</h3>
+      <pre>/usr/sap/sap_skills/
+  index.html                                        # Landing page
+  docs/
+    SAP_OTC_Workflow_Documentation.html              # Order to Cash
+    SAP_P2P_Workflow_Documentation.html              # Procure to Pay
+    SAP_PP_Workflow_Documentation.html               # Plan to Produce
+    SAP_MRP_Workflow_Documentation.html              # Material Requirements Planning
+    SAP_Housekeeping_Documentation.html              # Housekeeping & Job Scheduler
+    SAP_CDS_Workflow_Documentation.html              # CDS View Extraction
+    SAP_GCS_Explorer_Documentation.html              # GCS Parquet Explorer
+    SAP_Skills_Portal_Documentation.html             # Portal landing page copy
+    SAP_Skills_Portal_Server_Documentation.html      # This document
+  downloads/
+    sapjco3.jar                                      # SAP JCo library
+    libsapjco3.dylib                                 # JCo native (macOS)
+    gson.jar                                         # Google Gson</pre>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>Static File Route</h3>
+      <p>The <code>/sap_skills/</code> route is handled inside <code>gcs_explorer_server.py</code> in the <code>_do_GET()</code> method. It:</p>
+      <ul style="margin:10px 0 0 20px">
+        <li>Redirects <code>/sap_skills</code> to <code>/sap_skills/</code></li>
+        <li>Maps <code>/sap_skills/</code> to <code>/usr/sap/sap_skills/index.html</code></li>
+        <li>Serves any file under <code>/usr/sap/sap_skills/</code> with correct MIME types</li>
+        <li>Blocks path traversal (<code>..</code> in path)</li>
+        <li>Requires no authentication (public access)</li>
+      </ul>
+      <div class="warning-box">
+        <strong>Warning:</strong> If <code>gcs_explorer_server.py</code> is replaced with a version that lacks this route, the portal will return 404. Always verify the route exists after server.py updates.
+      </div>
+    </div>
+  </div>
+
+  <!-- SSL Certificate -->
+  <div class="section" id="ssl">
+    <div class="section-title">SSL Certificate</div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--success)"></span>Current Certificate</h3>
+      <table>
+        <tr><th>Property</th><th>Value</th></tr>
+        <tr><td>Issuer</td><td>ZeroSSL RSA Domain Secure Site CA</td></tr>
+        <tr><td>Subject</td><td>CN=sapidesecc8.fivetran-internal-sales.com</td></tr>
+        <tr><td>Valid From</td><td>Mar 27, 2026</td></tr>
+        <tr><td>Expires</td><td><strong style="color:#e74c3c">Jun 25, 2026</strong></td></tr>
+        <tr><td>Cert File</td><td><code>/usr/sap/gcs_explorer_cert.pem</code> (chained: server + intermediate CA)</td></tr>
+        <tr><td>Key File</td><td><code>/usr/sap/gcs_explorer_key.pem</code></td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>Check Expiry</h3>
+      <pre>ssh root@sapidesecc8 "openssl x509 -in /usr/sap/gcs_explorer_cert.pem -noout -dates"</pre>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>Renewal Procedure</h3>
+      <div class="step-box">
+        <h4><span class="step-num">1</span>Renew at ZeroSSL</h4>
+        <p>Go to <a href="https://zerossl.com" style="color:var(--primary-dark)">zerossl.com</a> and renew the certificate for <code>sapidesecc8.fivetran-internal-sales.com</code>. Download the new certificate and key files.</p>
+      </div>
+      <div class="step-box">
+        <h4><span class="step-num">2</span>Upload New Files</h4>
+        <pre>scp new_cert.pem root@sapidesecc8:/usr/sap/gcs_explorer_cert.pem
+scp new_key.pem root@sapidesecc8:/usr/sap/gcs_explorer_key.pem
+ssh root@sapidesecc8 "chmod 600 /usr/sap/gcs_explorer_key.pem"</pre>
+      </div>
+      <div class="step-box">
+        <h4><span class="step-num">3</span>Restart Services</h4>
+        <pre>ssh root@sapidesecc8 "systemctl restart gcs-explorer; systemctl restart gcs-explorer-dev"</pre>
+      </div>
+      <div class="info-box">
+        <strong>Chain the certificate:</strong> The PEM must contain both the server cert and intermediate CA. If ZeroSSL provides them separately:
+        <pre>cat server.crt intermediate.crt > /usr/sap/gcs_explorer_cert.pem</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Resilience -->
+  <div class="section" id="resilience">
+    <div class="section-title">Resilience & Auto-Recovery</div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--success)"></span>Systemd Services</h3>
+      <table>
+        <tr><th>Service</th><th>Purpose</th><th>Port</th><th>Restart Policy</th></tr>
+        <tr><td><code>gcs-explorer.service</code></td><td>Production web server</td><td>443</td><td>Restart=always, RestartSec=5</td></tr>
+        <tr><td><code>gcs-explorer-dev.service</code></td><td>Dev web server</td><td>8443</td><td>Restart=always, RestartSec=5</td></tr>
+        <tr><td><code>gcs-explorer-watchdog.timer</code></td><td>Health check</td><td>&mdash;</td><td>Every 60 seconds</td></tr>
+      </table>
+      <p style="margin-top:12px">All three are <strong>enabled</strong> &mdash; they start automatically after a server reboot.</p>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>Auto-Restart on Crash</h3>
+      <p>Both server services have <code>Restart=always</code> with <code>RestartSec=5</code>. If the Python process crashes, systemd restarts it within 5 seconds.</p>
+      <pre># Simulate a crash and verify auto-restart
+ssh root@sapidesecc8 "systemctl kill -s SIGKILL gcs-explorer; sleep 6; systemctl status gcs-explorer --no-pager"
+# Should show "active (running)" with a recent start time</pre>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>Health Watchdog</h3>
+      <p>The watchdog timer runs every 60 seconds (first run 120 seconds after boot). It:</p>
+      <ol style="margin:10px 0 0 20px">
+        <li>Sends a health check to <code>https://localhost/datalake_reader/api/health</code></li>
+        <li>If no response within 10 seconds, restarts the production service</li>
+        <li>Does the same for the dev service on port 8443</li>
+        <li>Logs all restarts to <code>/var/log/gcs_explorer_watchdog.log</code></li>
+      </ol>
+      <pre># Check watchdog status and recent activity
+ssh root@sapidesecc8 "systemctl status gcs-explorer-watchdog.timer --no-pager"
+ssh root@sapidesecc8 "tail -10 /var/log/gcs_explorer_watchdog.log"</pre>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>Verify All Resilience</h3>
+      <pre># All three should show "enabled"
+ssh root@sapidesecc8 "systemctl is-enabled gcs-explorer gcs-explorer-dev gcs-explorer-watchdog.timer"
+
+# Test HTTPS endpoints
+curl -sk https://sapidesecc8.fivetran-internal-sales.com/datalake_reader/api/health
+curl -sk -o /dev/null -w "%{http_code}" https://sapidesecc8.fivetran-internal-sales.com/sap_skills/</pre>
+    </div>
+  </div>
+
+  <!-- Backup -->
+  <div class="section" id="backup">
+    <div class="section-title">Backup</div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--success)"></span>Scheduled Backup</h3>
+      <table>
+        <tr><th>Property</th><th>Value</th></tr>
+        <tr><td>Schedule</td><td><strong>Daily at 23:00, Monday&ndash;Friday</strong> (weekends excluded)</td></tr>
+        <tr><td>Mechanism</td><td>cron on sapidesecc8</td></tr>
+        <tr><td>Script</td><td><code>/usr/local/bin/backup_webserver.sh</code></td></tr>
+        <tr><td>Log</td><td><code>/var/log/webserver_backup.log</code></td></tr>
+        <tr><td>GCS Bucket</td><td><code>gs://sap-hana-backint/sapidesecc8_webserver/</code></td></tr>
+        <tr><td>Backup Size</td><td>~9 MB (21 files)</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>Cron Entry</h3>
+      <pre># Runs Mon-Fri at 23:00
+0 23 * * 1-5 /usr/local/bin/backup_webserver.sh</pre>
+      <p style="margin-top:8px">Verify the cron is active:</p>
+      <pre>ssh root@sapidesecc8 "crontab -l"</pre>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>What Gets Backed Up</h3>
+      <pre>gs://sap-hana-backint/sapidesecc8_webserver/
+  gcs_explorer_server.py          # Production web server (port 443)
+  gcs_explorer_server_dev.py      # Dev web server (port 8443)
+  gcs_explorer_cert.pem           # SSL certificate (ZeroSSL, chained)
+  gcs_explorer_key.pem            # SSL private key
+  gcs_explorer.env                # Environment variables (Polaris credentials)
+  RESTORE_GUIDE.md                # Disaster recovery guide
+  sap_skills/
+    index.html                    # SAP Skills Portal landing page
+    docs/                         # All HTML documentation pages
+    downloads/                    # sapjco3.jar, libsapjco3.dylib, gson.jar
+  systemd/
+    gcs-explorer.service          # Production systemd unit
+    gcs-explorer-dev.service      # Dev systemd unit
+    gcs-explorer-watchdog.service # Health check watchdog</pre>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>Manual Backup</h3>
+      <pre># Run backup immediately
+ssh root@sapidesecc8 "/usr/local/bin/backup_webserver.sh"
+
+# Check the log
+ssh root@sapidesecc8 "tail -5 /var/log/webserver_backup.log"
+
+# Verify bucket contents
+gsutil ls -r gs://sap-hana-backint/sapidesecc8_webserver/
+gsutil du -sh gs://sap-hana-backint/sapidesecc8_webserver/</pre>
+    </div>
+  </div>
+
+  <!-- Restore -->
+  <div class="section" id="restore">
+    <div class="section-title">Disaster Recovery &mdash; Full Restore</div>
+
+    <div class="info-box">
+      <strong>When to use:</strong> If the server is rebuilt, the web server files are lost, or the portal stops working after a server.py replacement.
+    </div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>Step-by-Step Restore</h3>
+
+      <div class="step-box">
+        <h4><span class="step-num">1</span>Download Backup from GCS</h4>
+        <pre>ssh root@sapidesecc8
+mkdir -p /tmp/restore
+gsutil -m rsync -r gs://sap-hana-backint/sapidesecc8_webserver/ /tmp/restore/</pre>
+      </div>
+
+      <div class="step-box">
+        <h4><span class="step-num">2</span>Restore Web Server Files</h4>
+        <pre># Python server files
+cp /tmp/restore/gcs_explorer_server.py /usr/sap/gcs_explorer_server.py
+cp /tmp/restore/gcs_explorer_server_dev.py /usr/sap/gcs_explorer_server_dev.py
+
+# SSL certificate and key
+cp /tmp/restore/gcs_explorer_cert.pem /usr/sap/gcs_explorer_cert.pem
+cp /tmp/restore/gcs_explorer_key.pem /usr/sap/gcs_explorer_key.pem
+chmod 600 /usr/sap/gcs_explorer_key.pem
+
+# Environment variables (Polaris OAuth credentials)
+cp /tmp/restore/gcs_explorer.env /usr/sap/gcs_explorer.env
+chmod 600 /usr/sap/gcs_explorer.env</pre>
+      </div>
+
+      <div class="step-box">
+        <h4><span class="step-num">3</span>Restore SAP Skills Portal</h4>
+        <pre># Create directory structure
+mkdir -p /usr/sap/sap_skills/docs
+mkdir -p /usr/sap/sap_skills/downloads
+
+# Copy portal files
+cp /tmp/restore/sap_skills/index.html /usr/sap/sap_skills/
+cp /tmp/restore/sap_skills/docs/*.html /usr/sap/sap_skills/docs/
+cp /tmp/restore/sap_skills/downloads/* /usr/sap/sap_skills/downloads/</pre>
+      </div>
+
+      <div class="step-box">
+        <h4><span class="step-num">4</span>Install Systemd Services</h4>
+        <pre># Copy service files
+cp /tmp/restore/systemd/gcs-explorer.service /etc/systemd/system/
+cp /tmp/restore/systemd/gcs-explorer-dev.service /etc/systemd/system/
+cp /tmp/restore/systemd/gcs-explorer-watchdog.service /etc/systemd/system/
+
+# Recreate the watchdog timer (not in backup)
+cat > /etc/systemd/system/gcs-explorer-watchdog.timer &lt;&lt; 'EOF'
+[Unit]
+Description=Run GCS Explorer Health Watchdog every 60s
+
+[Timer]
+OnBootSec=120
+OnUnitActiveSec=60
+AccuracySec=5
+
+[Install]
+WantedBy=timers.target
+EOF
+
+# Reload, enable, and start everything
+systemctl daemon-reload
+systemctl enable gcs-explorer gcs-explorer-dev gcs-explorer-watchdog.timer
+systemctl start gcs-explorer gcs-explorer-dev gcs-explorer-watchdog.timer</pre>
+      </div>
+
+      <div class="step-box">
+        <h4><span class="step-num">5</span>Restore Cron Backup Schedule</h4>
+        <pre># Re-add the daily backup cron (Mon-Fri at 23:00)
+(crontab -l 2>/dev/null; echo "0 23 * * 1-5 /usr/local/bin/backup_webserver.sh") | crontab -
+
+# Verify
+crontab -l</pre>
+      </div>
+
+      <div class="step-box">
+        <h4><span class="step-num">6</span>Verify Everything</h4>
+        <pre># Check services are active
+systemctl status gcs-explorer --no-pager
+systemctl status gcs-explorer-dev --no-pager
+systemctl status gcs-explorer-watchdog.timer --no-pager
+
+# Test HTTPS endpoints
+curl -sk https://localhost/datalake_reader/api/health
+curl -sk https://localhost:8443/datalake_reader_dev/api/health
+curl -sk -o /dev/null -w "%{http_code}" https://localhost/sap_skills/
+
+# Check logs for errors
+tail -20 /var/log/gcs_explorer.log</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Deployment -->
+  <div class="section" id="deployment">
+    <div class="section-title">Deployment</div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>Update Landing Page</h3>
+      <pre># Edit locally, then upload (no restart needed)
+scp /Users/antonio.carbone/SAP_Skills/index.html root@sapidesecc8:/usr/sap/sap_skills/index.html</pre>
+      <p style="margin-top:8px">Static files are served directly from disk &mdash; no server restart or cache clearing needed.</p>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>Add/Update a Documentation Page</h3>
+      <pre># Upload a new or updated doc
+scp /Users/antonio.carbone/SAP_Skills/docs/NEW_DOC.html \
+    root@sapidesecc8:/usr/sap/sap_skills/docs/</pre>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>Sync Portal Documentation Copy</h3>
+      <pre># Keep the documentation copy in sync with the landing page
+cp /Users/antonio.carbone/SAP_Skills/index.html \
+   /Users/antonio.carbone/SAP_Skills/docs/SAP_Skills_Portal_Documentation.html</pre>
+    </div>
+
+    <div class="card">
+      <h3><span class="dot" style="background: var(--primary)"></span>Update GitHub Repository</h3>
+      <pre>cd /tmp/SAPSkillsPortal
+cp /Users/antonio.carbone/SAP_Skills/index.html .
+cp /Users/antonio.carbone/SAP_Skills/docs/*.html docs/
+cp /Users/antonio.carbone/.claude/commands/SAP_Skills/sap-skills-portal.md skill/
+git add -A &amp;&amp; git commit -m "Update portal" &amp;&amp; git push</pre>
+    </div>
+  </div>
+
+  <!-- Skills -->
+  <div class="section" id="skills">
+    <div class="section-title">All Business Process Skills</div>
+
+    <div class="card">
+      <table>
+        <tr><th>Skill</th><th>Process Area</th><th>Color</th><th>GitHub</th></tr>
+        <tr><td>Order to Cash (OTC)</td><td>Sales & Distribution</td><td><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#1a3a5c;vertical-align:middle;margin-right:4px"></span><code>#1a3a5c</code></td><td><a href="https://github.com/fivetran/sap-otc-workflow" style="color:var(--primary-dark)">sap-otc-workflow</a></td></tr>
+        <tr><td>Procure to Pay (P2P)</td><td>Materials Management</td><td><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#1a5c3a;vertical-align:middle;margin-right:4px"></span><code>#1a5c3a</code></td><td><a href="https://github.com/fivetran/sap-ptp-generator" style="color:var(--primary-dark)">sap-ptp-generator</a></td></tr>
+        <tr><td>Plan to Produce (PP)</td><td>Production Planning</td><td><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#4a1a5c;vertical-align:middle;margin-right:4px"></span><code>#4a1a5c</code></td><td><a href="https://github.com/fivetran/PlanToProduce" style="color:var(--primary-dark)">PlanToProduce</a></td></tr>
+        <tr><td>MRP</td><td>Supply Chain Planning</td><td><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#b35900;vertical-align:middle;margin-right:4px"></span><code>#b35900</code></td><td><a href="https://github.com/fivetran/MaterialRequirementsPlanning" style="color:var(--primary-dark)">MaterialRequirementsPlanning</a></td></tr>
+        <tr><td>Housekeeping</td><td>System Administration</td><td><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#922b21;vertical-align:middle;margin-right:4px"></span><code>#922b21</code></td><td><a href="https://github.com/fivetran/SAPHousekeeping" style="color:var(--primary-dark)">SAPHousekeeping</a></td></tr>
+        <tr><td>CDS View Extraction</td><td>Metadata & SQL Translation</td><td><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#0073FF;vertical-align:middle;margin-right:4px"></span><code>#0073FF</code></td><td><a href="https://github.com/fivetran/CDS-metadata-retrieval-fr-custom-SDK" style="color:var(--primary-dark)">CDS-metadata-retrieval</a></td></tr>
+        <tr><td>GCS Parquet Explorer</td><td>Datalake Reader</td><td><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#6b7280;vertical-align:middle;margin-right:4px"></span><code>#6b7280</code></td><td><a href="https://github.com/fivetran-antoniocarbone/gcs-parquet-explorer" style="color:var(--primary-dark)">gcs-parquet-explorer</a></td></tr>
+        <tr><td>Skills Portal</td><td>Server & Documentation</td><td><span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:#d4a017;vertical-align:middle;margin-right:4px"></span><code>#d4a017</code></td><td><a href="https://github.com/fivetran/SAPSkillsPortal" style="color:var(--primary-dark)">SAPSkillsPortal</a></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Troubleshooting -->
+  <div class="section" id="troubleshooting">
+    <div class="section-title">Troubleshooting</div>
+
+    <div class="card">
+      <table>
+        <tr><th>Issue</th><th>Fix</th></tr>
+        <tr><td>Portal returns 404</td><td>Check <code>/sap_skills/</code> route exists in <code>gcs_explorer_server.py _do_GET()</code></td></tr>
+        <tr><td>Server not running</td><td><code>ssh root@sapidesecc8 "systemctl restart gcs-explorer"</code></td></tr>
+        <tr><td>Doc page not loading</td><td><code>ssh root@sapidesecc8 "ls /usr/sap/sap_skills/docs/"</code></td></tr>
+        <tr><td>After server.py update</td><td>Re-add <code>/sap_skills/</code> route block to <code>_do_GET()</code></td></tr>
+        <tr><td>SSL certificate expired</td><td>Renew at zerossl.com, upload new files, restart services (see <a href="#ssl" style="color:var(--primary-dark)">SSL section</a>)</td></tr>
+        <tr><td>Backup not running</td><td><code>ssh root@sapidesecc8 "crontab -l"</code> &mdash; verify cron entry exists</td></tr>
+        <tr><td>Watchdog not restarting</td><td><code>ssh root@sapidesecc8 "systemctl status gcs-explorer-watchdog.timer --no-pager"</code></td></tr>
+        <tr><td>Changes not visible</td><td>Files served from disk &mdash; no cache. Hard-refresh browser (<kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>).</td></tr>
+        <tr><td>Python import errors</td><td>Use <code>/root/miniconda/bin/python3</code>, not <code>/usr/bin/python3</code></td></tr>
+        <tr><td>Backup cron missing after restore</td><td>Re-add: <code>(crontab -l; echo "0 23 * * 1-5 /usr/local/bin/backup_webserver.sh") | crontab -</code></td></tr>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  SAP Skills Portal &bull; sapidesecc8 &bull; SAP S/4HANA 2023
+</div>
+
+<script>
+function addCopyButtons(container) {
+  container.querySelectorAll('pre').forEach(function(pre) {
+    if (pre.parentNode.classList && pre.parentNode.classList.contains('pre-wrap')) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'pre-wrap';
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.addEventListener('click', function() {
+      navigator.clipboard.writeText(pre.textContent.trim()).then(function() {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+      });
+    });
+    wrap.appendChild(btn);
+  });
+}
+document.addEventListener('DOMContentLoaded', function() { addCopyButtons(document); });
+</script>
+
+</body>
+</html>

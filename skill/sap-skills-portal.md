@@ -2,24 +2,50 @@
 
 You are an expert on the SAP S/4HANA Skills Portal, the central hub for all business process
 automation tools. Use this context for any task involving the portal, deploying documentation,
-managing the web server route, or coordinating across business process skills.
+managing the web server, backups, SSL certificates, or coordinating across business process skills.
 
 ---
 
-## Architecture Overview
-
-### Portal URL
+## Portal URL
 
 `https://sapidesecc8.fivetran-internal-sales.com/sap_skills/`
 
-### Server
+---
 
-- **Host**: `sapidesecc8.fivetran-internal-sales.com`
-- **Web server**: `gcs_explorer_server.py` (Python, HTTPS port 443)
+## Server Access
+
+| Property | Value |
+|----------|-------|
+| Hostname | `sapidesecc8.fivetran-internal-sales.com` |
+| OS | SUSE Linux Enterprise Server 15 SP5 |
+| SSH | `ssh root@sapidesecc8` |
+| SSH Password | `Fivetran?99` |
+| Python | `/root/miniconda/bin/python3` (3.13.9) |
+| Web port | 443 (HTTPS, production) / 8443 (HTTPS, dev) |
+
+### How to SSH
+
+```bash
+# Direct SSH (password: Fivetran?99)
+ssh root@sapidesecc8
+
+# Or with full hostname
+ssh root@sapidesecc8.fivetran-internal-sales.com
+```
+
+Accept the host key on first connection. Password is `Fivetran?99`.
+
+---
+
+## Architecture
+
+### Web Server
+
+- **Process**: `gcs_explorer_server.py` (Python HTTPS server on port 443)
 - **Service**: `gcs-explorer.service` (systemd, `Restart=always`, `enabled`)
 - **Static files**: `/usr/sap/sap_skills/` on sapidesecc8
 - **Route**: `/sap_skills/` path handled by static file handler in `_do_GET()`
-- **No auth required**: The `/sap_skills/` route is public (unlike `/datalake_reader/` which requires login)
+- **No auth required**: The `/sap_skills/` route is public
 
 ### Directory Structure (sapidesecc8:/usr/sap/sap_skills/)
 
@@ -31,7 +57,13 @@ docs/
   SAP_PP_Workflow_Documentation.html                # Plan to Produce
   SAP_MRP_Workflow_Documentation.html               # Material Requirements Planning
   SAP_Housekeeping_Documentation.html               # Housekeeping & Job Scheduler
-  SAP_Skills_Portal_Documentation.html              # This portal's own documentation
+  SAP_CDS_Workflow_Documentation.html               # CDS View Extraction
+  SAP_GCS_Explorer_Documentation.html               # GCS Parquet Explorer
+  SAP_Skills_Portal_Documentation.html              # Portal's own documentation
+downloads/
+  sapjco3.jar                                       # SAP JCo library
+  libsapjco3.dylib                                  # JCo native library (macOS)
+  gson.jar                                          # Google Gson
 ```
 
 ### Local Project Directory
@@ -40,135 +72,221 @@ docs/
 
 ---
 
-## All Business Process Skills
-
-### Order to Cash (OTC)
+## SSL Certificate
 
 | Property | Value |
 |----------|-------|
-| Color | Navy `#1a3a5c` |
-| GitHub | [fivetran/sap-otc-workflow](https://github.com/fivetran/sap-otc-workflow) |
-| Doc URL | `/sap_skills/docs/SAP_OTC_Workflow_Documentation.html` |
-| Local dir | `/Users/antonio.carbone/SAP_OTC/` |
-| Skill | `/Users/antonio.carbone/.claude/commands/SAP_OTC/sap-otc.md` |
-| Process | Customer master, sales order, delivery, PGI, billing, accounting |
+| Issuer | ZeroSSL RSA Domain Secure Site CA |
+| Subject | CN=sapidesecc8.fivetran-internal-sales.com |
+| Expires | **Jun 25, 2026** |
+| Cert file | `/usr/sap/gcs_explorer_cert.pem` (chained: server + intermediate CA) |
+| Key file | `/usr/sap/gcs_explorer_key.pem` |
 
-### Procure to Pay (P2P)
+### Check certificate expiry
+
+```bash
+ssh root@sapidesecc8 "openssl x509 -in /usr/sap/gcs_explorer_cert.pem -noout -dates"
+```
+
+### Renew certificate
+
+1. Go to https://zerossl.com and renew for `sapidesecc8.fivetran-internal-sales.com`
+2. Download the new certificate and key
+3. Upload and restart:
+
+```bash
+scp new_cert.pem root@sapidesecc8:/usr/sap/gcs_explorer_cert.pem
+scp new_key.pem root@sapidesecc8:/usr/sap/gcs_explorer_key.pem
+ssh root@sapidesecc8 "chmod 600 /usr/sap/gcs_explorer_key.pem && systemctl restart gcs-explorer && systemctl restart gcs-explorer-dev"
+```
+
+**Important:** The cert PEM must be chained (server cert + intermediate CA concatenated):
+```bash
+cat server.crt intermediate.crt > /usr/sap/gcs_explorer_cert.pem
+```
+
+---
+
+## Resilience & Systemd Services
+
+### Services
+
+| Service | Purpose | Port |
+|---------|---------|------|
+| `gcs-explorer.service` | Production web server | 443 |
+| `gcs-explorer-dev.service` | Dev web server | 8443 |
+| `gcs-explorer-watchdog.timer` | Health check every 60s | — |
+
+All services have `Restart=always` with `RestartSec=5` and are `enabled` (auto-start on boot).
+
+### Check service status
+
+```bash
+ssh root@sapidesecc8 "systemctl status gcs-explorer --no-pager"
+ssh root@sapidesecc8 "systemctl status gcs-explorer-dev --no-pager"
+ssh root@sapidesecc8 "systemctl status gcs-explorer-watchdog.timer --no-pager"
+```
+
+### Restart services
+
+```bash
+ssh root@sapidesecc8 "systemctl restart gcs-explorer"
+ssh root@sapidesecc8 "systemctl restart gcs-explorer-dev"
+```
+
+### Health watchdog
+
+The watchdog runs every 60 seconds (first run 120s after boot). It:
+1. Sends a health check to `https://localhost/datalake_reader/api/health`
+2. If no response within 10 seconds, restarts the production service
+3. Does the same for the dev service on port 8443
+4. Logs restarts to `/var/log/gcs_explorer_watchdog.log`
+
+---
+
+## Backup
+
+### GCS Backup Location
+
+`gs://sap-hana-backint/sapidesecc8_webserver/`
+
+### Scheduled Backup
 
 | Property | Value |
 |----------|-------|
-| Color | Green `#1a5c3a` |
-| GitHub | [fivetran/sap-ptp-generator](https://github.com/fivetran/sap-ptp-generator) |
-| Doc URL | `/sap_skills/docs/SAP_P2P_Workflow_Documentation.html` |
-| Local dir | `/Users/antonio.carbone/P2P/` |
-| Skill | `/Users/antonio.carbone/.claude/commands/P2P/sap-p2p.md` |
-| Process | Vendor master, purchase requisition, PO, goods receipt, invoice, payment |
+| Schedule | **Daily at 23:00, Monday-Friday** (weekends excluded) |
+| Script | `/usr/local/bin/backup_webserver.sh` on sapidesecc8 |
+| Log | `/var/log/webserver_backup.log` |
+| Mechanism | cron |
 
-### Plan to Produce (PP)
+### What's backed up
 
-| Property | Value |
-|----------|-------|
-| Color | Purple `#4a1a5c` |
-| GitHub | [fivetran/PlanToProduce](https://github.com/fivetran/PlanToProduce) |
-| Doc URL | `/sap_skills/docs/SAP_PP_Workflow_Documentation.html` |
-| Local dir | `/Users/antonio.carbone/PP/` |
-| Skill | `/Users/antonio.carbone/.claude/commands/PP/sap-pp.md` |
-| Process | BOM, routing, production order, goods issue, confirmation, goods receipt |
+- `gcs_explorer_server.py` (production) and `gcs_explorer_server_dev.py` (dev)
+- SSL certificate and key (`gcs_explorer_cert.pem`, `gcs_explorer_key.pem`)
+- Environment file (`gcs_explorer.env` — Polaris OAuth credentials)
+- SAP Skills Portal (`sap_skills/` — landing page, all docs, downloads)
+- Systemd service units (production, dev, watchdog)
+- Restore guide (`RESTORE_GUIDE.md`)
 
-### Material Requirements Planning (MRP)
+### Manual backup
 
-| Property | Value |
-|----------|-------|
-| Color | Amber `#b35900` |
-| GitHub | [fivetran/MaterialRequirementsPlanning](https://github.com/fivetran/MaterialRequirementsPlanning) |
-| Doc URL | `/sap_skills/docs/SAP_MRP_Workflow_Documentation.html` |
-| Local dir | `/Users/antonio.carbone/MRP/` |
-| Skill | `/Users/antonio.carbone/.claude/commands/MRP/sap-mrp.md` |
-| Process | MRP run (MD01/MD02), planned orders, conversion to production/purchase orders |
+```bash
+ssh root@sapidesecc8 "/usr/local/bin/backup_webserver.sh"
+ssh root@sapidesecc8 "cat /var/log/webserver_backup.log | tail -5"
+```
 
-### Housekeeping & Job Scheduler
+### Check backup
 
-| Property | Value |
-|----------|-------|
-| Color | Crimson `#922b21` |
-| GitHub | [fivetran/SAPHousekeeping](https://github.com/fivetran/SAPHousekeeping) |
-| Doc URL | `/sap_skills/docs/SAP_Housekeeping_Documentation.html` |
-| Local dir | `/Users/antonio.carbone/SAP_ADMIN/` |
-| Skill | `/Users/antonio.carbone/.claude/commands/SAP_ADMIN/sap-housekeeping.md` |
-| Process | MM period opening, FI period monitoring, ML period extension, number range tracking |
+```bash
+gsutil ls -r gs://sap-hana-backint/sapidesecc8_webserver/
+gsutil du -s gs://sap-hana-backint/sapidesecc8_webserver/
+```
 
-### CDS View Extraction
+---
 
-| Property | Value |
-|----------|-------|
-| Color | Blue `#0073FF` |
-| GitHub | [fivetran/CDS-metadata-retrieval-fr-custom-SDK](https://github.com/fivetran/CDS-metadata-retrieval-fr-custom-SDK) |
-| Local dir | `/Users/antonio.carbone/cds_enhancement_20260210/github_release/src/` |
-| Production | `sapidess4:/usr/sap/cds_sql_only/` |
-| Process | 8-phase pipeline: dependency resolution, metadata, SQL extraction, HANA-to-ANSI translation |
+## Restore Procedure
+
+### Step 1: Download backup from GCS
+
+```bash
+ssh root@sapidesecc8
+mkdir -p /tmp/restore
+gsutil -m rsync -r gs://sap-hana-backint/sapidesecc8_webserver/ /tmp/restore/
+```
+
+### Step 2: Restore web server files
+
+```bash
+cp /tmp/restore/gcs_explorer_server.py /usr/sap/gcs_explorer_server.py
+cp /tmp/restore/gcs_explorer_server_dev.py /usr/sap/gcs_explorer_server_dev.py
+cp /tmp/restore/gcs_explorer_cert.pem /usr/sap/gcs_explorer_cert.pem
+cp /tmp/restore/gcs_explorer_key.pem /usr/sap/gcs_explorer_key.pem
+chmod 600 /usr/sap/gcs_explorer_key.pem
+cp /tmp/restore/gcs_explorer.env /usr/sap/gcs_explorer.env
+chmod 600 /usr/sap/gcs_explorer.env
+```
+
+### Step 3: Restore SAP Skills Portal
+
+```bash
+mkdir -p /usr/sap/sap_skills/docs /usr/sap/sap_skills/downloads
+cp /tmp/restore/sap_skills/index.html /usr/sap/sap_skills/
+cp /tmp/restore/sap_skills/docs/*.html /usr/sap/sap_skills/docs/
+cp /tmp/restore/sap_skills/downloads/* /usr/sap/sap_skills/downloads/
+```
+
+### Step 4: Install systemd services
+
+```bash
+cp /tmp/restore/systemd/gcs-explorer.service /etc/systemd/system/
+cp /tmp/restore/systemd/gcs-explorer-dev.service /etc/systemd/system/
+cp /tmp/restore/systemd/gcs-explorer-watchdog.service /etc/systemd/system/
+
+# Recreate watchdog timer (not in backup)
+cat > /etc/systemd/system/gcs-explorer-watchdog.timer << 'EOF'
+[Unit]
+Description=Run GCS Explorer Health Watchdog every 60s
+
+[Timer]
+OnBootSec=120
+OnUnitActiveSec=60
+AccuracySec=5
+
+[Install]
+WantedBy=timers.target
+EOF
+
+systemctl daemon-reload
+systemctl enable gcs-explorer gcs-explorer-dev gcs-explorer-watchdog.timer
+systemctl start gcs-explorer gcs-explorer-dev gcs-explorer-watchdog.timer
+```
+
+### Step 5: Verify
+
+```bash
+systemctl status gcs-explorer --no-pager
+curl -sk https://localhost/datalake_reader/api/health
+curl -sk -o /dev/null -w "%{http_code}" https://localhost/sap_skills/
+```
 
 ---
 
 ## Deployment
 
-### Updating the Landing Page
+### Update the landing page
 
 ```bash
-# Edit locally
-vi /Users/antonio.carbone/SAP_Skills/index.html
-
-# Upload to server (no restart needed)
 scp /Users/antonio.carbone/SAP_Skills/index.html root@sapidesecc8:/usr/sap/sap_skills/index.html
 ```
 
-### Adding a New Documentation Page
+No server restart needed — files are served directly from disk.
+
+### Add/update a documentation page
 
 ```bash
-# Upload doc
-scp /path/to/new_doc.html root@sapidesecc8:/usr/sap/sap_skills/docs/
-
-# Update landing page to include link, then upload
+scp /Users/antonio.carbone/SAP_Skills/docs/NEW_DOC.html root@sapidesecc8:/usr/sap/sap_skills/docs/
 ```
 
-### Updating an Existing Doc
+### Sync the documentation copy
 
 ```bash
-# Re-upload the doc (overwrites)
-scp /Users/antonio.carbone/P2P/docs/SAP_P2P_Workflow_Documentation.html \
-    root@sapidesecc8:/usr/sap/sap_skills/docs/SAP_P2P_Workflow_Documentation.html
+cp /Users/antonio.carbone/SAP_Skills/index.html /Users/antonio.carbone/SAP_Skills/docs/SAP_Skills_Portal_Documentation.html
 ```
-
-### Server Route (in gcs_explorer_server.py)
-
-The `/sap_skills/` route is a static file handler injected into `_do_GET()` of the GCS Parquet Explorer server. It:
-1. Redirects `/sap_skills` to `/sap_skills/`
-2. Maps `/sap_skills/` to `/usr/sap/sap_skills/index.html`
-3. Serves any file under `/usr/sap/sap_skills/` with correct MIME types
-4. Blocks path traversal (`..` in path)
-5. Requires no authentication (public)
-
-If `gcs_explorer_server.py` is replaced, the route must be re-added. The block is inserted before `route = self._strip_base(parsed.path)` in `_do_GET()`.
 
 ---
 
-## SAP System Details
+## All Business Process Skills
 
-| Parameter | Value |
-|-----------|-------|
-| System | SAP S/4HANA 2023 |
-| Host | `sapidess4.fivetran-internal-sales.com` |
-| System Number | `03` (gateway port 3303) |
-| Client | `100` |
-| User | `IDES` |
-| Company Code | `1710` |
-| Plant | `1710` |
-| HANA DB | `FIV` on `sapidess4:30015` (via SSH tunnel) |
-
-### Connectivity
-
-- **RFC (JCo)**: Local Mac → sapidess4:3303 via SAP JCo 3 (`sapjco3.jar` + `libsapjco3.dylib`)
-- **HANA SQL**: SSH tunnel `localhost:30015 → sapidess4:30015`, connect with hdbcli user `SAPHANADB`
-- **Web portal**: sapidesecc8:443 (HTTPS, self-signed cert)
+| Skill | Color | GitHub | Local Dir |
+|-------|-------|--------|-----------|
+| Order to Cash (OTC) | `#1a3a5c` | [fivetran/sap-otc-workflow](https://github.com/fivetran/sap-otc-workflow) | `~/SAP_OTC/` |
+| Procure to Pay (P2P) | `#1a5c3a` | [fivetran/sap-ptp-generator](https://github.com/fivetran/sap-ptp-generator) | `~/P2P/` |
+| Plan to Produce (PP) | `#4a1a5c` | [fivetran/PlanToProduce](https://github.com/fivetran/PlanToProduce) | `~/PP/` |
+| MRP | `#b35900` | [fivetran/MaterialRequirementsPlanning](https://github.com/fivetran/MaterialRequirementsPlanning) | `~/MRP/` |
+| Housekeeping | `#922b21` | [fivetran/SAPHousekeeping](https://github.com/fivetran/SAPHousekeeping) | `~/SAP_ADMIN/` |
+| CDS View Extraction | `#0073FF` | [fivetran/CDS-metadata-retrieval-fr-custom-SDK](https://github.com/fivetran/CDS-metadata-retrieval-fr-custom-SDK) | `~/cds_enhancement_20260210/` |
+| GCS Parquet Explorer | `#6b7280` | [fivetran-antoniocarbone/gcs-parquet-explorer](https://github.com/fivetran-antoniocarbone/gcs-parquet-explorer) | `~/Downloads/gcs_parquet_explorer/` |
+| Skills Portal | `#d4a017` | [fivetran/SAPSkillsPortal](https://github.com/fivetran/SAPSkillsPortal) | `~/SAP_Skills/` |
 
 ---
 
@@ -176,8 +294,30 @@ If `gcs_explorer_server.py` is replaced, the route must be re-added. The block i
 
 | Issue | Fix |
 |-------|-----|
-| Portal returns 404 | Check route exists in `gcs_explorer_server.py _do_GET()` |
+| Portal returns 404 | Check `/sap_skills/` route exists in `gcs_explorer_server.py _do_GET()` |
 | Server not running | `ssh root@sapidesecc8 "systemctl restart gcs-explorer"` |
-| Doc not loading | Verify file exists: `ssh root@sapidesecc8 "ls /usr/sap/sap_skills/docs/"` |
+| Doc page not loading | `ssh root@sapidesecc8 "ls /usr/sap/sap_skills/docs/"` |
 | After server.py update | Re-add `/sap_skills/` route block to `_do_GET()` |
-| SSL error | Cert at `/usr/sap/gcs_explorer_cert.pem` — self-signed, browser warning expected |
+| SSL cert expired | Renew at zerossl.com, replace files, restart services |
+| Backup not running | `ssh root@sapidesecc8 "crontab -l"` — verify cron entry exists |
+| Watchdog not restarting | `systemctl status gcs-explorer-watchdog.timer --no-pager` |
+| Changes not visible | Files served from disk — no cache, hard-refresh browser |
+
+---
+
+## Important Notes
+
+- **Python path**: Always use `/root/miniconda/bin/python3`, NOT `/usr/bin/python3`
+- **SAP Skills Portal**: Static files only — no server restart needed after updating HTML/docs
+- **Server.py updates**: After replacing `gcs_explorer_server.py`, run `systemctl restart gcs-explorer`
+- **The `/sap_skills/` route** is inside `gcs_explorer_server.py` in `_do_GET()`. If server.py is replaced with a version missing this route, the portal returns 404.
+- **Backup refresh**: After portal updates, either wait for the 23:00 cron or run manually: `ssh root@sapidesecc8 "/usr/local/bin/backup_webserver.sh"`
+- **SSL cert expires Jun 25, 2026** — renew before this date
+
+---
+
+## Contacts
+
+For SAP system credentials, connection details, and technical support:
+- **Antonio Carbone**
+- **Richard Brouwer**

@@ -20,6 +20,8 @@
     --accent-mrp: #b35900;
     --accent-admin: #922b21;
     --accent-cds: #0073FF;
+    --accent-gcs: #6b7280;
+    --accent-portal: #d4a017;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -264,6 +266,13 @@
   }
 
   /* Code blocks */
+  .pre-wrap {
+    position: relative;
+    margin-bottom: 16px;
+  }
+  .pre-wrap pre {
+    margin-bottom: 0;
+  }
   pre {
     background: #1e293b;
     color: #e2e8f0;
@@ -274,6 +283,24 @@
     line-height: 1.5;
     margin-bottom: 16px;
   }
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #94a3b8;
+    border-radius: 5px;
+    padding: 4px 8px;
+    font-size: 0.72rem;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    line-height: 1;
+    z-index: 1;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.2); color: #e2e8f0; }
+  .copy-btn.copied { background: #166534; border-color: #22c55e; color: #86efac; }
   code {
     font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
   }
@@ -629,7 +656,7 @@
           <div class="skill-desc">Customer master, sales order, delivery, picking, packing, goods issue (PGI), billing, and accounting entry.</div>
           <div class="skill-links">
             <a href="https://github.com/fivetran/sap-otc-workflow" target="_blank" class="skill-link gh">GitHub</a>
-            <a href="/sap_skills/docs/SAP_OTC_Workflow_Documentation.html" class="skill-link doc">Documentation</a>
+            <a href="/sap_skills/docs/SAP_OTC_Workflow_Documentation.html" class="skill-link doc" target="_blank">Documentation</a>
             <span class="skill-link setup" onclick="openSetup('otc')">Download &amp; Setup</span>
           </div>
         </div>
@@ -646,7 +673,7 @@
           <div class="skill-desc">Vendor master, purchase requisition, purchase order, goods receipt (MIGO), invoice receipt (MIRO), and payment.</div>
           <div class="skill-links">
             <a href="https://github.com/fivetran/sap-ptp-generator" target="_blank" class="skill-link gh">GitHub</a>
-            <a href="/sap_skills/docs/SAP_P2P_Workflow_Documentation.html" class="skill-link doc">Documentation</a>
+            <a href="/sap_skills/docs/SAP_P2P_Workflow_Documentation.html" class="skill-link doc" target="_blank">Documentation</a>
             <span class="skill-link setup" onclick="openSetup('p2p')">Download &amp; Setup</span>
           </div>
         </div>
@@ -663,7 +690,7 @@
           <div class="skill-desc">BOM, routing, production order, goods issue to production (261), confirmation, and goods receipt (101).</div>
           <div class="skill-links">
             <a href="https://github.com/fivetran/PlanToProduce" target="_blank" class="skill-link gh">GitHub</a>
-            <a href="/sap_skills/docs/SAP_PP_Workflow_Documentation.html" class="skill-link doc">Documentation</a>
+            <a href="/sap_skills/docs/SAP_PP_Workflow_Documentation.html" class="skill-link doc" target="_blank">Documentation</a>
             <span class="skill-link setup" onclick="openSetup('pp')">Download &amp; Setup</span>
           </div>
         </div>
@@ -680,7 +707,7 @@
           <div class="skill-desc">MRP run (MD01/MD02), planned order creation, conversion to production/purchase orders, stock/requirements analysis.</div>
           <div class="skill-links">
             <a href="https://github.com/fivetran/MaterialRequirementsPlanning" target="_blank" class="skill-link gh">GitHub</a>
-            <a href="/sap_skills/docs/SAP_MRP_Workflow_Documentation.html" class="skill-link doc">Documentation</a>
+            <a href="/sap_skills/docs/SAP_MRP_Workflow_Documentation.html" class="skill-link doc" target="_blank">Documentation</a>
             <span class="skill-link setup" onclick="openSetup('mrp')">Download &amp; Setup</span>
           </div>
         </div>
@@ -697,7 +724,7 @@
           <div class="skill-desc">MM period opening, FI period monitoring, Material Ledger extension, number range tracking via XBP BAPIs.</div>
           <div class="skill-links">
             <a href="https://github.com/fivetran/SAPHousekeeping" target="_blank" class="skill-link gh">GitHub</a>
-            <a href="/sap_skills/docs/SAP_Housekeeping_Documentation.html" class="skill-link doc">Documentation</a>
+            <a href="/sap_skills/docs/SAP_Housekeeping_Documentation.html" class="skill-link doc" target="_blank">Documentation</a>
             <span class="skill-link setup" onclick="openSetup('admin')">Download &amp; Setup</span>
           </div>
         </div>
@@ -714,8 +741,42 @@
           <div class="skill-desc">8-phase pipeline: dependency resolution, metadata extraction, SQL definitions, HANA-to-ANSI SQL translation.</div>
           <div class="skill-links">
             <a href="https://github.com/fivetran/CDS-metadata-retrieval-fr-custom-SDK" target="_blank" class="skill-link gh">GitHub</a>
-            <a href="https://github.com/fivetran/cds-dbt-service" target="_blank" class="skill-link gh">dbt Service</a>
+            <a href="/sap_skills/docs/SAP_CDS_Workflow_Documentation.html" class="skill-link doc" target="_blank">Documentation</a>
             <span class="skill-link setup" onclick="openSetup('cds')">Download &amp; Setup</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- GCS Parquet Explorer -->
+      <div class="skill-card">
+        <div class="skill-accent" style="background: var(--accent-gcs)"></div>
+        <div class="skill-body">
+          <div class="skill-header">
+            <div class="skill-icon" style="background: var(--accent-gcs)">&#128202;</div>
+            <div><div class="skill-name">GCS Parquet Explorer</div><div class="skill-process">Datalake Reader &amp; Iceberg</div></div>
+          </div>
+          <div class="skill-desc">Web app for browsing and querying SAP CDS Parquet data across GCS, Azure Data Lake, and AWS S3 with DuckDB SQL engine.</div>
+          <div class="skill-links">
+            <a href="https://github.com/fivetran-antoniocarbone/gcs-parquet-explorer" target="_blank" class="skill-link gh">GitHub</a>
+            <a href="/sap_skills/docs/SAP_GCS_Explorer_Documentation.html" class="skill-link doc" target="_blank">Documentation</a>
+            <a href="https://sapidesecc8.fivetran-internal-sales.com/datalake_reader/" target="_blank" class="skill-link doc">Live App</a>
+            <span class="skill-link setup" onclick="openSetup('gcs')">Download &amp; Setup</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skills Portal -->
+      <div class="skill-card">
+        <div class="skill-accent" style="background: var(--accent-portal)"></div>
+        <div class="skill-body">
+          <div class="skill-header">
+            <div class="skill-icon" style="background: var(--accent-portal)">&#127959;</div>
+            <div><div class="skill-name">Skills Portal</div><div class="skill-process">Server &amp; Documentation</div></div>
+          </div>
+          <div class="skill-desc">Web server administration, backup &amp; disaster recovery, SSL certificates, systemd resilience, and scheduled backups for the SAP Skills Portal.</div>
+          <div class="skill-links">
+            <a href="https://github.com/fivetran/SAPSkillsPortal" target="_blank" class="skill-link gh">GitHub</a>
+            <a href="/sap_skills/docs/SAP_Skills_Portal_Server_Documentation.html" class="skill-link doc" target="_blank">Documentation</a>
           </div>
         </div>
       </div>
@@ -736,6 +797,8 @@
           <tr><td><span class="color-swatch" style="background: var(--accent-mrp)"></span>MRP</td><td>Supply Chain Planning</td><td>MD01, MD02, MD04, MD05</td><td><a href="https://github.com/fivetran/MaterialRequirementsPlanning">MaterialRequirementsPlanning</a></td></tr>
           <tr><td><span class="color-swatch" style="background: var(--accent-admin)"></span>Housekeeping</td><td>System Administration</td><td>MMPV, SM37, SNRO, CKMLCR</td><td><a href="https://github.com/fivetran/SAPHousekeeping">SAPHousekeeping</a></td></tr>
           <tr><td><span class="color-swatch" style="background: var(--accent-cds)"></span>CDS</td><td>Metadata Extraction</td><td>SE11, DDIC, SE80</td><td><a href="https://github.com/fivetran/CDS-metadata-retrieval-fr-custom-SDK">CDS-metadata-retrieval</a></td></tr>
+          <tr><td><span class="color-swatch" style="background: var(--accent-gcs)"></span>GCS Explorer</td><td>Datalake Reader</td><td>DuckDB, PyArrow, Polaris</td><td><a href="https://github.com/fivetran-antoniocarbone/gcs-parquet-explorer">gcs-parquet-explorer</a></td></tr>
+          <tr><td><span class="color-swatch" style="background: var(--accent-portal)"></span>Skills Portal</td><td>Server &amp; Docs</td><td>systemd, cron, gsutil, ZeroSSL</td><td><a href="https://github.com/fivetran/SAPSkillsPortal">SAPSkillsPortal</a></td></tr>
         </tbody>
       </table>
     </div>
@@ -798,6 +861,7 @@
           <tr><td>System Number</td><td><code>03</code> (port 3303)</td></tr>
           <tr><td>Client</td><td><code>100</code></td></tr>
           <tr><td>User</td><td><code>IDES</code></td></tr>
+          <tr><td>Password</td><td><code>Fivetran?99</code></td></tr>
           <tr><td>Language</td><td><code>EN</code></td></tr>
           <tr><td>Library</td><td><code>sapjco3.jar</code> + <code>libsapjco3.dylib</code></td></tr>
         </table>
@@ -809,6 +873,7 @@
           <tr><td>Tunnel</td><td><code>localhost:30015 &#8594; sapidess4:30015</code></td></tr>
           <tr><td>Database</td><td><code>FIV</code></td></tr>
           <tr><td>User</td><td><code>SAPHANADB</code></td></tr>
+          <tr><td>Password</td><td><code>Fivetran1T1D</code></td></tr>
           <tr><td>Python lib</td><td><code>hdbcli</code></td></tr>
           <tr><td>SSH</td><td><code>ssh -f -N -L 30015:127.0.0.1:30015 root@sapidess4</code></td></tr>
         </table>
@@ -821,6 +886,8 @@
           <tr><td>Port</td><td><code>443</code> (HTTPS)</td></tr>
           <tr><td>Server</td><td>Python <code>gcs_explorer_server.py</code></td></tr>
           <tr><td>Service</td><td><code>gcs-explorer.service</code> (systemd)</td></tr>
+          <tr><td>SSH User</td><td><code>root</code></td></tr>
+          <tr><td>SSH Password</td><td><code>Fivetran?99</code></td></tr>
           <tr><td>Access</td><td><code>ssh root@sapidesecc8</code></td></tr>
         </table>
       </div>
@@ -902,6 +969,8 @@
           <tr><td><span class="color-swatch" style="background: #b35900"></span>MRP</td><td>Amber</td><td><code>#b35900</code></td><td><code>#b35900 &#8594; #e67300</code></td></tr>
           <tr><td><span class="color-swatch" style="background: #922b21"></span>Housekeeping</td><td>Crimson</td><td><code>#922b21</code></td><td><code>#922b21 &#8594; #c0392b</code></td></tr>
           <tr><td><span class="color-swatch" style="background: #0073FF"></span>CDS / Portal</td><td>Blue</td><td><code>#0073FF</code></td><td><code>#0073FF &#8594; #004da6</code></td></tr>
+          <tr><td><span class="color-swatch" style="background: #6b7280"></span>GCS Explorer</td><td>Grey</td><td><code>#6b7280</code></td><td><code>#6b7280 &#8594; #4b5563</code></td></tr>
+          <tr><td><span class="color-swatch" style="background: #d4a017"></span>Skills Portal</td><td>Gold</td><td><code>#d4a017</code></td><td><code>#d4a017 &#8594; #a67c00</code></td></tr>
         </tbody>
       </table>
     </div>
@@ -970,7 +1039,9 @@ var skills = {
   pp: { name:'Plan to Produce (PP)', repo:'fivetran/PlanToProduce', dir:'PlanToProduce', color:'#4a1a5c', java:'SAPP2PrWorkflow.java', extra:'', run:'p2prwf.sh', compile:'compile.sh', jcoLocal:false, skillDir:'skill', skill:'sap-pp.md', cmds:['generate — full PP workflow','status — production order counts','help — show commands'], gson:false },
   mrp: { name:'MRP', repo:'fivetran/MaterialRequirementsPlanning', dir:'MaterialRequirementsPlanning', color:'#b35900', java:'SAPMRPWorkflow.java', extra:'', run:'mrpwf.sh', compile:'compile.sh', jcoLocal:false, skillDir:'skill', skill:'sap-mrp.md', cmds:['generate — run MRP','status — MRP results','help — show commands'], gson:false },
   admin: { name:'Housekeeping', repo:'fivetran/SAPHousekeeping', dir:'SAPHousekeeping', color:'#922b21', java:'SAPJobScheduler.java', extra:'', run:'jobsched.sh', compile:'compile.sh', jcoLocal:false, skillDir:'skill', skill:'sap-housekeeping.md', cmds:['setup — schedule all jobs','status — health dashboard','list — show jobs','run-now &lt;job&gt; — run immediately','extend-ml — ML period script'], gson:false },
-  cds: { name:'CDS View Extraction', repo:'fivetran/CDS-metadata-retrieval-fr-custom-SDK', dir:'CDS-metadata-retrieval-fr-custom-SDK', color:'#0073FF', java:null, run:null, compile:null, jcoLocal:false, skillDir:null, skill:null, cmds:[], gson:false, isCds:true }
+  cds: { name:'CDS View Extraction', repo:'fivetran/CDS-metadata-retrieval-fr-custom-SDK', dir:'CDS-metadata-retrieval-fr-custom-SDK', color:'#0073FF', java:null, run:null, compile:null, jcoLocal:false, skillDir:null, skill:null, cmds:[], gson:false, isCds:true },
+  gcs: { name:'GCS Parquet Explorer', repo:'fivetran-antoniocarbone/gcs-parquet-explorer', dir:'gcs-parquet-explorer', color:'#6b7280', java:null, run:null, compile:null, jcoLocal:false, skillDir:null, skill:'gcs-parquet-explorer.md', cmds:[], gson:false, isGcs:true },
+  portal: { name:'Skills Portal', repo:'fivetran/SAPSkillsPortal', dir:'SAPSkillsPortal', color:'#d4a017', java:null, run:null, compile:null, jcoLocal:false, skillDir:'skill', skill:'sap-skills-portal.md', cmds:[], gson:false, isPortal:true }
 };
 
 var currentSkill = null;
@@ -1025,14 +1096,16 @@ function showGuide(id, mode) {
   h += '<p>Verify: <code>brew --version</code> should print a version number.</p>';
 
   // ──────────────────────────────────────────
-  // STEP: Install Java
+  // STEP: Install Java (skip for GCS — Python-based)
   // ──────────────────────────────────────────
+  if (!s.isGcs) {
   h += '<h3>' + sn(s, step++) + 'Install Java</h3>';
   h += '<p>First check if Java is already installed:</p>';
   h += '<pre>java -version</pre>';
   h += '<p>If you see a version number (8 or higher), skip to the next step. Otherwise install it:</p>';
   h += '<pre>brew install openjdk\n\n# Add Java to your PATH (copy-paste this whole block)\nsudo ln -sfn $(brew --prefix openjdk)/libexec/openjdk.jdk \\\n  /Library/Java/JavaVirtualMachines/openjdk.jdk</pre>';
   h += '<p>Verify: <code>java -version</code> should now show the installed version.</p>';
+  }
 
   // ──────────────────────────────────────────
   // STEP: Install Git
@@ -1060,19 +1133,23 @@ function showGuide(id, mode) {
     h += '<h3>' + sn(s, step++) + 'Install VS Code Extensions</h3>';
     h += '<p>Open VS Code, then press <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>X</kbd> to open Extensions. Search and install:</p>';
     h += '<table>';
-    if (!s.isCds) {
-      h += '<tr><td><strong>Extension Pack for Java</strong></td><td>by Microsoft — Java IntelliSense, debugger, test runner</td></tr>';
-    } else {
+    if (s.isGcs) {
+      h += '<tr><td><strong>Python</strong></td><td>by Microsoft — Python IntelliSense, linting, debugging</td></tr>';
+    } else if (s.isCds) {
       h += '<tr><td><strong>Remote - SSH</strong></td><td>by Microsoft — develop on the SAP server</td></tr>';
       h += '<tr><td><strong>Python</strong></td><td>by Microsoft — for connector.py</td></tr>';
+    } else {
+      h += '<tr><td><strong>Extension Pack for Java</strong></td><td>by Microsoft — Java IntelliSense, debugger, test runner</td></tr>';
     }
     h += '<tr><td><strong>Claude Code</strong></td><td>by Anthropic — AI-assisted development</td></tr>';
     h += '</table>';
     h += '<p>Or install from the terminal:</p>';
-    if (!s.isCds) {
-      h += '<pre>code --install-extension vscjava.vscode-java-pack\ncode --install-extension anthropics.claude-code</pre>';
-    } else {
+    if (s.isGcs) {
+      h += '<pre>code --install-extension ms-python.python\ncode --install-extension anthropics.claude-code</pre>';
+    } else if (s.isCds) {
       h += '<pre>code --install-extension ms-vscode-remote.remote-ssh\ncode --install-extension ms-python.python\ncode --install-extension anthropics.claude-code</pre>';
+    } else {
+      h += '<pre>code --install-extension vscjava.vscode-java-pack\ncode --install-extension anthropics.claude-code</pre>';
     }
   }
 
@@ -1094,7 +1171,44 @@ function showGuide(id, mode) {
     h += '<p>Then open it in VS Code: <code>code .</code></p>';
   }
 
-  if (!s.isCds) {
+  if (s.isGcs) {
+    // ──────────────────────────────────────────
+    // GCS Explorer: Python-based project
+    // ──────────────────────────────────────────
+    h += '<h3>' + sn(s, step++) + 'Install Python Dependencies</h3>';
+    h += '<p>The GCS Parquet Explorer requires Python 3.10+ and several packages.' + (isVS ? ' Run in the VS Code terminal (<kbd>Ctrl</kbd>+<kbd>`</kbd>):' : '') + '</p>';
+    h += '<pre># Install Python if not present\nbrew install python@3.13\n\n# Create a virtual environment (recommended)\ncd ~/SAP_Projects/' + s.dir + '\npython3 -m venv venv\nsource venv/bin/activate\n\n# Install dependencies\npip install -r local/requirements.txt</pre>';
+    h += '<p>Key packages: <code>duckdb</code>, <code>pyarrow</code>, <code>google-cloud-storage</code>, <code>psutil</code></p>';
+
+    h += '<h3>' + sn(s, step++) + 'Configure GCS Credentials</h3>';
+    h += '<p>The local version uses Google Application Default Credentials to access GCS buckets:</p>';
+    h += '<pre># Install gcloud CLI (if not installed)\nbrew install google-cloud-sdk\n\n# Authenticate\ngcloud auth application-default login</pre>';
+    h += '<p>This opens a browser to authenticate with your Google account. After login, the credentials are stored locally.</p>';
+
+    h += '<h3>' + sn(s, step++) + 'Run the Local Version</h3>';
+    h += '<pre>cd ~/SAP_Projects/' + s.dir + '/local\npython3 gcs_explorer.py</pre>';
+    h += '<p>Open your browser at <code>http://localhost:8765</code>. You should see the GCS Parquet Explorer interface.</p>';
+    h += '<div class="note"><strong>Default bucket:</strong> <code>sap_cds_dbt</code> with prefix <code>sap_cds_views/</code><br>';
+    h += '<strong>Troubleshooting:</strong><br>';
+    h += '<code>ModuleNotFoundError</code> &rarr; activate venv: <code>source venv/bin/activate</code><br>';
+    h += '<code>DefaultCredentialsError</code> &rarr; run <code>gcloud auth application-default login</code><br>';
+    h += '<code>Port 8765 in use</code> &rarr; another instance is running, kill it first</div>';
+
+    h += '<h3>' + sn(s, step++) + 'Server Version (sapidesecc8)</h3>';
+    h += '<p>The production server version runs at:</p>';
+    h += '<table>';
+    h += '<tr><td><strong>URL</strong></td><td><a href="https://sapidesecc8.fivetran-internal-sales.com/datalake_reader/" target="_blank">https://sapidesecc8.fivetran-internal-sales.com/datalake_reader/</a></td></tr>';
+    h += '<tr><td><strong>Login Password</strong></td><td><code>Fivetran?99</code></td></tr>';
+    h += '<tr><td><strong>SSH</strong></td><td><code>ssh root@sapidesecc8</code></td></tr>';
+    h += '<tr><td><strong>SSH Password</strong></td><td><code>Fivetran?99</code></td></tr>';
+    h += '<tr><td><strong>Server file</strong></td><td><code>/usr/sap/gcs_explorer_server.py</code></td></tr>';
+    h += '<tr><td><strong>Service</strong></td><td><code>gcs-explorer.service</code> (systemd, auto-restart)</td></tr>';
+    h += '<tr><td><strong>Logs</strong></td><td><code>/var/log/gcs_explorer.log</code></td></tr>';
+    h += '</table>';
+    h += '<p>Deploy updates:</p>';
+    h += '<pre>scp /tmp/gcs_explorer_server.py root@sapidesecc8:/usr/sap/gcs_explorer_server.py\nssh root@sapidesecc8 "systemctl restart gcs-explorer"</pre>';
+
+  } else if (!s.isCds) {
     // ──────────────────────────────────────────
     // STEP: Download SAP JCo Libraries
     // ──────────────────────────────────────────
@@ -1128,6 +1242,32 @@ function showGuide(id, mode) {
     h += '<p>You should see no errors. If you get "javac: command not found", go back to the Java installation step.</p>';
 
     // ──────────────────────────────────────────
+    // STEP: SAP Connection Details
+    // ──────────────────────────────────────────
+    h += '<h3>' + sn(s, step++) + 'SAP Connection Details</h3>';
+    h += '<p>The Java code connects to the SAP system via RFC. These are the connection parameters hardcoded in the source:</p>';
+    h += '<table>';
+    h += '<tr><td><strong>Host</strong></td><td><code>sapidess4.fivetran-internal-sales.com</code></td></tr>';
+    h += '<tr><td><strong>System Number</strong></td><td><code>03</code> (gateway port 3303)</td></tr>';
+    h += '<tr><td><strong>Client</strong></td><td><code>100</code></td></tr>';
+    h += '<tr><td><strong>User</strong></td><td><code>IDES</code></td></tr>';
+    h += '<tr><td><strong>Password</strong></td><td><code>Fivetran?99</code></td></tr>';
+    h += '<tr><td><strong>Language</strong></td><td><code>EN</code></td></tr>';
+    h += '</table>';
+    h += '<p style="margin-top:10px">For <strong>HANA direct SQL access</strong> (used by Housekeeping <code>extend-ml</code> command):</p>';
+    h += '<table>';
+    h += '<tr><td><strong>SSH Tunnel</strong></td><td><code>ssh -f -N -L 30015:127.0.0.1:30015 root@sapidess4</code></td></tr>';
+    h += '<tr><td><strong>SSH Password</strong></td><td><code>Fivetran?99</code></td></tr>';
+    h += '<tr><td><strong>Host (after tunnel)</strong></td><td><code>localhost</code></td></tr>';
+    h += '<tr><td><strong>Port</strong></td><td><code>30015</code></td></tr>';
+    h += '<tr><td><strong>Database</strong></td><td><code>FIV</code></td></tr>';
+    h += '<tr><td><strong>User</strong></td><td><code>SAPHANADB</code></td></tr>';
+    h += '<tr><td><strong>Password</strong></td><td><code>Fivetran1T1D</code></td></tr>';
+    h += '<tr><td><strong>Python lib</strong></td><td><code>pip install hdbcli</code></td></tr>';
+    h += '</table>';
+    h += '<div class="note"><strong>Note:</strong> These credentials are for the Fivetran internal SAP IDES sandbox system. The user <code>BPINST</code> (password <code>Welcome1</code>) is also available for some test utilities.</div>';
+
+    // ──────────────────────────────────────────
     // STEP: Run
     // ──────────────────────────────────────────
     h += '<h3>' + sn(s, step++) + 'Run the Skill</h3>';
@@ -1149,11 +1289,44 @@ function showGuide(id, mode) {
     if (isVS) {
       h += '<p>Press <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> &rarr; <strong>Remote-SSH: Connect to Host</strong> &rarr; type:</p>';
       h += '<pre>root@sapidess4</pre>';
+      h += '<p>When prompted for a password, enter: <code>Fivetran?99</code></p>';
       h += '<p>Once connected, click <strong>Open Folder</strong> and enter:</p>';
       h += '<pre>/usr/sap/cds_sql_only/</pre>';
     } else {
-      h += '<pre>ssh root@sapidess4\ncd /usr/sap/cds_sql_only/drivers</pre>';
+      h += '<pre>ssh root@sapidess4\n# Password: Fivetran?99\ncd /usr/sap/cds_sql_only/drivers</pre>';
     }
+
+    // ──────────────────────────────────────────
+    // STEP: CDS Connection Details
+    // ──────────────────────────────────────────
+    h += '<h3>' + sn(s, step++) + 'SAP Connection Details</h3>';
+    h += '<p>The CDS pipeline uses SAP JCo RFC from the server. Connection is configured in <code>drivers/configuration.json</code>:</p>';
+    h += '<table>';
+    h += '<tr><td><strong>Host</strong></td><td><code>sapidess4.fivetran-internal-sales.com</code></td></tr>';
+    h += '<tr><td><strong>System Number</strong></td><td><code>03</code> (gateway port 3303)</td></tr>';
+    h += '<tr><td><strong>Client</strong></td><td><code>100</code></td></tr>';
+    h += '<tr><td><strong>User</strong></td><td><code>IDES</code></td></tr>';
+    h += '<tr><td><strong>Password</strong></td><td><code>Fivetran?99</code></td></tr>';
+    h += '<tr><td><strong>Language</strong></td><td><code>EN</code></td></tr>';
+    h += '</table>';
+    h += '<p style="margin-top:10px"><strong>HANA direct access</strong> (for SQL queries and debugging):</p>';
+    h += '<table>';
+    h += '<tr><td><strong>SSH Tunnel</strong></td><td><code>ssh -f -N -L 30015:127.0.0.1:30015 root@sapidess4</code></td></tr>';
+    h += '<tr><td><strong>SSH Password</strong></td><td><code>Fivetran?99</code></td></tr>';
+    h += '<tr><td><strong>Host (after tunnel)</strong></td><td><code>localhost</code></td></tr>';
+    h += '<tr><td><strong>Port</strong></td><td><code>30015</code></td></tr>';
+    h += '<tr><td><strong>Database</strong></td><td><code>FIV</code></td></tr>';
+    h += '<tr><td><strong>User</strong></td><td><code>SAPHANADB</code></td></tr>';
+    h += '<tr><td><strong>Password</strong></td><td><code>Fivetran1T1D</code></td></tr>';
+    h += '<tr><td><strong>Python lib</strong></td><td><code>pip install hdbcli</code></td></tr>';
+    h += '</table>';
+    h += '<p style="margin-top:10px"><strong>SSH access</strong> to the server:</p>';
+    h += '<table>';
+    h += '<tr><td><strong>Server</strong></td><td><code>ssh root@sapidess4</code></td></tr>';
+    h += '<tr><td><strong>Password</strong></td><td><code>Fivetran?99</code></td></tr>';
+    h += '<tr><td><strong>CDS directory</strong></td><td><code>/usr/sap/cds_sql_only/</code></td></tr>';
+    h += '<tr><td><strong>Config file</strong></td><td><code>drivers/configuration.json</code></td></tr>';
+    h += '</table>';
 
     h += '<h3>' + sn(s, step++) + 'Verify the Pipeline</h3>';
     h += '<pre># Check all class files are present\nls /usr/sap/cds_sql_only/drivers/*.class | wc -l\n# Expected: 30+ files\n\n# Test an extraction\ncd /usr/sap/cds_sql_only/drivers\njava -cp .:sapjco3.jar:gson.jar TestZCdsSqlViews</pre>';
@@ -1163,7 +1336,11 @@ function showGuide(id, mode) {
   // STEP: Install Claude Code Skill
   // ──────────────────────────────────────────
   h += '<h3>' + sn(s, step++) + 'Install the Claude Code Skill</h3>';
-  if (s.skill) {
+  if (s.isGcs) {
+    h += '<p>The GCS Parquet Explorer skill is a user-level Claude Code command. Ask the SAP Specialists (Antonio Carbone, Richard Brouwer) for the skill file, then:</p>';
+    h += '<pre>cp gcs-parquet-explorer.md ~/.claude/commands/</pre>';
+    h += '<p>Now in ' + (isVS ? 'the Claude Code panel' : 'Claude Code CLI') + ', type <code>/gcs-parquet-explorer</code> to activate the skill.</p>';
+  } else if (s.skill && s.skillDir) {
     if (isVS) {
       h += '<p>Open the VS Code terminal (<kbd>Ctrl</kbd>+<kbd>`</kbd>) and run:</p>';
     } else {
@@ -1185,8 +1362,10 @@ function showGuide(id, mode) {
   h += '</div>';
 
   document.getElementById('modalTitle').innerHTML = '<span style="color:' + s.color + '">' + s.name + '</span> — ' + (isVS ? 'VS Code' : 'Terminal') + ' Setup';
-  document.getElementById('modalBody').innerHTML = h;
-  document.getElementById('modalBody').scrollTop = 0;
+  var mb = document.getElementById('modalBody');
+  mb.innerHTML = h;
+  addCopyButtons(mb);
+  mb.scrollTop = 0;
   document.querySelector('.modal').scrollTop = 0;
   document.getElementById('setupModal').scrollTop = 0;
 }
@@ -1197,6 +1376,28 @@ function closeSetup() {
 }
 document.getElementById('setupModal').addEventListener('click', function(e) { if (e.target === this) closeSetup(); });
 document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeSetup(); });
+
+function addCopyButtons(container) {
+  container.querySelectorAll('pre').forEach(function(pre) {
+    if (pre.parentNode.classList && pre.parentNode.classList.contains('pre-wrap')) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'pre-wrap';
+    pre.parentNode.insertBefore(wrap, pre);
+    wrap.appendChild(pre);
+    var btn = document.createElement('button');
+    btn.className = 'copy-btn';
+    btn.textContent = 'Copy';
+    btn.addEventListener('click', function() {
+      navigator.clipboard.writeText(pre.textContent.trim()).then(function() {
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+        setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1500);
+      });
+    });
+    wrap.appendChild(btn);
+  });
+}
+document.addEventListener('DOMContentLoaded', function() { addCopyButtons(document); });
 </script>
 
 </body>
