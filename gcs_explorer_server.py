@@ -3879,6 +3879,19 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     return
                 except Exception as e:
                     resp = json.dumps({"status": "error", "message": str(e)}).encode()
+            elif action in ("view_logs", "disk_space", "cron_jobs"):
+                import subprocess
+                cmds = {
+                    "view_logs": ["tail", "-40", "/var/log/gcs_explorer.log"],
+                    "disk_space": ["df", "-h"],
+                    "cron_jobs": ["crontab", "-l"],
+                }
+                try:
+                    result = subprocess.run(cmds[action], capture_output=True, text=True, timeout=10)
+                    output = result.stdout or result.stderr or "(no output)"
+                    resp = json.dumps({"status": "ok", "output": output}).encode()
+                except Exception as e:
+                    resp = json.dumps({"status": "error", "message": str(e)}).encode()
             else:
                 resp = json.dumps({"status": "error", "message": "Unknown admin action"}).encode()
 
