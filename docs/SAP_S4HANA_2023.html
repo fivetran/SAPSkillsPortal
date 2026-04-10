@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S/4HANA 2023 — SAP Management Cockpit</title>
+<style>
+  :root {
+    --primary: #0EA5E9;
+    --primary-light: #38BDF8;
+    --primary-dark: #0284C7;
+    --accent: #0EA5E9;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+
+  /* Navigation */
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary-dark);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #e6f5f5; }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: #e6f5f5;
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  tr:hover td { background: #f0fafa; }
+
+  /* Code */
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    margin: 12px 0;
+  }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: #c0392b;
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+
+  /* Copy button */
+  .pre-wrap { position: relative; }
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255,255,255,0.12);
+    color: #cdd6f4;
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 3px 12px;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    z-index: 2;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.22); }
+  .copy-btn.copied { background: #27ae60; color: white; border-color: #27ae60; }
+
+  /* Info boxes */
+  .info-box {
+    background: #e6f5f5;
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+
+  /* Link list */
+  .link-list {
+    list-style: none;
+    padding: 0;
+  }
+  .link-list li {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .link-list li:last-child { border-bottom: none; }
+  .link-list a {
+    color: var(--primary-dark);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .link-list a:hover { text-decoration: underline; }
+  .link-list .link-desc {
+    color: var(--text-light);
+    font-size: 0.85rem;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>S/4HANA 2023</h1>
+  <div class="subtitle">SAP S/4HANA IDES Application Server</div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#system">System Info</a>
+    <a href="#status">Status</a>
+    <a href="#links">Links</a>
+    <a href="SAP_Management_Cockpit.html">Back to Cockpit</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- SYSTEM INFO -->
+<!-- ============================================================ -->
+<div class="section" id="system">
+  <div class="section-title" style="display:flex; align-items:center; justify-content:space-between;">
+    System Information
+    <button onclick="refreshVersion()" id="refresh-btn" style="font-size:0.8rem; padding:6px 14px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Refresh</button>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Server Details</h3>
+    <table>
+      <thead>
+        <tr><th>Property</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Hostname</td><td><code>sapidess4</code> &mdash; <code>sapidess4.fivetran-internal-sales.com</code></td></tr>
+        <tr><td>SAP System</td><td>SAP S/4HANA 2023 &mdash; IDES</td></tr>
+        <tr><td>SID</td><td><code>S4H</code></td></tr>
+        <tr><td>Instance Nr</td><td><code>03</code></td></tr>
+        <tr><td>Client</td><td><code>100</code></td></tr>
+        <tr><td>Database</td><td id="hana-version">SAP HANA 2.0 SPS 08 (2.00.080.00.1731056231)</td></tr>
+        <tr><td>Tenant</td><td id="hana-tenant">FIV</td></tr>
+        <tr><td>OS</td><td><span id="os-version">SUSE Linux Enterprise Server 15 SP3</span> <a href="ssh://root@sapidess4" style="display:inline-block; margin-left:12px; padding:3px 12px; background:#0284C7; color:white; border-radius:5px; font-size:0.78rem; font-weight:600; text-decoration:none;">SSH</a></td></tr>
+        <tr><td>IP Addresses</td><td>Private <code>10.128.15.239</code> &mdash; Public <code>104.154.26.159</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- STATUS -->
+<!-- ============================================================ -->
+<div class="section" id="status">
+  <div class="section-title" style="display:flex; align-items:center; justify-content:space-between;">
+    Status
+    <button onclick="refreshStatus()" id="status-btn" style="font-size:0.8rem; padding:6px 14px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Check Status</button>
+  </div>
+
+  <div style="display:flex; gap:20px; flex-wrap:wrap;">
+    <div class="card" style="flex:1; min-width:200px; text-align:center;">
+      <h3 style="justify-content:center;"><span class="dot" style="background: var(--primary)"></span> SAP Application Server</h3>
+      <div id="sap-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
+      <div id="sap-status-detail" style="font-size:0.85rem; color:var(--text-light);">Click "Check Status" to verify</div>
+    </div>
+    <div class="card" style="flex:1; min-width:200px; text-align:center;">
+      <h3 style="justify-content:center;"><span class="dot" style="background: var(--primary)"></span> SAP HANA Database</h3>
+      <div id="hana-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
+      <div id="hana-status-detail" style="font-size:0.85rem; color:var(--text-light);">Click "Check Status" to verify</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LINKS -->
+<!-- ============================================================ -->
+<div class="section" id="links">
+  <div class="section-title">Links</div>
+  <div class="info-box">
+    Add links to this page as needed &mdash; documentation, dashboards, monitoring tools, or any resource related to the S/4HANA 2023 system.
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Resources</h3>
+    <ul class="link-list">
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://fivetran.okta.com/home/sapnetweaversaml/0oa1sojot83IxLiyy1d8/59625" target="_blank" style="flex-shrink:0;">
+            <img src="sap_icon.svg" alt="SAP" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://fivetran.okta.com/home/sapnetweaversaml/0oa1sojot83IxLiyy1d8/59625" target="_blank">SSO S/4HANA</a>
+            <div class="link-desc">SAP NetWeaver SAML &mdash; Single Sign-On via Okta</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://sapidess4.fivetran-internal-sales.com:51024/cockpit#Shell-home" target="_blank" style="flex-shrink:0;">
+            <img src="hana_icon.svg" alt="HANA" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://sapidess4.fivetran-internal-sales.com:51024/cockpit#Shell-home" target="_blank">HANA Cockpit</a>
+            <div class="link-desc">SAP HANA Database Administration Cockpit</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-central1-c/instances/antonio-carbone-ldp-sap-s4hana-2024-10-01?invt=AbtinQ&amp;project=internal-sales" target="_blank" style="flex-shrink:0;">
+            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-central1-c/instances/antonio-carbone-ldp-sap-s4hana-2024-10-01?invt=AbtinQ&amp;project=internal-sales" target="_blank">VM Settings</a>
+            <div class="link-desc">Google Cloud Compute Engine</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://console.cloud.google.com/net-services/dns/zones/fivetran-internal-sales-com/details?invt=AbthYA&amp;project=internal-sales" target="_blank" style="flex-shrink:0;">
+            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://console.cloud.google.com/net-services/dns/zones/fivetran-internal-sales-com/details?invt=AbthYA&amp;project=internal-sales" target="_blank">DNS Registration</a>
+            <div class="link-desc">Google Cloud DNS</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://console.cloud.google.com/storage/browser/sap-hana-backint/FIV/usr/sap/FIV/SYS/global/hdb/backint/DB_FIV?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&amp;invt=AbtinQ&amp;project=internal-sales" target="_blank" style="flex-shrink:0;">
+            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://console.cloud.google.com/storage/browser/sap-hana-backint/FIV/usr/sap/FIV/SYS/global/hdb/backint/DB_FIV?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&amp;invt=AbtinQ&amp;project=internal-sales" target="_blank">Backint Backup Destination</a>
+            <div class="link-desc">Google Cloud Storage</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://fivetran.slab.com/posts/new-s-4-hana-demo-environment-technical-details-tq8b04ls" target="_blank" style="flex-shrink:0;">
+            <img src="slab_icon.svg" alt="Slab" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://fivetran.slab.com/posts/new-s-4-hana-demo-environment-technical-details-tq8b04ls" target="_blank">Technical Details</a>
+            <div class="link-desc">S/4HANA Demo Environment &mdash; Technical Details</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div>
+          <a href="SAP_OTC_Workflow_Documentation.html" target="_blank">Order to Cash (OTC)</a>
+          <div class="link-desc">Sales Order &rarr; Delivery &rarr; Goods Issue &rarr; Billing &rarr; Payment</div>
+        </div>
+      </li>
+      <li>
+        <div>
+          <a href="SAP_P2P_Workflow_Documentation.html" target="_blank">Procure to Pay (P2P)</a>
+          <div class="link-desc">Purchase Order &rarr; Goods Receipt &rarr; Invoice Verification &rarr; Payment</div>
+        </div>
+      </li>
+      <li>
+        <div>
+          <a href="SAP_PP_Workflow_Documentation.html" target="_blank">Plan to Produce (PP)</a>
+          <div class="link-desc">BOM &rarr; Routing &rarr; Production Order &rarr; Confirmation</div>
+        </div>
+      </li>
+      <li>
+        <div>
+          <a href="SAP_MRP_Workflow_Documentation.html" target="_blank">Material Requirements Planning (MRP)</a>
+          <div class="link-desc">PIR &rarr; MRP Run &rarr; Planned Orders &rarr; Purchase Requisitions</div>
+        </div>
+      </li>
+      <li>
+        <div>
+          <a href="SAP_Housekeeping_Documentation.html" target="_blank">Housekeeping</a>
+          <div class="link-desc">Period Close, Number Ranges, Material Ledger, System Cleanup</div>
+        </div>
+      </li>
+      <li>
+        <div>
+          <a href="SAP_CDS_Workflow_Documentation.html" target="_blank">CDS View Extraction</a>
+          <div class="link-desc">8-Phase Pipeline: Dependencies &rarr; Metadata &rarr; SQL Definitions &rarr; BFS Chain Resolution</div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
+</div>
+
+<!-- COPY BUTTON SCRIPT -->
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.pre-wrap').querySelector('pre');
+  const text = pre.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function refreshStatus() {
+  var btn = document.getElementById('status-btn');
+  btn.textContent = 'Checking...';
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  var sapStatus = document.getElementById('sap-status');
+  var sapDetail = document.getElementById('sap-status-detail');
+  var hanaStatus = document.getElementById('hana-status');
+  var hanaDetail = document.getElementById('hana-status-detail');
+  sapStatus.textContent = '...';
+  sapStatus.style.color = '#6c757d';
+  hanaStatus.textContent = '...';
+  hanaStatus.style.color = '#6c757d';
+  fetch('/sap_skills/api/system_status')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        sapStatus.textContent = data.sap.active ? 'Active' : 'Inactive';
+        sapStatus.style.color = data.sap.active ? '#166534' : '#991b1b';
+        sapDetail.textContent = data.sap.detail;
+        hanaStatus.textContent = data.hana.active ? 'Active' : 'Inactive';
+        hanaStatus.style.color = data.hana.active ? '#166534' : '#991b1b';
+        hanaDetail.textContent = data.hana.detail;
+        btn.textContent = 'Checked!';
+        btn.style.background = '#27ae60';
+      } else {
+        sapStatus.textContent = 'Error';
+        sapStatus.style.color = '#991b1b';
+        hanaStatus.textContent = 'Error';
+        hanaStatus.style.color = '#991b1b';
+        btn.textContent = 'Error';
+        btn.style.background = '#e74c3c';
+      }
+      setTimeout(function() { btn.textContent = 'Check Status'; btn.style.background = 'var(--primary)'; btn.style.opacity = '1'; btn.disabled = false; btn.style.cursor = 'pointer'; }, 3000);
+    })
+    .catch(function() {
+      sapStatus.textContent = 'Error';
+      sapStatus.style.color = '#991b1b';
+      hanaStatus.textContent = 'Error';
+      hanaStatus.style.color = '#991b1b';
+      btn.textContent = 'Error';
+      btn.style.background = '#e74c3c';
+      setTimeout(function() { btn.textContent = 'Check Status'; btn.style.background = 'var(--primary)'; btn.style.opacity = '1'; btn.disabled = false; btn.style.cursor = 'pointer'; }, 3000);
+    });
+}
+
+function refreshVersion() {
+  var btn = document.getElementById('refresh-btn');
+  var cell = document.getElementById('hana-version');
+  btn.textContent = 'Refreshing...';
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  fetch('/sap_skills/api/hana_version')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        cell.textContent = data.version;
+        if (data.os) { document.getElementById('os-version').textContent = data.os; }
+        if (data.tenant) { document.getElementById('hana-tenant').textContent = data.tenant; }
+        btn.textContent = 'Updated!';
+        btn.style.background = '#27ae60';
+        setTimeout(function() { btn.textContent = 'Refresh'; btn.style.background = 'var(--primary)'; btn.style.opacity = '1'; btn.disabled = false; btn.style.cursor = 'pointer'; }, 2000);
+      } else {
+        btn.textContent = 'Error';
+        btn.style.background = '#e74c3c';
+        setTimeout(function() { btn.textContent = 'Refresh'; btn.style.background = 'var(--primary)'; btn.style.opacity = '1'; btn.disabled = false; btn.style.cursor = 'pointer'; }, 3000);
+      }
+    })
+    .catch(function() {
+      btn.textContent = 'Error';
+      btn.style.background = '#e74c3c';
+      setTimeout(function() { btn.textContent = 'Refresh'; btn.style.background = 'var(--primary)'; btn.style.opacity = '1'; btn.disabled = false; btn.style.cursor = 'pointer'; }, 3000);
+    });
+}
+
+// Auto-refresh status on page load
+document.addEventListener('DOMContentLoaded', function() {
+  refreshStatus();
+});
+</script>
+
+</body>
+</html>

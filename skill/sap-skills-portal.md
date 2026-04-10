@@ -19,21 +19,21 @@ managing the web server, backups, SSL certificates, or coordinating across busin
 | Hostname | `sapidesecc8.fivetran-internal-sales.com` |
 | OS | SUSE Linux Enterprise Server 15 SP5 |
 | SSH | `ssh root@sapidesecc8` |
-| SSH Password | `Fivetran?99` |
+| SSH Password | `(see vault)` |
 | Python | `/root/miniconda/bin/python3` (3.13.9) |
 | Web port | 443 (HTTPS, production) / 8443 (HTTPS, dev) |
 
 ### How to SSH
 
 ```bash
-# Direct SSH (password: Fivetran?99)
+# Direct SSH (password: see vault)
 ssh root@sapidesecc8
 
 # Or with full hostname
 ssh root@sapidesecc8.fivetran-internal-sales.com
 ```
 
-Accept the host key on first connection. Password is `Fivetran?99`.
+Accept the host key on first connection. Password is `(see vault)`.
 
 ---
 

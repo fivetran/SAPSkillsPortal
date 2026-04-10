@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP Management Cockpit</title>
+<style>
+  :root {
+    --primary: #0d7377;
+    --primary-light: #12999e;
+    --primary-dark: #095456;
+    --accent: #0d7377;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0d7377 0%, #095456 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+
+  /* Navigation */
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary-dark);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #e6f5f5; }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: #e6f5f5;
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  tr:hover td { background: #f0fafa; }
+
+  /* Code */
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    margin: 12px 0;
+  }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: #c0392b;
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+
+  /* Copy button */
+  .pre-wrap { position: relative; }
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255,255,255,0.12);
+    color: #cdd6f4;
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 3px 12px;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    z-index: 2;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.22); }
+  .copy-btn.copied { background: #27ae60; color: white; border-color: #27ae60; }
+
+  /* Info boxes */
+  .info-box {
+    background: #e6f5f5;
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+  .warning-box {
+    background: #fdf2f2;
+    border-left: 4px solid #e74c3c;
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+
+  /* Status indicator */
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+  .status-card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .status-card h4 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    color: var(--text-light);
+    margin-bottom: 8px;
+  }
+  .status-card .value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .status-card .label {
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-top: 4px;
+  }
+
+  /* Badge */
+  .badge-inline {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+  }
+  .badge-green { background: #dcfce7; color: #166534; }
+  .badge-blue { background: #dbeafe; color: #1e40af; }
+  .badge-amber { background: #fef3c7; color: #92400e; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>SAP Management Cockpit</h1>
+  <div class="subtitle">System Landscape, Connections &amp; Operations Dashboard</div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#landscape">System Landscape</a>
+    <a href="#connections">Connections</a>
+    <a href="#databases">Databases</a>
+    <a href="#services">Services</a>
+    <a href="#generators">Data Generators</a>
+    <a href="#monitoring">Monitoring</a>
+    <a href="#credentials">Credentials</a>
+    <a href="#quickref">Quick Reference</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- SYSTEM LANDSCAPE -->
+<!-- ============================================================ -->
+<div class="section" id="landscape">
+  <div class="section-title">System Landscape</div>
+  <p style="margin-bottom:16px;">Complete inventory of all servers, SAP instances, and infrastructure components managed by the Fivetran SAP Specialist Team.</p>
+
+  <div class="status-grid">
+    <a href="SAP_S4HANA_2023.html" class="status-card" style="text-decoration:none; color:inherit; cursor:pointer;">
+      <h4>SAP Application Server</h4>
+      <div class="value">sapidess4</div>
+      <div class="label">SAP S/4HANA 2023 &mdash; IDES</div>
+    </a>
+    <div class="status-card">
+      <h4>Oracle / ECC Server</h4>
+      <div class="value">sapidesecc8</div>
+      <div class="label">SAP ECC 6.0 &mdash; Oracle 19c</div>
+    </div>
+    <div class="status-card">
+      <h4>Web Portal</h4>
+      <div class="value">sapidesecc8:443</div>
+      <div class="label">Skills Portal &amp; Cockpit (HTTPS)</div>
+    </div>
+    <div class="status-card">
+      <h4>Cloud Storage</h4>
+      <div class="value">GCS</div>
+      <div class="label">gs://sap_cds_dbt/ &amp; gs://sap-hana-backint/</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3><span class="dot" style="background: var(--primary)"></span> Server Details</h3>
+    <table>
+      <thead>
+        <tr><th>Server</th><th>Hostname</th><th>OS</th><th>Role</th><th>SAP SID</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>sapidess4</strong></td>
+          <td>sapidess4.fivetran-internal-sales.com</td>
+          <td>SUSE Linux (HANA)</td>
+          <td>S/4HANA App + DB Server</td>
+          <td>S4H</td>
+        </tr>
+        <tr>
+          <td><strong>sapidesecc8</strong></td>
+          <td>sapidesecc8.fivetran-internal-sales.com</td>
+          <td>Oracle Linux 8</td>
+          <td>ECC App + DB + Web Portal</td>
+          <td>ABA</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CONNECTIONS -->
+<!-- ============================================================ -->
+<div class="section" id="connections">
+  <div class="section-title">Connections</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> SSH Access</h3>
+    <table>
+      <thead>
+        <tr><th>Server</th><th>Command</th><th>User</th><th>Password</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>sapidess4</td>
+          <td><code>ssh root@sapidess4</code></td>
+          <td>root</td>
+          <td><code>(see vault)</code></td>
+        </tr>
+        <tr>
+          <td>sapidesecc8</td>
+          <td><code>ssh root@sapidesecc8</code></td>
+          <td>root</td>
+          <td><code>(see vault)</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> SAP GUI / JCo RFC Connections</h3>
+    <table>
+      <thead>
+        <tr><th>Parameter</th><th>sapidess4 (S/4HANA)</th><th>sapidesecc8 (ECC)</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Host</td><td><code>sapidess4</code></td><td><code>sapidesecc8</code></td></tr>
+        <tr><td>System Number</td><td><code>03</code></td><td><code>00</code></td></tr>
+        <tr><td>Client</td><td><code>100</code></td><td><code>100</code></td></tr>
+        <tr><td>User</td><td><code>ides</code></td><td><code>ides</code></td></tr>
+        <tr><td>Password</td><td><code>(see vault)</code></td><td><code>(see vault)</code></td></tr>
+        <tr><td>Language</td><td><code>EN</code></td><td><code>EN</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> HANA Database (sapidess4)</h3>
+    <div class="info-box">
+      <strong>SSH Tunnel Required:</strong> Forward port 30015 before connecting with hdbcli.
+    </div>
+    <div class="pre-wrap"><pre><code># Open tunnel (run on local Mac)
+ssh -f -N -L 30015:127.0.0.1:30015 root@sapidess4
+
+# Connect with hdbcli
+hdbsql -n localhost:30015 -u SAPHANADB -p &lt;password&gt;</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <table>
+      <thead>
+        <tr><th>Parameter</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Port</td><td><code>30015</code></td></tr>
+        <tr><td>User</td><td><code>SAPHANADB</code></td></tr>
+        <tr><td>Schema</td><td><code>SAPHANADB</code></td></tr>
+        <tr><td>Tunnel</td><td><code>ssh -f -N -L 30015:127.0.0.1:30015 root@sapidess4</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Oracle Database (sapidesecc8)</h3>
+    <div class="pre-wrap"><pre><code># Connect on the server
+ssh root@sapidesecc8
+su - oracle
+sqlplus / as sysdba</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <table>
+      <thead>
+        <tr><th>Parameter</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Database SID</td><td><code>ABA</code></td></tr>
+        <tr><td>Version</td><td>Oracle 19c</td></tr>
+        <tr><td>Access</td><td><code>sqlplus / as sysdba</code> (as oracle user)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- DATABASES -->
+<!-- ============================================================ -->
+<div class="section" id="databases">
+  <div class="section-title">Databases</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> SAP HANA (sapidess4)</h3>
+    <table>
+      <thead>
+        <tr><th>Property</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Version</td><td>SAP HANA 2.0 SPS 08 (2.00.080.00)</td></tr>
+        <tr><td>Schema</td><td><code>SAPHANADB</code></td></tr>
+        <tr><td>Port</td><td><code>30015</code> (indexserver)</td></tr>
+        <tr><td>Key Tables</td><td>MARA, EKKO, EKPO, VBAK, VBAP, LIKP, LIPS, VBRK, VBRP, MBEW, BKPF, BSEG</td></tr>
+        <tr><td>CDS Views</td><td>All I_ and C_ views available via ABAP Dictionary</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Oracle 19c (sapidesecc8)</h3>
+    <table>
+      <thead>
+        <tr><th>Property</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Version</td><td>Oracle 19c Enterprise Edition</td></tr>
+        <tr><td>DB Name</td><td><code>ABA</code></td></tr>
+        <tr><td>Access</td><td><code>su - oracle && sqlplus / as sysdba</code></td></tr>
+        <tr><td>SAP Schema</td><td><code>SAPABA</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> BigQuery</h3>
+    <table>
+      <thead>
+        <tr><th>Dataset</th><th>Purpose</th><th>Source</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>sap_cds_views</code></td><td>CDS view metadata, SQL definitions, dependencies</td><td>CDS Extraction Pipeline (Fivetran SDK)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SERVICES -->
+<!-- ============================================================ -->
+<div class="section" id="services">
+  <div class="section-title">Services &amp; Processes</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> SAP Application Services</h3>
+    <table>
+      <thead>
+        <tr><th>Service</th><th>Server</th><th>Command</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Start SAP</td>
+          <td>sapidess4</td>
+          <td><code>su - s4hadm -c "startsap"</code></td>
+        </tr>
+        <tr>
+          <td>Stop SAP</td>
+          <td>sapidess4</td>
+          <td><code>su - s4hadm -c "stopsap"</code></td>
+        </tr>
+        <tr>
+          <td>SAP Status</td>
+          <td>sapidess4</td>
+          <td><code>su - s4hadm -c "sapcontrol -nr 03 -function GetProcessList"</code></td>
+        </tr>
+        <tr>
+          <td>HANA Start</td>
+          <td>sapidess4</td>
+          <td><code>su - s4hadm -c "HDB start"</code></td>
+        </tr>
+        <tr>
+          <td>HANA Stop</td>
+          <td>sapidess4</td>
+          <td><code>su - s4hadm -c "HDB stop"</code></td>
+        </tr>
+        <tr>
+          <td>HANA Status</td>
+          <td>sapidess4</td>
+          <td><code>su - s4hadm -c "HDB info"</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Web Portal Services (sapidesecc8)</h3>
+    <table>
+      <thead>
+        <tr><th>Service</th><th>Command</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Portal Status</td><td><code>systemctl status gcs-explorer.service</code></td></tr>
+        <tr><td>Portal Start</td><td><code>systemctl start gcs-explorer.service</code></td></tr>
+        <tr><td>Portal Stop</td><td><code>systemctl stop gcs-explorer.service</code></td></tr>
+        <tr><td>Portal Restart</td><td><code>systemctl restart gcs-explorer.service</code></td></tr>
+        <tr><td>View Logs</td><td><code>journalctl -u gcs-explorer.service -f</code></td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      The web portal runs Python HTTPS on port 443 via systemd. Static HTML pages under <code>/usr/sap/sap_skills/</code> do not require a restart when modified.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- DATA GENERATORS -->
+<!-- ============================================================ -->
+<div class="section" id="generators">
+  <div class="section-title">Data Generators</div>
+  <p style="margin-bottom:16px;">All Java-based data generators run on <strong>sapidess4</strong> via JCo RFC. Each generator has its own directory under <code>/usr/sap/</code>.</p>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Generator Inventory</h3>
+    <table>
+      <thead>
+        <tr><th>Generator</th><th>Directory</th><th>Process</th><th>Key Transactions</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Order to Cash</strong></td>
+          <td><code>/usr/sap/order_to_cash/</code></td>
+          <td>Sales Order &rarr; Delivery &rarr; Goods Issue &rarr; Billing &rarr; Payment</td>
+          <td>VA01, VL01N, VL02N, VF01, F-28</td>
+        </tr>
+        <tr>
+          <td><strong>Procure to Pay</strong></td>
+          <td><code>/usr/sap/procure_to_pay/</code></td>
+          <td>Purchase Order &rarr; Goods Receipt &rarr; Invoice &rarr; Payment</td>
+          <td>ME21N, MIGO, MIRO, F-53</td>
+        </tr>
+        <tr>
+          <td><strong>Plan to Produce</strong></td>
+          <td><code>/usr/sap/plan_to_produce/</code></td>
+          <td>BOM &rarr; Routing &rarr; Production Order &rarr; Confirmation</td>
+          <td>CS01, CA01, CO01, CO11N</td>
+        </tr>
+        <tr>
+          <td><strong>MRP</strong></td>
+          <td><code>/usr/sap/mrp/</code></td>
+          <td>PIR &rarr; MRP Run &rarr; Planned Orders &rarr; Purchase Requisitions</td>
+          <td>MD01, MD02, MD04, MD05</td>
+        </tr>
+        <tr>
+          <td><strong>Housekeeping</strong></td>
+          <td><code>/usr/sap/housekeeping/</code></td>
+          <td>Period Close, Number Ranges, Material Ledger, Cleanup</td>
+          <td>MMPV, SM37, SNRO, CKMLCR</td>
+        </tr>
+        <tr>
+          <td><strong>CDS Extraction</strong></td>
+          <td><code>/usr/sap/cds_sql_only/</code></td>
+          <td>8-Phase Pipeline: Dependencies &rarr; Metadata &rarr; SQL &rarr; BFS</td>
+          <td>SE11, DDIC, SE80</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Running a Generator</h3>
+    <div class="pre-wrap"><pre><code># SSH to the SAP server
+ssh root@sapidess4
+
+# Navigate to the generator directory
+cd /usr/sap/order_to_cash/
+
+# Compile Java files (if changed)
+javac -cp .:sapjco3.jar:gson.jar *.java
+
+# Run the generator
+java -cp .:sapjco3.jar:gson.jar -Djava.library.path=. MainClass</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+    <div class="info-box">
+      All generators require <code>sapjco3.jar</code> and <code>libsapjco3.so</code> in the working directory or on the library path.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Deployment Workflow</h3>
+    <p style="margin-bottom:12px;">Java files are edited locally on Mac and deployed via SCP:</p>
+    <div class="pre-wrap"><pre><code># Edit locally under ~/SAPjco/ or project-specific directory
+# Then deploy to production:
+scp MyClass.java root@sapidess4:/usr/sap/order_to_cash/
+
+# Compile on server
+ssh root@sapidess4 "cd /usr/sap/order_to_cash/ && javac -cp .:sapjco3.jar:gson.jar MyClass.java"</code></pre><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MONITORING -->
+<!-- ============================================================ -->
+<div class="section" id="monitoring">
+  <div class="section-title">Monitoring &amp; Health Checks</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Quick Health Check Commands</h3>
+    <table>
+      <thead>
+        <tr><th>Check</th><th>Server</th><th>Command</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>SAP Process List</td><td>sapidess4</td><td><code>su - s4hadm -c "sapcontrol -nr 03 -function GetProcessList"</code></td></tr>
+        <tr><td>HANA Status</td><td>sapidess4</td><td><code>su - s4hadm -c "HDB info"</code></td></tr>
+        <tr><td>Disk Usage</td><td>both</td><td><code>df -h</code></td></tr>
+        <tr><td>Memory Usage</td><td>both</td><td><code>free -h</code></td></tr>
+        <tr><td>Web Portal</td><td>sapidesecc8</td><td><code>systemctl status gcs-explorer.service</code></td></tr>
+        <tr><td>SSL Certificate</td><td>sapidesecc8</td><td><code>openssl x509 -enddate -noout -in /usr/sap/sap_skills/cert.pem</code></td></tr>
+        <tr><td>Backup Log</td><td>sapidesecc8</td><td><code>tail -20 /var/log/webserver_backup.log</code></td></tr>
+        <tr><td>Cron Jobs</td><td>sapidesecc8</td><td><code>crontab -l</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> SAP Transaction Monitoring</h3>
+    <table>
+      <thead>
+        <tr><th>Transaction</th><th>Purpose</th><th>When to Use</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>SM37</code></td><td>Background Job Overview</td><td>Check scheduled job status and logs</td></tr>
+        <tr><td><code>SM21</code></td><td>System Log</td><td>Investigate system errors and warnings</td></tr>
+        <tr><td><code>ST22</code></td><td>ABAP Runtime Errors</td><td>Check for short dumps after RFC calls</td></tr>
+        <tr><td><code>SM50</code></td><td>Work Process Overview</td><td>Check for stuck or long-running processes</td></tr>
+        <tr><td><code>SM04</code></td><td>User List</td><td>See active users and sessions</td></tr>
+        <tr><td><code>DBACOCKPIT</code></td><td>Database Administration</td><td>HANA DB monitoring, space, alerts</td></tr>
+        <tr><td><code>SNRO</code></td><td>Number Range Objects</td><td>Check/extend number ranges before they overflow</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CREDENTIALS -->
+<!-- ============================================================ -->
+<div class="section" id="credentials">
+  <div class="section-title">Credentials Reference</div>
+  <div class="warning-box">
+    <strong>Sensitive Information:</strong> This page contains credentials for internal development/IDES systems only. Do not use these credentials for production SAP systems.
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> All Credentials</h3>
+    <table>
+      <thead>
+        <tr><th>System</th><th>User</th><th>Password</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>SSH (both servers)</td><td><code>root</code></td><td><code>(see vault)</code></td><td>SSH access to sapidess4 and sapidesecc8</td></tr>
+        <tr><td>SAP GUI (S/4HANA)</td><td><code>ides</code></td><td><code>(see vault)</code></td><td>Client 100, sapidess4</td></tr>
+        <tr><td>SAP GUI (ECC)</td><td><code>ides</code></td><td><code>(see vault)</code></td><td>Client 100, sapidesecc8</td></tr>
+        <tr><td>HANA DB</td><td><code>SAPHANADB</code></td><td>&mdash;</td><td>Via SSH tunnel on port 30015</td></tr>
+        <tr><td>Oracle DB</td><td><code>/ as sysdba</code></td><td>&mdash;</td><td>OS authentication as oracle user</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- QUICK REFERENCE -->
+<!-- ============================================================ -->
+<div class="section" id="quickref">
+  <div class="section-title">Quick Reference</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Key Directories</h3>
+    <table>
+      <thead>
+        <tr><th>Path</th><th>Server</th><th>Content</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>/usr/sap/order_to_cash/</code></td><td>sapidess4</td><td>OTC data generator (Java + JCo)</td></tr>
+        <tr><td><code>/usr/sap/procure_to_pay/</code></td><td>sapidess4</td><td>P2P data generator</td></tr>
+        <tr><td><code>/usr/sap/plan_to_produce/</code></td><td>sapidess4</td><td>PP data generator</td></tr>
+        <tr><td><code>/usr/sap/mrp/</code></td><td>sapidess4</td><td>MRP data generator</td></tr>
+        <tr><td><code>/usr/sap/housekeeping/</code></td><td>sapidess4</td><td>Housekeeping jobs</td></tr>
+        <tr><td><code>/usr/sap/cds_sql_only/</code></td><td>sapidess4</td><td>CDS extraction pipeline</td></tr>
+        <tr><td><code>/usr/sap/sap_skills/</code></td><td>sapidesecc8</td><td>Web portal static files</td></tr>
+        <tr><td><code>/usr/sap/sap_skills/docs/</code></td><td>sapidesecc8</td><td>All documentation HTML pages</td></tr>
+        <tr><td><code>/usr/sap/sap_skills/downloads/</code></td><td>sapidesecc8</td><td>Downloadable files (JCo, etc.)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> GCS Buckets</h3>
+    <table>
+      <thead>
+        <tr><th>Bucket</th><th>Purpose</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>gs://sap_cds_dbt/</code></td><td>CDS view extraction output (Parquet/Iceberg)</td></tr>
+        <tr><td><code>gs://sap-hana-backint/</code></td><td>HANA backup + web server backups</td></tr>
+        <tr><td><code>gs://sap-hana-backint/sapidesecc8_webserver/</code></td><td>Daily web portal backups (Mon&ndash;Fri 23:00)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> GitHub Repositories</h3>
+    <table>
+      <thead>
+        <tr><th>Repository</th><th>Content</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>fivetran/sap-otc-workflow</code></td><td>Order to Cash generator</td></tr>
+        <tr><td><code>fivetran/sap-ptp-generator</code></td><td>Procure to Pay generator</td></tr>
+        <tr><td><code>fivetran/PlanToProduce</code></td><td>Plan to Produce generator</td></tr>
+        <tr><td><code>fivetran/MaterialRequirementsPlanning</code></td><td>MRP generator</td></tr>
+        <tr><td><code>fivetran/SAPHousekeeping</code></td><td>Housekeeping jobs</td></tr>
+        <tr><td><code>fivetran/CDS-metadata-retrieval-fr-custom-SDK</code></td><td>CDS extraction pipeline</td></tr>
+        <tr><td><code>fivetran-antoniocarbone/gcs-parquet-explorer</code></td><td>GCS Parquet Explorer</td></tr>
+        <tr><td><code>fivetran/SAPSkillsPortal</code></td><td>Skills Portal &amp; documentation</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Custom ABAP Function Modules</h3>
+    <table>
+      <thead>
+        <tr><th>RFC</th><th>Purpose</th><th>Used By</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>Z_CDS_DEPENDENCIES</code></td><td>CDS view dependency resolution, SQL-only detection</td><td>Phase 2, 3, 6</td></tr>
+        <tr><td><code>Z_CDS_SQL_VIEWS</code></td><td>DDL source + BASEINFO + references (SDDLAR-based)</td><td>Phase 8</td></tr>
+        <tr><td><code>Z_VIEW_DDL</code></td><td>HANA compiled SQL (SYS.GET_OBJECT_DEFINITION)</td><td>Phase 5, 6, 8</td></tr>
+        <tr><td><code>Z_VIEW_GET_META</code></td><td>Full ABAP Dictionary metadata</td><td>Phase 7, 8</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
+</div>
+
+<!-- COPY BUTTON SCRIPT -->
+<script>
+function copyCode(btn) {
+  const pre = btn.closest('.pre-wrap').querySelector('pre');
+  const text = pre.textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

@@ -377,7 +377,7 @@
         <tr><td>System Number</td><td><code>03</code> (port 3303)</td></tr>
         <tr><td>Client</td><td><code>100</code></td></tr>
         <tr><td>User</td><td><code>IDES</code></td></tr>
-        <tr><td>Password</td><td><code>Fivetran?99</code></td></tr>
+        <tr><td>Password</td><td><code>(see vault)</code></td></tr>
         <tr><td>Language</td><td><code>EN</code></td></tr>
       </table>
       <p style="margin-top:12px;">Required local files (in <code>../SAPjco/</code>):</p>
@@ -396,7 +396,7 @@
         <tr><td>Tunnel</td><td><code>localhost:30015</code> &rarr; <code>sapidess4:30015</code></td></tr>
         <tr><td>Database</td><td><code>FIV</code> (S/4HANA tenant)</td></tr>
         <tr><td>User</td><td><code>SAPHANADB</code></td></tr>
-        <tr><td>Password</td><td><code>Fivetran1T1D</code></td></tr>
+        <tr><td>Password</td><td><code>(see vault)</code></td></tr>
         <tr><td>Python lib</td><td><code>pip3 install hdbcli</code></td></tr>
       </table>
 <pre style="margin-top:12px;"># Start SSH tunnel (one-time, runs in background)
@@ -406,7 +406,7 @@ ssh -f -N -L 30015:127.0.0.1:30015 root@sapidess4
 python3 -c "
 from hdbcli import dbapi
 conn = dbapi.connect(address='localhost', port=30015,
-    user='SAPHANADB', password='Fivetran1T1D', databaseName='FIV')
+    user='SAPHANADB', password='(see vault)', databaseName='FIV')
 cur = conn.cursor()
 cur.execute(\"SELECT AUFNR, OBJNR FROM AUFK WHERE AUART='YBM1'\")
 for row in cur.fetchall(): print(row)

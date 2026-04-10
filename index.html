@@ -22,6 +22,7 @@
     --accent-cds: #0073FF;
     --accent-gcs: #6b7280;
     --accent-portal: #d4a017;
+    --accent-cockpit: #0d7377;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -629,6 +630,7 @@
         <table>
           <tr><td>Portal</td><td><a href="https://sapidesecc8.fivetran-internal-sales.com/sap_skills/" target="_blank">sap_skills/</a></td></tr>
           <tr><td>Datalake Reader</td><td><a href="https://sapidesecc8.fivetran-internal-sales.com/datalake_reader/" target="_blank">datalake_reader/</a></td></tr>
+          <tr><td>Management Cockpit</td><td><a href="/sap_skills/docs/SAP_Management_Cockpit.html" target="_blank">SAP Management Cockpit</a></td></tr>
           <tr><td>GitHub</td><td><a href="https://github.com/fivetran/SAPSkillsPortal" target="_blank">fivetran/SAPSkillsPortal</a></td></tr>
         </table>
       </div>
@@ -780,6 +782,21 @@
         </div>
       </div>
 
+      <!-- Management Cockpit -->
+      <div class="skill-card">
+        <div class="skill-accent" style="background: var(--accent-cockpit)"></div>
+        <div class="skill-body">
+          <div class="skill-header">
+            <div class="skill-icon" style="background: var(--accent-cockpit)">&#128203;</div>
+            <div><div class="skill-name">Management Cockpit</div><div class="skill-process">System Landscape &amp; Operations</div></div>
+          </div>
+          <div class="skill-desc">Centralized dashboard for the full SAP landscape: servers, connections, databases, credentials, data generators, monitoring, and quick reference commands.</div>
+          <div class="skill-links">
+            <a href="/sap_skills/docs/SAP_Management_Cockpit.html" class="skill-link doc" target="_blank">Open Cockpit</a>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- Summary table -->
@@ -798,6 +815,7 @@
           <tr><td><span class="color-swatch" style="background: var(--accent-cds)"></span>CDS</td><td>Metadata Extraction</td><td>SE11, DDIC, SE80</td><td><a href="https://github.com/fivetran/CDS-metadata-retrieval-fr-custom-SDK">CDS-metadata-retrieval</a></td></tr>
           <tr><td><span class="color-swatch" style="background: var(--accent-gcs)"></span>GCS Explorer</td><td>Datalake Reader</td><td>DuckDB, PyArrow, Polaris</td><td><a href="https://github.com/fivetran-antoniocarbone/gcs-parquet-explorer">gcs-parquet-explorer</a></td></tr>
           <tr><td><span class="color-swatch" style="background: var(--accent-portal)"></span>Skills Portal</td><td>Server &amp; Docs</td><td>systemd, cron, gsutil, ZeroSSL</td><td><a href="https://github.com/fivetran/SAPSkillsPortal">SAPSkillsPortal</a></td></tr>
+          <tr><td><span class="color-swatch" style="background: var(--accent-cockpit)"></span>Cockpit</td><td>System Landscape</td><td>Servers, DBs, Credentials, Monitoring</td><td>&mdash;</td></tr>
         </tbody>
       </table>
     </div>
@@ -860,7 +878,7 @@
           <tr><td>System Number</td><td><code>03</code> (port 3303)</td></tr>
           <tr><td>Client</td><td><code>100</code></td></tr>
           <tr><td>User</td><td><code>IDES</code></td></tr>
-          <tr><td>Password</td><td><code>Fivetran?99</code></td></tr>
+          <tr><td>Password</td><td><code>(see vault)</code></td></tr>
           <tr><td>Language</td><td><code>EN</code></td></tr>
           <tr><td>Library</td><td><code>sapjco3.jar</code> + <code>libsapjco3.dylib</code></td></tr>
         </table>
@@ -872,7 +890,7 @@
           <tr><td>Tunnel</td><td><code>localhost:30015 &#8594; sapidess4:30015</code></td></tr>
           <tr><td>Database</td><td><code>FIV</code></td></tr>
           <tr><td>User</td><td><code>SAPHANADB</code></td></tr>
-          <tr><td>Password</td><td><code>Fivetran1T1D</code></td></tr>
+          <tr><td>Password</td><td><code>(see vault)</code></td></tr>
           <tr><td>Python lib</td><td><code>hdbcli</code></td></tr>
           <tr><td>SSH</td><td><code>ssh -f -N -L 30015:127.0.0.1:30015 root@sapidess4</code></td></tr>
         </table>
@@ -886,7 +904,7 @@
           <tr><td>Server</td><td>Python <code>gcs_explorer_server.py</code></td></tr>
           <tr><td>Service</td><td><code>gcs-explorer.service</code> (systemd)</td></tr>
           <tr><td>SSH User</td><td><code>root</code></td></tr>
-          <tr><td>SSH Password</td><td><code>Fivetran?99</code></td></tr>
+          <tr><td>SSH Password</td><td><code>(see vault)</code></td></tr>
           <tr><td>Access</td><td><code>ssh root@sapidesecc8</code></td></tr>
         </table>
       </div>
@@ -970,6 +988,7 @@
           <tr><td><span class="color-swatch" style="background: #0073FF"></span>CDS / Portal</td><td>Blue</td><td><code>#0073FF</code></td><td><code>#0073FF &#8594; #004da6</code></td></tr>
           <tr><td><span class="color-swatch" style="background: #6b7280"></span>GCS Explorer</td><td>Grey</td><td><code>#6b7280</code></td><td><code>#6b7280 &#8594; #4b5563</code></td></tr>
           <tr><td><span class="color-swatch" style="background: #d4a017"></span>Skills Portal</td><td>Gold</td><td><code>#d4a017</code></td><td><code>#d4a017 &#8594; #a67c00</code></td></tr>
+          <tr><td><span class="color-swatch" style="background: #0d7377"></span>Management Cockpit</td><td>Teal</td><td><code>#0d7377</code></td><td><code>#0d7377 &#8594; #095456</code></td></tr>
         </tbody>
       </table>
     </div>
@@ -1197,9 +1216,9 @@ function showGuide(id, mode) {
     h += '<p>The production server version runs at:</p>';
     h += '<table>';
     h += '<tr><td><strong>URL</strong></td><td><a href="https://sapidesecc8.fivetran-internal-sales.com/datalake_reader/" target="_blank">https://sapidesecc8.fivetran-internal-sales.com/datalake_reader/</a></td></tr>';
-    h += '<tr><td><strong>Login Password</strong></td><td><code>Fivetran?99</code></td></tr>';
+    h += '<tr><td><strong>Login Password</strong></td><td><code>(see vault)</code></td></tr>';
     h += '<tr><td><strong>SSH</strong></td><td><code>ssh root@sapidesecc8</code></td></tr>';
-    h += '<tr><td><strong>SSH Password</strong></td><td><code>Fivetran?99</code></td></tr>';
+    h += '<tr><td><strong>SSH Password</strong></td><td><code>(see vault)</code></td></tr>';
     h += '<tr><td><strong>Server file</strong></td><td><code>/usr/sap/gcs_explorer_server.py</code></td></tr>';
     h += '<tr><td><strong>Service</strong></td><td><code>gcs-explorer.service</code> (systemd, auto-restart)</td></tr>';
     h += '<tr><td><strong>Logs</strong></td><td><code>/var/log/gcs_explorer.log</code></td></tr>';
@@ -1250,21 +1269,21 @@ function showGuide(id, mode) {
     h += '<tr><td><strong>System Number</strong></td><td><code>03</code> (gateway port 3303)</td></tr>';
     h += '<tr><td><strong>Client</strong></td><td><code>100</code></td></tr>';
     h += '<tr><td><strong>User</strong></td><td><code>IDES</code></td></tr>';
-    h += '<tr><td><strong>Password</strong></td><td><code>Fivetran?99</code></td></tr>';
+    h += '<tr><td><strong>Password</strong></td><td><code>(see vault)</code></td></tr>';
     h += '<tr><td><strong>Language</strong></td><td><code>EN</code></td></tr>';
     h += '</table>';
     h += '<p style="margin-top:10px">For <strong>HANA direct SQL access</strong> (used by Housekeeping <code>extend-ml</code> command):</p>';
     h += '<table>';
     h += '<tr><td><strong>SSH Tunnel</strong></td><td><code>ssh -f -N -L 30015:127.0.0.1:30015 root@sapidess4</code></td></tr>';
-    h += '<tr><td><strong>SSH Password</strong></td><td><code>Fivetran?99</code></td></tr>';
+    h += '<tr><td><strong>SSH Password</strong></td><td><code>(see vault)</code></td></tr>';
     h += '<tr><td><strong>Host (after tunnel)</strong></td><td><code>localhost</code></td></tr>';
     h += '<tr><td><strong>Port</strong></td><td><code>30015</code></td></tr>';
     h += '<tr><td><strong>Database</strong></td><td><code>FIV</code></td></tr>';
     h += '<tr><td><strong>User</strong></td><td><code>SAPHANADB</code></td></tr>';
-    h += '<tr><td><strong>Password</strong></td><td><code>Fivetran1T1D</code></td></tr>';
+    h += '<tr><td><strong>Password</strong></td><td><code>(see vault)</code></td></tr>';
     h += '<tr><td><strong>Python lib</strong></td><td><code>pip install hdbcli</code></td></tr>';
     h += '</table>';
-    h += '<div class="note"><strong>Note:</strong> These credentials are for the Fivetran internal SAP IDES sandbox system. The user <code>BPINST</code> (password <code>Welcome1</code>) is also available for some test utilities.</div>';
+    h += '<div class="note"><strong>Note:</strong> Credentials are stored in the encrypted vault. Use the Credentials section in the Management Cockpit to access them.</div>';
 
     // ──────────────────────────────────────────
     // STEP: Run
@@ -1288,11 +1307,11 @@ function showGuide(id, mode) {
     if (isVS) {
       h += '<p>Press <kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>P</kbd> &rarr; <strong>Remote-SSH: Connect to Host</strong> &rarr; type:</p>';
       h += '<pre>root@sapidess4</pre>';
-      h += '<p>When prompted for a password, enter: <code>Fivetran?99</code></p>';
+      h += '<p>When prompted for a password, enter: <code>(see vault)</code></p>';
       h += '<p>Once connected, click <strong>Open Folder</strong> and enter:</p>';
       h += '<pre>/usr/sap/cds_sql_only/</pre>';
     } else {
-      h += '<pre>ssh root@sapidess4\n# Password: Fivetran?99\ncd /usr/sap/cds_sql_only/drivers</pre>';
+      h += '<pre>ssh root@sapidess4\n# Password: (see vault)\ncd /usr/sap/cds_sql_only/drivers</pre>';
     }
 
     // ──────────────────────────────────────────
@@ -1305,24 +1324,24 @@ function showGuide(id, mode) {
     h += '<tr><td><strong>System Number</strong></td><td><code>03</code> (gateway port 3303)</td></tr>';
     h += '<tr><td><strong>Client</strong></td><td><code>100</code></td></tr>';
     h += '<tr><td><strong>User</strong></td><td><code>IDES</code></td></tr>';
-    h += '<tr><td><strong>Password</strong></td><td><code>Fivetran?99</code></td></tr>';
+    h += '<tr><td><strong>Password</strong></td><td><code>(see vault)</code></td></tr>';
     h += '<tr><td><strong>Language</strong></td><td><code>EN</code></td></tr>';
     h += '</table>';
     h += '<p style="margin-top:10px"><strong>HANA direct access</strong> (for SQL queries and debugging):</p>';
     h += '<table>';
     h += '<tr><td><strong>SSH Tunnel</strong></td><td><code>ssh -f -N -L 30015:127.0.0.1:30015 root@sapidess4</code></td></tr>';
-    h += '<tr><td><strong>SSH Password</strong></td><td><code>Fivetran?99</code></td></tr>';
+    h += '<tr><td><strong>SSH Password</strong></td><td><code>(see vault)</code></td></tr>';
     h += '<tr><td><strong>Host (after tunnel)</strong></td><td><code>localhost</code></td></tr>';
     h += '<tr><td><strong>Port</strong></td><td><code>30015</code></td></tr>';
     h += '<tr><td><strong>Database</strong></td><td><code>FIV</code></td></tr>';
     h += '<tr><td><strong>User</strong></td><td><code>SAPHANADB</code></td></tr>';
-    h += '<tr><td><strong>Password</strong></td><td><code>Fivetran1T1D</code></td></tr>';
+    h += '<tr><td><strong>Password</strong></td><td><code>(see vault)</code></td></tr>';
     h += '<tr><td><strong>Python lib</strong></td><td><code>pip install hdbcli</code></td></tr>';
     h += '</table>';
     h += '<p style="margin-top:10px"><strong>SSH access</strong> to the server:</p>';
     h += '<table>';
     h += '<tr><td><strong>Server</strong></td><td><code>ssh root@sapidess4</code></td></tr>';
-    h += '<tr><td><strong>Password</strong></td><td><code>Fivetran?99</code></td></tr>';
+    h += '<tr><td><strong>Password</strong></td><td><code>(see vault)</code></td></tr>';
     h += '<tr><td><strong>CDS directory</strong></td><td><code>/usr/sap/cds_sql_only/</code></td></tr>';
     h += '<tr><td><strong>Config file</strong></td><td><code>drivers/configuration.json</code></td></tr>';
     h += '</table>';
