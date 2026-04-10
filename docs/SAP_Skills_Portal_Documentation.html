@@ -1079,9 +1079,11 @@ function openSetup(id) {
   }
   h += '</table>';
 
-  h += '<div class="note"><strong>SAP JCo Library:</strong> The JCo native library (<code>sapjco3.jar</code> + <code>libsapjco3.dylib</code>) is not included in the repos (it is proprietary). ';
-  h += 'Download from <a href="https://support.sap.com/en/product/connectors/jco.html" target="_blank">SAP Support Portal</a> or copy from an existing installation. ';
-  h += 'Place both files in a <code>SAPjco/</code> directory next to the project folder.</div>';
+  h += '<div class="note"><strong>SAP JCo Library:</strong> Download the required libraries directly:<br><br>';
+  h += '<a href="/sap_skills/downloads/sapjco3.jar" style="display:inline-block;padding:6px 14px;background:#92400e;color:#fff;border-radius:5px;text-decoration:none;font-weight:600;font-size:0.82rem;margin:0 6px 6px 0">sapjco3.jar</a> ';
+  h += '<a href="/sap_skills/downloads/libsapjco3.dylib" style="display:inline-block;padding:6px 14px;background:#92400e;color:#fff;border-radius:5px;text-decoration:none;font-weight:600;font-size:0.82rem;margin:0 6px 6px 0">libsapjco3.dylib</a> ';
+  if (s.extraLibs) h += '<a href="/sap_skills/downloads/gson.jar" style="display:inline-block;padding:6px 14px;background:#92400e;color:#fff;border-radius:5px;text-decoration:none;font-weight:600;font-size:0.82rem;margin:0 6px 6px 0">gson.jar</a> ';
+  h += '<br><br>Place the files in a <code>SAPjco/</code> directory next to the project folder (or in the project folder for OTC).</div>';
 
   // Tab bar: Terminal vs VS Code
   h += '<h3><span class="step-num" style="background:' + s.color + '">2</span> Download &amp; Install</h3>';
@@ -1097,10 +1099,11 @@ function openSetup(id) {
 
   if (!s.isCds) {
     h += '<p><strong>Set up SAP JCo library:</strong></p>';
+    var dlBase = 'https://sapidesecc8.fivetran-internal-sales.com/sap_skills/downloads';
     if (s.jcoInRepo) {
-      h += '<pre># OTC expects JCo files in the project directory itself\n# Copy your JCo files into the project:\ncp /path/to/sapjco3.jar .\ncp /path/to/libsapjco3.dylib .</pre>';
+      h += '<pre># OTC expects JCo files in the project directory itself\ncurl -kO ' + dlBase + '/sapjco3.jar\ncurl -kO ' + dlBase + '/libsapjco3.dylib\ncurl -kO ' + dlBase + '/gson.jar</pre>';
     } else {
-      h += '<pre># Other skills expect JCo in a sibling SAPjco/ directory\n# Create it next to the project folder:\nmkdir -p ~/SAP_Projects/SAPjco\ncp /path/to/sapjco3.jar ~/SAP_Projects/SAPjco/\ncp /path/to/libsapjco3.dylib ~/SAP_Projects/SAPjco/</pre>';
+      h += '<pre># Other skills expect JCo in a sibling SAPjco/ directory\nmkdir -p ~/SAP_Projects/SAPjco &amp;&amp; cd ~/SAP_Projects/SAPjco\ncurl -kO ' + dlBase + '/sapjco3.jar\ncurl -kO ' + dlBase + '/libsapjco3.dylib\ncd ~/SAP_Projects/' + s.dir + '</pre>';
     }
 
     h += '<p><strong>Compile:</strong></p>';
@@ -1139,11 +1142,13 @@ function openSetup(id) {
 
   if (!s.isCds) {
     h += '<p><strong>Set up SAP JCo library:</strong></p>';
+    var dlBase2 = 'https://sapidesecc8.fivetran-internal-sales.com/sap_skills/downloads';
     if (s.jcoInRepo) {
-      h += '<p>Copy <code>sapjco3.jar</code> and <code>libsapjco3.dylib</code> into the project root folder (visible in the VS Code Explorer sidebar).</p>';
+      h += '<p>Download the JCo files into the project root (use VS Code Terminal):</p>';
+      h += '<pre>curl -kO ' + dlBase2 + '/sapjco3.jar\ncurl -kO ' + dlBase2 + '/libsapjco3.dylib\ncurl -kO ' + dlBase2 + '/gson.jar</pre>';
     } else {
-      h += '<p>Create a <code>SAPjco</code> folder next to the project folder and place <code>sapjco3.jar</code> + <code>libsapjco3.dylib</code> inside it:</p>';
-      h += '<pre>~/SAP_Projects/\n  SAPjco/\n    sapjco3.jar\n    libsapjco3.dylib\n  ' + s.dir + '/\n    ' + s.java + '\n    ' + s.runScript + '\n    ...</pre>';
+      h += '<p>Download the JCo files into a sibling <code>SAPjco/</code> folder (use VS Code Terminal):</p>';
+      h += '<pre>mkdir -p ~/SAP_Projects/SAPjco &amp;&amp; cd ~/SAP_Projects/SAPjco\ncurl -kO ' + dlBase2 + '/sapjco3.jar\ncurl -kO ' + dlBase2 + '/libsapjco3.dylib\ncd ~/SAP_Projects/' + s.dir + '</pre>';
     }
 
     h += '<p><strong>Compile &amp; run from VS Code Terminal:</strong></p>';
