@@ -397,6 +397,147 @@
   }
   .footer a { color: var(--primary); text-decoration: none; }
   .footer a:hover { text-decoration: underline; }
+
+  /* Setup button in skill cards */
+  .skill-link.setup {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fbbf24;
+    cursor: pointer;
+  }
+  .skill-link.setup:hover {
+    background: #f59e0b;
+    color: #fff;
+  }
+
+  /* Modal overlay */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 40px 20px;
+    overflow-y: auto;
+  }
+  .modal-overlay.active {
+    display: flex;
+  }
+  .modal {
+    background: #fff;
+    border-radius: 14px;
+    max-width: 820px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    animation: modalIn 0.2s ease-out;
+    margin-bottom: 40px;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .modal-header h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    line-height: 1;
+  }
+  .modal-close:hover {
+    background: #f1f5f9;
+    color: var(--text);
+  }
+  .modal-body {
+    padding: 24px 28px 28px;
+  }
+  .modal-body h3 {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 20px 0 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .modal-body h3:first-child {
+    margin-top: 0;
+  }
+  .modal-body p {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    line-height: 1.6;
+  }
+  .modal-body pre {
+    font-size: 0.82rem;
+    margin-bottom: 14px;
+  }
+  .modal-body .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .modal-body .note {
+    background: #fffbeb;
+    border: 1px solid #fbbf24;
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 0.85rem;
+    color: #92400e;
+    margin: 14px 0;
+  }
+  .modal-body .note strong { color: #78350f; }
+
+  /* Tab switcher in modal */
+  .tab-bar {
+    display: flex;
+    gap: 0;
+    border-bottom: 2px solid var(--border);
+    margin-bottom: 18px;
+  }
+  .tab-btn {
+    padding: 10px 20px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
 </style>
 </head>
 <body>
@@ -490,6 +631,7 @@
           <div class="skill-links">
             <a href="https://github.com/fivetran/sap-otc-workflow" target="_blank" class="skill-link gh">GitHub</a>
             <a href="/sap_skills/docs/SAP_OTC_Workflow_Documentation.html" class="skill-link doc">Documentation</a>
+            <span class="skill-link setup" onclick="openSetup('otc')">Download &amp; Setup</span>
           </div>
         </div>
       </div>
@@ -506,6 +648,7 @@
           <div class="skill-links">
             <a href="https://github.com/fivetran/sap-ptp-generator" target="_blank" class="skill-link gh">GitHub</a>
             <a href="/sap_skills/docs/SAP_P2P_Workflow_Documentation.html" class="skill-link doc">Documentation</a>
+            <span class="skill-link setup" onclick="openSetup('p2p')">Download &amp; Setup</span>
           </div>
         </div>
       </div>
@@ -522,6 +665,7 @@
           <div class="skill-links">
             <a href="https://github.com/fivetran/PlanToProduce" target="_blank" class="skill-link gh">GitHub</a>
             <a href="/sap_skills/docs/SAP_PP_Workflow_Documentation.html" class="skill-link doc">Documentation</a>
+            <span class="skill-link setup" onclick="openSetup('pp')">Download &amp; Setup</span>
           </div>
         </div>
       </div>
@@ -538,6 +682,7 @@
           <div class="skill-links">
             <a href="https://github.com/fivetran/MaterialRequirementsPlanning" target="_blank" class="skill-link gh">GitHub</a>
             <a href="/sap_skills/docs/SAP_MRP_Workflow_Documentation.html" class="skill-link doc">Documentation</a>
+            <span class="skill-link setup" onclick="openSetup('mrp')">Download &amp; Setup</span>
           </div>
         </div>
       </div>
@@ -554,6 +699,7 @@
           <div class="skill-links">
             <a href="https://github.com/fivetran/SAPHousekeeping" target="_blank" class="skill-link gh">GitHub</a>
             <a href="/sap_skills/docs/SAP_Housekeeping_Documentation.html" class="skill-link doc">Documentation</a>
+            <span class="skill-link setup" onclick="openSetup('admin')">Download &amp; Setup</span>
           </div>
         </div>
       </div>
@@ -570,6 +716,7 @@
           <div class="skill-links">
             <a href="https://github.com/fivetran/CDS-metadata-retrieval-fr-custom-SDK" target="_blank" class="skill-link gh">GitHub</a>
             <a href="https://github.com/fivetran/cds-dbt-service" target="_blank" class="skill-link gh">dbt Service</a>
+            <span class="skill-link setup" onclick="openSetup('cds')">Download &amp; Setup</span>
           </div>
         </div>
       </div>
@@ -748,26 +895,29 @@
 
     <div class="card">
       <h3>Update Landing Page</h3>
-<pre># Edit locally
-vi /Users/antonio.carbone/SAP_Skills/index.html
+<pre># Edit directly on the server
+ssh root@sapidesecc8
+vi /usr/sap/sap_skills/index.html
 
-# Upload to server (no restart needed)
-scp index.html root@sapidesecc8:/usr/sap/sap_skills/index.html</pre>
+# Changes take effect immediately — no restart needed</pre>
     </div>
 
     <div class="card">
       <h3>Add or Update Documentation</h3>
-<pre># Upload a new or updated doc
-scp docs/New_Documentation.html root@sapidesecc8:/usr/sap/sap_skills/docs/
+<pre># Edit or add a doc directly on the server
+ssh root@sapidesecc8
+vi /usr/sap/sap_skills/docs/New_Documentation.html
 
-# Update an existing doc from its source project
-scp /Users/antonio.carbone/P2P/docs/SAP_P2P_Workflow_Documentation.html \
-    root@sapidesecc8:/usr/sap/sap_skills/docs/</pre>
+# Or copy from another location on the server
+cp /path/to/doc.html /usr/sap/sap_skills/docs/</pre>
     </div>
 
     <div class="card">
       <h3>Push to GitHub</h3>
-<pre>cd /Users/antonio.carbone/SAP_Skills
+<pre># Clone the repo, make changes, and push
+git clone https://github.com/fivetran/SAPSkillsPortal.git
+cd SAPSkillsPortal
+# ... edit files ...
 git add -A
 git commit -m "Update portal"
 git push origin main</pre>
@@ -825,6 +975,17 @@ git push origin main</pre>
   Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank">Claude Code</a>
 </div>
 
+<!-- Setup Modals -->
+<div class="modal-overlay" id="setupModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modalTitle">Download &amp; Setup</h2>
+      <button class="modal-close" onclick="closeSetup()">&times;</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
 <script>
 // Sticky nav active state
 document.addEventListener('scroll', function() {
@@ -839,6 +1000,267 @@ document.addEventListener('scroll', function() {
     }
   });
 });
+
+// Skills data
+var skills = {
+  otc: {
+    name: 'Order to Cash (OTC)',
+    repo: 'fivetran/sap-otc-workflow',
+    dir: 'sap-otc-workflow',
+    color: '#1a3a5c',
+    java: 'SAPOTCWorkflow.java',
+    mainClass: 'SAPOTCWorkflow',
+    extraJava: 'SAPOTCOrderGenerator.java SAPOTCExtractor.java',
+    runScript: 'otcwf.sh',
+    compileScript: 'compile.sh',
+    jcoInRepo: true,
+    skillDir: 'skill',
+    skillFile: 'sap-otc.md',
+    commands: ['generate &mdash; Run the full OTC workflow (sales order &rarr; delivery &rarr; billing)', 'status &mdash; Show current SAP document counts', 'help &mdash; Show available commands'],
+    extraLibs: 'gson.jar'
+  },
+  p2p: {
+    name: 'Procure to Pay (P2P)',
+    repo: 'fivetran/sap-ptp-generator',
+    dir: 'sap-ptp-generator',
+    color: '#1a5c3a',
+    java: 'SAPP2PWorkflow.java',
+    mainClass: 'SAPP2PWorkflow',
+    extraJava: '',
+    runScript: 'ptpwf.sh',
+    compileScript: null,
+    jcoInRepo: false,
+    skillDir: 'skill',
+    skillFile: 'sap-p2p.md',
+    commands: ['generate &mdash; Run the full P2P workflow (PO &rarr; GR &rarr; IR &rarr; payment)', 'status &mdash; Show procurement document counts', 'help &mdash; Show available commands'],
+    extraLibs: ''
+  },
+  pp: {
+    name: 'Plan to Produce (PP)',
+    repo: 'fivetran/PlanToProduce',
+    dir: 'PlanToProduce',
+    color: '#4a1a5c',
+    java: 'SAPP2PrWorkflow.java',
+    mainClass: 'SAPP2PrWorkflow',
+    extraJava: '',
+    runScript: 'p2prwf.sh',
+    compileScript: 'compile.sh',
+    jcoInRepo: false,
+    skillDir: 'skill',
+    skillFile: 'sap-pp.md',
+    commands: ['generate &mdash; Run the full PP workflow (prod order &rarr; GI &rarr; confirmation &rarr; GR)', 'status &mdash; Show production order counts', 'help &mdash; Show available commands'],
+    extraLibs: ''
+  },
+  mrp: {
+    name: 'Material Requirements Planning (MRP)',
+    repo: 'fivetran/MaterialRequirementsPlanning',
+    dir: 'MaterialRequirementsPlanning',
+    color: '#b35900',
+    java: 'SAPMRPWorkflow.java',
+    mainClass: 'SAPMRPWorkflow',
+    extraJava: '',
+    runScript: 'mrpwf.sh',
+    compileScript: 'compile.sh',
+    jcoInRepo: false,
+    skillDir: 'skill',
+    skillFile: 'sap-mrp.md',
+    commands: ['generate &mdash; Run MRP and create planned orders', 'status &mdash; Show MRP run results', 'help &mdash; Show available commands'],
+    extraLibs: ''
+  },
+  admin: {
+    name: 'Housekeeping &amp; Job Scheduler',
+    repo: 'fivetran/SAPHousekeeping',
+    dir: 'SAPHousekeeping',
+    color: '#922b21',
+    java: 'SAPJobScheduler.java',
+    mainClass: 'SAPJobScheduler',
+    extraJava: '',
+    runScript: 'jobsched.sh',
+    compileScript: 'compile.sh',
+    jcoInRepo: false,
+    skillDir: 'skill',
+    skillFile: 'sap-housekeeping.md',
+    commands: ['setup &mdash; Create variants + schedule all periodic jobs', 'status &mdash; Health dashboard (MM, FI, ML periods + number ranges)', 'list &mdash; List all scheduled maintenance jobs', 'run-now &lt;job&gt; &mdash; Run a specific job immediately', 'extend-ml &mdash; Generate ML period extension script'],
+    extraLibs: ''
+  },
+  cds: {
+    name: 'CDS View Extraction',
+    repo: 'fivetran/CDS-metadata-retrieval-fr-custom-SDK',
+    dir: 'CDS-metadata-retrieval-fr-custom-SDK',
+    color: '#0073FF',
+    java: null,
+    mainClass: null,
+    runScript: null,
+    compileScript: null,
+    jcoInRepo: false,
+    skillDir: null,
+    skillFile: null,
+    commands: [],
+    extraLibs: '',
+    isCds: true
+  }
+};
+
+function openSetup(id) {
+  var s = skills[id];
+  var h = '';
+
+  // Prerequisites
+  h += '<h3><span class="step-num" style="background:' + s.color + '">1</span> Prerequisites</h3>';
+  h += '<p>Ensure you have the following installed on your Mac:</p>';
+  h += '<table>';
+  h += '<tr><td><strong>Java 8+</strong></td><td>Check: <code>java -version</code>. Install via <code>brew install openjdk</code></td></tr>';
+  h += '<tr><td><strong>Git</strong></td><td>Check: <code>git --version</code>. Install via <code>xcode-select --install</code></td></tr>';
+  h += '<tr><td><strong>SAP JCo 3</strong></td><td><code>sapjco3.jar</code> + <code>libsapjco3.dylib</code> (macOS ARM64)</td></tr>';
+  if (s.isCds) {
+    h += '<tr><td><strong>Python 3</strong></td><td>For connector.py. Install: <code>brew install python3</code></td></tr>';
+    h += '<tr><td><strong>pip packages</strong></td><td><code>pip3 install google-cloud-storage duckdb pyarrow hdbcli</code></td></tr>';
+  }
+  h += '</table>';
+
+  h += '<div class="note"><strong>SAP JCo Library:</strong> The JCo native library (<code>sapjco3.jar</code> + <code>libsapjco3.dylib</code>) is not included in the repos (it is proprietary). ';
+  h += 'Download from <a href="https://support.sap.com/en/product/connectors/jco.html" target="_blank">SAP Support Portal</a> or copy from an existing installation. ';
+  h += 'Place both files in a <code>SAPjco/</code> directory next to the project folder.</div>';
+
+  // Tab bar: Terminal vs VS Code
+  h += '<h3><span class="step-num" style="background:' + s.color + '">2</span> Download &amp; Install</h3>';
+  h += '<div class="tab-bar">';
+  h += '<button class="tab-btn active" onclick="switchTab(this,\'term-' + id + '\')">Terminal</button>';
+  h += '<button class="tab-btn" onclick="switchTab(this,\'vscode-' + id + '\')">VS Code</button>';
+  h += '</div>';
+
+  // --- Terminal tab ---
+  h += '<div class="tab-content active" id="term-' + id + '">';
+  h += '<p><strong>Clone the repository:</strong></p>';
+  h += '<pre># Create a workspace directory\nmkdir -p ~/SAP_Projects &amp;&amp; cd ~/SAP_Projects\n\n# Clone the repo\ngit clone https://github.com/' + s.repo + '.git\ncd ' + s.dir + '</pre>';
+
+  if (!s.isCds) {
+    h += '<p><strong>Set up SAP JCo library:</strong></p>';
+    if (s.jcoInRepo) {
+      h += '<pre># OTC expects JCo files in the project directory itself\n# Copy your JCo files into the project:\ncp /path/to/sapjco3.jar .\ncp /path/to/libsapjco3.dylib .</pre>';
+    } else {
+      h += '<pre># Other skills expect JCo in a sibling SAPjco/ directory\n# Create it next to the project folder:\nmkdir -p ~/SAP_Projects/SAPjco\ncp /path/to/sapjco3.jar ~/SAP_Projects/SAPjco/\ncp /path/to/libsapjco3.dylib ~/SAP_Projects/SAPjco/</pre>';
+    }
+
+    h += '<p><strong>Compile:</strong></p>';
+    var cpPath = s.jcoInRepo ? '.:sapjco3.jar' : '.:../SAPjco/sapjco3.jar';
+    if (s.extraLibs) cpPath += ':' + s.extraLibs;
+    var allJava = s.java + (s.extraJava ? ' ' + s.extraJava : '');
+    if (s.compileScript) {
+      h += '<pre># Using the provided compile script\nchmod +x ' + s.compileScript + '\n./' + s.compileScript + '\n\n# Or compile manually\njavac -cp ' + cpPath + ' ' + allJava + '</pre>';
+    } else {
+      h += '<pre>javac -cp ' + cpPath + ' ' + allJava + '</pre>';
+    }
+
+    h += '<p><strong>Run:</strong></p>';
+    h += '<pre># Using the provided run script\nchmod +x ' + s.runScript + '\n./' + s.runScript + ' help</pre>';
+    h += '<p>Available commands:</p><ul style="margin:0 0 14px 20px;font-size:0.88rem;color:#4b5563">';
+    s.commands.forEach(function(c) { h += '<li>' + c + '</li>'; });
+    h += '</ul>';
+  } else {
+    h += '<p><strong>This project runs on the SAP server, not locally.</strong> The CDS extraction pipeline runs on <code>sapidess4</code> as a Fivetran custom connector.</p>';
+    h += '<pre># To work with it locally (editing/testing):\ncd ' + s.dir + '/drivers\n\n# Compile a Java phase (requires JCo on the server)\nssh root@sapidess4 "cd /usr/sap/cds_sql_only/drivers &amp;&amp; javac -cp .:sapjco3.jar:gson.jar SimpleDependencyTable.java"</pre>';
+  }
+
+  h += '<p><strong>Install the Claude Code skill:</strong></p>';
+  if (s.skillFile) {
+    h += '<pre># Copy the skill to your Claude Code commands directory\nmkdir -p ~/.claude/commands/' + s.dir + '\ncp ' + s.skillDir + '/' + s.skillFile + ' ~/.claude/commands/' + s.dir + '/</pre>';
+    h += '<p>After installing, use <code>/' + s.skillFile.replace('.md','') + '</code> in Claude Code to activate the skill context.</p>';
+  } else {
+    h += '<pre># The CDS skill is configured globally in Claude Code settings\n# See the sap-cds skill documentation for setup</pre>';
+  }
+  h += '</div>';
+
+  // --- VS Code tab ---
+  h += '<div class="tab-content" id="vscode-' + id + '">';
+  h += '<p><strong>Clone via VS Code:</strong></p>';
+  h += '<pre># Option A: Use the VS Code command palette\n# 1. Open VS Code\n# 2. Press Cmd+Shift+P\n# 3. Type "Git: Clone"\n# 4. Paste: https://github.com/' + s.repo + '.git\n# 5. Choose ~/SAP_Projects as the destination\n\n# Option B: Clone from Terminal, then open in VS Code\nmkdir -p ~/SAP_Projects &amp;&amp; cd ~/SAP_Projects\ngit clone https://github.com/' + s.repo + '.git\ncode ' + s.dir + '</pre>';
+
+  if (!s.isCds) {
+    h += '<p><strong>Set up SAP JCo library:</strong></p>';
+    if (s.jcoInRepo) {
+      h += '<p>Copy <code>sapjco3.jar</code> and <code>libsapjco3.dylib</code> into the project root folder (visible in the VS Code Explorer sidebar).</p>';
+    } else {
+      h += '<p>Create a <code>SAPjco</code> folder next to the project folder and place <code>sapjco3.jar</code> + <code>libsapjco3.dylib</code> inside it:</p>';
+      h += '<pre>~/SAP_Projects/\n  SAPjco/\n    sapjco3.jar\n    libsapjco3.dylib\n  ' + s.dir + '/\n    ' + s.java + '\n    ' + s.runScript + '\n    ...</pre>';
+    }
+
+    h += '<p><strong>Compile &amp; run from VS Code Terminal:</strong></p>';
+    h += '<pre># Open the integrated terminal: Ctrl+` (backtick)\n# Or: Terminal &rarr; New Terminal from the menu bar\n\nchmod +x ' + s.runScript + '\n./' + s.runScript + ' help</pre>';
+
+    h += '<p><strong>Recommended VS Code extensions:</strong></p>';
+    h += '<table>';
+    h += '<tr><td><code>redhat.java</code></td><td>Java language support (syntax highlighting, IntelliSense)</td></tr>';
+    h += '<tr><td><code>vscjava.vscode-java-pack</code></td><td>Java Extension Pack (debugger, test runner, Maven)</td></tr>';
+    h += '</table>';
+  } else {
+    h += '<p><strong>Remote development on SAP server:</strong></p>';
+    h += '<pre># Install the Remote-SSH extension in VS Code\n# 1. Cmd+Shift+P &rarr; "Remote-SSH: Connect to Host"\n# 2. Enter: root@sapidess4\n# 3. Open folder: /usr/sap/cds_sql_only/</pre>';
+    h += '<p><strong>Recommended VS Code extensions:</strong></p>';
+    h += '<table>';
+    h += '<tr><td><code>ms-vscode-remote.remote-ssh</code></td><td>Remote development via SSH</td></tr>';
+    h += '<tr><td><code>redhat.java</code></td><td>Java language support</td></tr>';
+    h += '<tr><td><code>ms-python.python</code></td><td>Python support (for connector.py)</td></tr>';
+    h += '</table>';
+  }
+
+  h += '<p><strong>Install Claude Code in VS Code:</strong></p>';
+  h += '<pre># Install the Claude Code extension\n# 1. Open Extensions sidebar (Cmd+Shift+X)\n# 2. Search for "Claude Code"\n# 3. Install the Anthropic extension\n# 4. Open Claude Code panel (Cmd+Shift+P &rarr; "Claude Code")</pre>';
+
+  if (s.skillFile) {
+    h += '<p><strong>Install the skill:</strong></p>';
+    h += '<pre># From VS Code terminal:\nmkdir -p ~/.claude/commands/' + s.dir + '\ncp ' + s.skillDir + '/' + s.skillFile + ' ~/.claude/commands/' + s.dir + '/\n\n# Then use /' + s.skillFile.replace('.md','') + ' in Claude Code</pre>';
+  }
+  h += '</div>';
+
+  // Network requirements
+  h += '<h3><span class="step-num" style="background:' + s.color + '">3</span> Network Requirements</h3>';
+  h += '<p>Your Mac must be able to reach the SAP system:</p>';
+  h += '<table>';
+  h += '<tr><td><strong>SAP RFC</strong></td><td><code>sapidess4.fivetran-internal-sales.com:3303</code></td></tr>';
+  h += '<tr><td><strong>HANA DB</strong> (optional)</td><td>SSH tunnel: <code>ssh -f -N -L 30015:127.0.0.1:30015 root@sapidess4</code></td></tr>';
+  h += '<tr><td><strong>Test connectivity</strong></td><td><code>nc -zv sapidess4.fivetran-internal-sales.com 3303</code></td></tr>';
+  h += '</table>';
+  if (!s.isCds) {
+    h += '<div class="note"><strong>VPN required:</strong> You must be on the Fivetran internal network (or VPN) to reach <code>sapidess4</code>. If the connection times out, check your VPN status.</div>';
+  }
+
+  // Verify
+  h += '<h3><span class="step-num" style="background:' + s.color + '">4</span> Verify Installation</h3>';
+  if (!s.isCds) {
+    h += '<pre># Run the help command to verify everything works\n./' + s.runScript + ' help\n\n# Expected: prints available commands and usage info\n# If you see "UnsatisfiedLinkError": JCo native library not found\n# If you see "JCoException": SAP connection failed (check VPN)</pre>';
+  } else {
+    h += '<pre># Check the production pipeline on the server\nssh root@sapidess4 "ls /usr/sap/cds_sql_only/drivers/*.class | wc -l"\n\n# Expected: 30+ class files\n# Run a test extraction\nssh root@sapidess4 "cd /usr/sap/cds_sql_only/drivers &amp;&amp; java -cp .:sapjco3.jar:gson.jar TestZCdsSqlViews"</pre>';
+  }
+
+  document.getElementById('modalTitle').innerHTML = '<span style="color:' + s.color + '">' + s.name + '</span> &mdash; Download &amp; Setup';
+  document.getElementById('modalBody').innerHTML = h;
+  document.getElementById('setupModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeSetup() {
+  document.getElementById('setupModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Close modal on overlay click or Escape
+document.getElementById('setupModal').addEventListener('click', function(e) {
+  if (e.target === this) closeSetup();
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeSetup();
+});
+
+// Tab switching
+function switchTab(btn, tabId) {
+  var bar = btn.parentElement;
+  var container = bar.parentElement;
+  bar.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  btn.classList.add('active');
+  container.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+  document.getElementById(tabId).classList.add('active');
+}
 </script>
 
 </body>
