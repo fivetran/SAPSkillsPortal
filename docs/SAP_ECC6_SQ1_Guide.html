@@ -230,7 +230,6 @@
     <a href="#disk">Disk Space</a>
     <a href="#license">License</a>
     <a href="#links">Links</a>
-    <a href="#rdp">RDP Access</a>
     <a href="#security">Security</a>
     <a href="#troubleshooting">Troubleshooting</a>
     <a href="#architecture">Architecture</a>
@@ -258,7 +257,6 @@
       <li>Start and stop SAP services via sapcontrol SOAP API</li>
       <li>Check SAP license validity with automatic expiry detection</li>
       <li>Access links to GCP console, DNS settings, and technical documentation</li>
-      <li>Connect via RDP with automatic credential retrieval</li>
     </ul>
     <div class="info-box">
       <strong>URL:</strong> <code>https://sapidesecc8.fivetran-internal-sales.com/sap_skills/docs/SAP_ECC6_SQ1.html</code>
@@ -278,7 +276,7 @@
     <table>
       <thead><tr><th>Field</th><th>Description</th></tr></thead>
       <tbody>
-        <tr><td>Hostname</td><td>Server hostname: <code>sap-sql-ides</code>. Includes an <span class="badge badge-purple">RDP</span> button that auto-copies the Administrator password from the vault to your clipboard.</td></tr>
+        <tr><td>Hostname</td><td>Server hostname: <code>sap-sql-ides</code></td></tr>
         <tr><td>SAP System</td><td>SAP ECC 6.0 IDES</td></tr>
         <tr><td>SID</td><td>System ID: <code>SQ1</code></td></tr>
         <tr><td>Instance Nr</td><td>Dialog instance: <code>00</code>, ASCS instance: <code>01</code></td></tr>
@@ -529,33 +527,6 @@ WITH COMPRESSION, INIT, STATS = 10</div>
 </div>
 
 <!-- ============================================================ -->
-<!-- RDP ACCESS -->
-<!-- ============================================================ -->
-<div class="section" id="rdp">
-  <div class="section-title">RDP Access</div>
-  <div class="card">
-    <h3><span class="dot" style="background: #7c3aed"></span> Automatic Credential Retrieval</h3>
-    <p>The System Information card includes a <span class="badge badge-purple">RDP</span> button next to the OS field. Clicking this button:</p>
-    <ol class="step-list">
-      <li>Calls the <code>/sap_skills/api/sq1_rdp_credential</code> endpoint to retrieve the Administrator password from the encrypted vault.</li>
-      <li>Automatically copies the password to your clipboard.</li>
-      <li>Displays a confirmation message that the password has been copied.</li>
-    </ol>
-    <p>You can then open your RDP client and connect:</p>
-    <div class="info-box">
-      <strong>RDP Connection:</strong><br>
-      <code>Host: sap-sql-ides (or 34.133.170.14)</code><br>
-      <code>User: Administrator</code><br>
-      Paste the password from your clipboard when prompted.
-    </div>
-
-    <div class="info-box">
-      <strong>No master password required:</strong> The RDP credential endpoint retrieves the Administrator password from the vault automatically. Unlike stop operations, no master password prompt is needed for reading credentials.
-    </div>
-  </div>
-</div>
-
-<!-- ============================================================ -->
 <!-- SECURITY -->
 <!-- ============================================================ -->
 <div class="section" id="security">
@@ -567,7 +538,6 @@ WITH COMPRESSION, INIT, STATS = 10</div>
     <table>
       <thead><tr><th>Credential</th><th>How it's used</th><th>Vault access</th></tr></thead>
       <tbody>
-        <tr><td>Windows Administrator password</td><td>Copied to clipboard via RDP button</td><td>Auto-read (no master password needed)</td></tr>
         <tr><td>WinRM credentials</td><td>Used internally by API endpoints to execute remote PowerShell commands on sap-sql-ides</td><td>Auto-read by server-side scripts</td></tr>
         <tr><td>Master password</td><td>Required for <strong>stop</strong> operations and manual <strong>backup</strong> triggers</td><td>Validates against vault encryption key</td></tr>
       </tbody>
@@ -629,11 +599,6 @@ WITH COMPRESSION, INIT, STATS = 10</div>
           <td>Try clicking "Refresh". Check if the Windows VM is accessible. WinRM may need to be restarted on the Windows server.</td>
         </tr>
         <tr>
-          <td>RDP button does not copy password</td>
-          <td>Vault read failed or clipboard API blocked by browser</td>
-          <td>Ensure you are on HTTPS (clipboard API requires secure context). Check browser console for errors.</td>
-        </tr>
-        <tr>
           <td>License card shows "Error"</td>
           <td>SAPLIKEY query via sqlcmd failed or WinRM timeout</td>
           <td>Ensure SQL Server is ONLINE. The license query uses sqlcmd to read the SAPLIKEY table in the SQ1 database.</td>
@@ -685,12 +650,6 @@ WITH COMPRESSION, INIT, STATS = 10</div>
           <td><code>/sap_skills/api/sq1_disk_space</code></td>
           <td>GET</td>
           <td>Windows disk usage via WinRM PowerShell (<code>Get-WmiObject Win32_LogicalDisk</code>)</td>
-          <td>None</td>
-        </tr>
-        <tr>
-          <td><code>/sap_skills/api/sq1_rdp_credential</code></td>
-          <td>GET</td>
-          <td>Windows Administrator password from encrypted vault</td>
           <td>None</td>
         </tr>
         <tr>
