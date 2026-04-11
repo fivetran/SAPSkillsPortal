@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP Specialist Cockpit &mdash; Backup &amp; Restore Guide</title>
+<style>
+  :root {
+    --primary: #d4a017;
+    --primary-light: #e6b422;
+    --primary-dark: #a07c12;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --warning: #f39c12;
+    --danger: #e74c3c;
+    --code-bg: #f1f3f5;
+    --accent-bg: #fdf6e3;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #d4a017 0%, #a07c12 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+    position: relative;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary-dark);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: var(--accent-bg); }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--primary-dark);
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  p { margin-bottom: 12px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 12px 0;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: var(--accent-bg);
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  tr:hover td { background: #fef9f2; }
+
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: #a07c12;
+  }
+
+  .cmd-block {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.85rem;
+    line-height: 1.8;
+    overflow-x: auto;
+    margin: 14px 0;
+    position: relative;
+  }
+  .cmd-block .comment { color: #6c7086; }
+  .cmd-block .highlight { color: #f9e2af; }
+  .cmd-block .string { color: #a6e3a1; }
+  .cmd-block .cmd { color: #89b4fa; }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: white;
+  }
+  .badge-green { background: var(--success); }
+  .badge-red { background: var(--danger); }
+  .badge-yellow { background: var(--warning); }
+  .badge-gold { background: var(--primary); }
+  .badge-grey { background: var(--text-light); }
+
+  .info-box {
+    background: var(--accent-bg);
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+  .warn-box {
+    background: #fef3cd;
+    border-left: 4px solid var(--warning);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+  .danger-box {
+    background: #f8d7da;
+    border-left: 4px solid var(--danger);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+
+  .step-list { counter-reset: step; list-style: none; padding: 0; }
+  .step-list li {
+    counter-increment: step;
+    padding: 10px 0 10px 48px;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+  }
+  .step-list li:last-child { border-bottom: none; }
+  .step-list li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 32px;
+    height: 32px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.88rem;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  .back-link { position: absolute; top: 16px; right: 24px; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .back-link:hover { color: #fff; text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <a href="/sap_skills/" class="back-link">Go back to the main page</a>
+  <h1>Backup &amp; Restore Guide</h1>
+  <div class="subtitle">SAP Specialist Cockpit &mdash; Full Disaster Recovery Procedures</div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#whats-backed-up">Contents</a>
+    <a href="#backup">Backup</a>
+    <a href="#restore">Restore</a>
+    <a href="#verify">Verify</a>
+    <a href="#scheduled">Scheduled</a>
+    <a href="#quick-ref">Quick Reference</a>
+    <a href="/sap_skills/">Back to Portal</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- OVERVIEW -->
+<!-- ============================================================ -->
+<div class="section" id="overview">
+  <div class="section-title">Overview</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Backup Architecture</h3>
+    <p>The SAP Specialist Cockpit backup creates a compressed <code>.tar.gz</code> archive of the entire portal and all supporting infrastructure, then uploads it to a Google Cloud Storage bucket. Each backup is timestamped so you can restore to any specific point in time.</p>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Source Server</strong></td><td><code>sapidesecc8.fivetran-internal-sales.com</code></td></tr>
+        <tr><td><strong>GCS Bucket</strong></td><td><code>gs://sap_cds_dbt/SAPSpecialistCockpitBackup/</code></td></tr>
+        <tr><td><strong>Archive Format</strong></td><td><code>sap_specialist_cockpit_YYYYMMDD_HHMMSS.tar.gz</code></td></tr>
+        <tr><td><strong>Typical Size</strong></td><td>~4 MB (compressed)</td></tr>
+        <tr><td><strong>SSH Access</strong></td><td><code>ssh root@sapidesecc8</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- WHAT'S BACKED UP -->
+<!-- ============================================================ -->
+<div class="section" id="whats-backed-up">
+  <div class="section-title">What's Backed Up</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Archive Contents</h3>
+    <p>Each backup archive contains the complete state of the cockpit and portal:</p>
+    <table>
+      <thead><tr><th>Directory</th><th>Contents</th><th>Source Path</th></tr></thead>
+      <tbody>
+        <tr><td><code>sap_skills/</code></td><td>Landing page, all documentation HTML pages, SVG icons, JAR downloads, vault files, README</td><td><code>/usr/sap/sap_skills/</code></td></tr>
+        <tr><td><code>server/</code></td><td>Production &amp; dev web server Python scripts, SSL certificate &amp; key, environment file (Polaris OAuth)</td><td><code>/usr/sap/gcs_explorer_server*.py</code>, <code>gcs_explorer_cert.pem</code>, <code>gcs_explorer_key.pem</code>, <code>gcs_explorer.env</code></td></tr>
+        <tr><td><code>systemd/</code></td><td>Service units for production, dev, and watchdog (service + timer)</td><td><code>/etc/systemd/system/gcs-explorer*.service|timer</code></td></tr>
+        <tr><td><code>scripts/</code></td><td>Helper scripts: backup_webserver.sh, brbackup/brarchive scripts, license query scripts (S/4HANA, ECC, SQ1), SQ1 DB query &amp; backup trigger</td><td><code>/usr/local/bin/*.sh</code>, <code>/usr/local/bin/*.py</code></td></tr>
+        <tr><td><code>crontab.txt</code></td><td>Root crontab snapshot</td><td><code>crontab -l</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> File Inventory</h3>
+    <table>
+      <thead><tr><th>Category</th><th>Files</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Portal Pages</strong></td><td><code>index.html</code>, 17 documentation/cockpit HTML pages</td></tr>
+        <tr><td><strong>Icons</strong></td><td><code>sap_icon.svg</code>, <code>hana_icon.svg</code>, <code>gcp_icon.svg</code>, <code>slab_icon.svg</code></td></tr>
+        <tr><td><strong>Downloads</strong></td><td><code>sapjco3.jar</code>, <code>libsapjco3.dylib</code>, <code>gson.jar</code></td></tr>
+        <tr><td><strong>Server</strong></td><td><code>gcs_explorer_server.py</code> (production), <code>gcs_explorer_server_dev.py</code> (dev)</td></tr>
+        <tr><td><strong>SSL</strong></td><td><code>gcs_explorer_cert.pem</code> (chained), <code>gcs_explorer_key.pem</code></td></tr>
+        <tr><td><strong>Systemd</strong></td><td>4 unit files (production, dev, watchdog service, watchdog timer)</td></tr>
+        <tr><td><strong>Scripts</strong></td><td>8 helper scripts (backup, brtools, license queries, SQ1 management)</td></tr>
+        <tr><td><strong>Vault</strong></td><td><code>.vault.enc</code>, <code>.vault.salt</code>, <code>.vault_key</code>, <code>vault_manager.py</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- BACKUP -->
+<!-- ============================================================ -->
+<div class="section" id="backup">
+  <div class="section-title">Backup Procedure</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--success)"></span> Full Backup (One Command)</h3>
+    <p>Run this single command on <code>sapidesecc8</code> to create a timestamped backup and upload it to GCS:</p>
+    <div class="cmd-block"><span class="comment"># SSH into the server</span>
+<span class="cmd">ssh</span> root@sapidesecc8
+
+<span class="comment"># Create timestamped backup and upload to GCS</span>
+<span class="highlight">TIMESTAMP</span>=$(<span class="cmd">date</span> +%Y%m%d_%H%M%S) && \
+<span class="cmd">mkdir</span> -p /tmp/cockpit_backup_${TIMESTAMP} && \
+<span class="cmd">cp</span> -r /usr/sap/sap_skills /tmp/cockpit_backup_${TIMESTAMP}/sap_skills && \
+<span class="cmd">mkdir</span> -p /tmp/cockpit_backup_${TIMESTAMP}/server && \
+<span class="cmd">cp</span> /usr/sap/gcs_explorer_server.py /usr/sap/gcs_explorer_server_dev.py \
+   /usr/sap/gcs_explorer_cert.pem /usr/sap/gcs_explorer_key.pem \
+   /usr/sap/gcs_explorer.env /tmp/cockpit_backup_${TIMESTAMP}/server/ && \
+<span class="cmd">mkdir</span> -p /tmp/cockpit_backup_${TIMESTAMP}/systemd && \
+<span class="cmd">cp</span> /etc/systemd/system/gcs-explorer*.service \
+   /etc/systemd/system/gcs-explorer*.timer \
+   /tmp/cockpit_backup_${TIMESTAMP}/systemd/ && \
+<span class="cmd">mkdir</span> -p /tmp/cockpit_backup_${TIMESTAMP}/scripts && \
+<span class="cmd">cp</span> /usr/local/bin/backup_webserver.sh /usr/local/bin/brbackup_aba.sh \
+   /usr/local/bin/brarchive_aba.sh /usr/local/bin/s4h_license_query.py \
+   /usr/local/bin/sq1_db_query.py /usr/local/bin/sq1_trigger_backup.py \
+   /usr/local/bin/sq1_license_query.py /usr/local/bin/ecc8_license_query.py \
+   /tmp/cockpit_backup_${TIMESTAMP}/scripts/ && \
+<span class="cmd">crontab</span> -l > /tmp/cockpit_backup_${TIMESTAMP}/crontab.txt 2>/dev/null && \
+<span class="cmd">cd</span> /tmp && <span class="cmd">tar</span> czf sap_specialist_cockpit_${TIMESTAMP}.tar.gz cockpit_backup_${TIMESTAMP}/ && \
+<span class="cmd">gsutil</span> cp /tmp/sap_specialist_cockpit_${TIMESTAMP}.tar.gz \
+   <span class="string">gs://sap_cds_dbt/SAPSpecialistCockpitBackup/</span> && \
+<span class="cmd">rm</span> -rf /tmp/cockpit_backup_${TIMESTAMP} /tmp/sap_specialist_cockpit_${TIMESTAMP}.tar.gz && \
+<span class="cmd">echo</span> <span class="string">"Backup complete: sap_specialist_cockpit_${TIMESTAMP}.tar.gz"</span></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> List Existing Backups</h3>
+    <div class="cmd-block"><span class="comment"># List all backups in the bucket (sorted by date)</span>
+<span class="cmd">gsutil</span> ls -l <span class="string">gs://sap_cds_dbt/SAPSpecialistCockpitBackup/</span>
+
+<span class="comment"># Check total backup size</span>
+<span class="cmd">gsutil</span> du -sh <span class="string">gs://sap_cds_dbt/SAPSpecialistCockpitBackup/</span></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--warning)"></span> Delete Old Backups</h3>
+    <p>To remove a specific backup:</p>
+    <div class="cmd-block"><span class="comment"># Delete a specific backup</span>
+<span class="cmd">gsutil</span> rm <span class="string">gs://sap_cds_dbt/SAPSpecialistCockpitBackup/sap_specialist_cockpit_YYYYMMDD_HHMMSS.tar.gz</span>
+
+<span class="comment"># Delete all backups older than a certain date (use with caution)</span>
+<span class="cmd">gsutil</span> ls <span class="string">gs://sap_cds_dbt/SAPSpecialistCockpitBackup/</span> | <span class="cmd">grep</span> <span class="string">"202601"</span> | <span class="cmd">xargs</span> gsutil rm</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- RESTORE -->
+<!-- ============================================================ -->
+<div class="section" id="restore">
+  <div class="section-title">Restore Procedure</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--danger)"></span> Full Restore from GCS</h3>
+    <p>Follow these steps to restore the complete cockpit from a backup archive:</p>
+
+    <h4 style="margin-top:16px; margin-bottom:8px; color: var(--primary-dark);">Step 1 &mdash; Download and Extract</h4>
+    <div class="cmd-block"><span class="comment"># SSH into the server</span>
+<span class="cmd">ssh</span> root@sapidesecc8
+
+<span class="comment"># List available backups and pick one</span>
+<span class="cmd">gsutil</span> ls -l <span class="string">gs://sap_cds_dbt/SAPSpecialistCockpitBackup/</span>
+
+<span class="comment"># Download the chosen backup</span>
+<span class="cmd">cd</span> /tmp
+<span class="cmd">gsutil</span> cp <span class="string">gs://sap_cds_dbt/SAPSpecialistCockpitBackup/sap_specialist_cockpit_YYYYMMDD_HHMMSS.tar.gz</span> .
+
+<span class="comment"># Extract</span>
+<span class="cmd">tar</span> xzf sap_specialist_cockpit_YYYYMMDD_HHMMSS.tar.gz
+<span class="cmd">cd</span> cockpit_backup_YYYYMMDD_HHMMSS</div>
+
+    <h4 style="margin-top:20px; margin-bottom:8px; color: var(--primary-dark);">Step 2 &mdash; Restore Portal Files</h4>
+    <div class="cmd-block"><span class="comment"># Restore the entire SAP Skills Portal (landing page, docs, downloads, vault)</span>
+<span class="cmd">rm</span> -rf /usr/sap/sap_skills
+<span class="cmd">cp</span> -r sap_skills /usr/sap/sap_skills
+<span class="cmd">chmod</span> 600 /usr/sap/sap_skills/.vault.enc /usr/sap/sap_skills/.vault.salt /usr/sap/sap_skills/.vault_key</div>
+
+    <h4 style="margin-top:20px; margin-bottom:8px; color: var(--primary-dark);">Step 3 &mdash; Restore Server Files</h4>
+    <div class="cmd-block"><span class="comment"># Restore web server scripts</span>
+<span class="cmd">cp</span> server/gcs_explorer_server.py /usr/sap/gcs_explorer_server.py
+<span class="cmd">cp</span> server/gcs_explorer_server_dev.py /usr/sap/gcs_explorer_server_dev.py
+
+<span class="comment"># Restore SSL certificate and key</span>
+<span class="cmd">cp</span> server/gcs_explorer_cert.pem /usr/sap/gcs_explorer_cert.pem
+<span class="cmd">cp</span> server/gcs_explorer_key.pem /usr/sap/gcs_explorer_key.pem
+<span class="cmd">chmod</span> 600 /usr/sap/gcs_explorer_key.pem
+
+<span class="comment"># Restore environment file (Polaris OAuth)</span>
+<span class="cmd">cp</span> server/gcs_explorer.env /usr/sap/gcs_explorer.env
+<span class="cmd">chmod</span> 600 /usr/sap/gcs_explorer.env</div>
+
+    <h4 style="margin-top:20px; margin-bottom:8px; color: var(--primary-dark);">Step 4 &mdash; Restore Systemd Services</h4>
+    <div class="cmd-block"><span class="comment"># Restore service units</span>
+<span class="cmd">cp</span> systemd/gcs-explorer.service /etc/systemd/system/
+<span class="cmd">cp</span> systemd/gcs-explorer-dev.service /etc/systemd/system/
+<span class="cmd">cp</span> systemd/gcs-explorer-watchdog.service /etc/systemd/system/
+<span class="cmd">cp</span> systemd/gcs-explorer-watchdog.timer /etc/systemd/system/
+
+<span class="comment"># Reload and enable</span>
+<span class="cmd">systemctl</span> daemon-reload
+<span class="cmd">systemctl</span> enable gcs-explorer gcs-explorer-dev gcs-explorer-watchdog.timer</div>
+
+    <h4 style="margin-top:20px; margin-bottom:8px; color: var(--primary-dark);">Step 5 &mdash; Restore Helper Scripts</h4>
+    <div class="cmd-block"><span class="comment"># Restore all helper scripts</span>
+<span class="cmd">cp</span> scripts/* /usr/local/bin/
+<span class="cmd">chmod</span> +x /usr/local/bin/backup_webserver.sh /usr/local/bin/brbackup_aba.sh \
+   /usr/local/bin/brarchive_aba.sh /usr/local/bin/s4h_license_query.py \
+   /usr/local/bin/sq1_db_query.py /usr/local/bin/sq1_trigger_backup.py \
+   /usr/local/bin/sq1_license_query.py /usr/local/bin/ecc8_license_query.py</div>
+
+    <h4 style="margin-top:20px; margin-bottom:8px; color: var(--primary-dark);">Step 6 &mdash; Restore Crontab</h4>
+    <div class="cmd-block"><span class="comment"># Review the backed-up crontab</span>
+<span class="cmd">cat</span> crontab.txt
+
+<span class="comment"># Install it (WARNING: this replaces the current crontab entirely)</span>
+<span class="cmd">crontab</span> crontab.txt</div>
+
+    <h4 style="margin-top:20px; margin-bottom:8px; color: var(--primary-dark);">Step 7 &mdash; Restart Services</h4>
+    <div class="cmd-block"><span class="comment"># Restart all services</span>
+<span class="cmd">systemctl</span> restart gcs-explorer
+<span class="cmd">systemctl</span> restart gcs-explorer-dev
+<span class="cmd">systemctl</span> restart gcs-explorer-watchdog.timer
+
+<span class="comment"># Cleanup temp files</span>
+<span class="cmd">rm</span> -rf /tmp/cockpit_backup_YYYYMMDD_HHMMSS /tmp/sap_specialist_cockpit_YYYYMMDD_HHMMSS.tar.gz</div>
+
+    <div class="danger-box">
+      <strong>Full Restore Warning:</strong> A full restore replaces all portal files, server scripts, SSL certificates, systemd units, and helper scripts. Any changes made after the backup was taken will be lost. If you only need to restore specific components, use the partial restore procedures below.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Partial Restore &mdash; Portal Only</h3>
+    <p>If the web server is fine but the HTML pages are corrupted or missing:</p>
+    <div class="cmd-block"><span class="comment"># Download and extract the backup</span>
+<span class="cmd">gsutil</span> cp <span class="string">gs://sap_cds_dbt/SAPSpecialistCockpitBackup/sap_specialist_cockpit_YYYYMMDD_HHMMSS.tar.gz</span> /tmp/
+<span class="cmd">cd</span> /tmp && <span class="cmd">tar</span> xzf sap_specialist_cockpit_YYYYMMDD_HHMMSS.tar.gz
+
+<span class="comment"># Restore only the portal files (no server restart needed)</span>
+<span class="cmd">cp</span> -r cockpit_backup_YYYYMMDD_HHMMSS/sap_skills/* /usr/sap/sap_skills/
+
+<span class="comment"># Cleanup</span>
+<span class="cmd">rm</span> -rf /tmp/cockpit_backup_YYYYMMDD_HHMMSS /tmp/sap_specialist_cockpit_YYYYMMDD_HHMMSS.tar.gz</div>
+    <div class="info-box">
+      <strong>No restart needed:</strong> Portal HTML files are served directly from disk. Changes take effect immediately without restarting any service.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Partial Restore &mdash; Server Only</h3>
+    <p>If the web server script is corrupted but portal files are intact:</p>
+    <div class="cmd-block"><span class="comment"># Download, extract, and restore server files only</span>
+<span class="cmd">gsutil</span> cp <span class="string">gs://sap_cds_dbt/SAPSpecialistCockpitBackup/sap_specialist_cockpit_YYYYMMDD_HHMMSS.tar.gz</span> /tmp/
+<span class="cmd">cd</span> /tmp && <span class="cmd">tar</span> xzf sap_specialist_cockpit_YYYYMMDD_HHMMSS.tar.gz
+
+<span class="comment"># Restore server script and restart</span>
+<span class="cmd">cp</span> cockpit_backup_YYYYMMDD_HHMMSS/server/gcs_explorer_server.py /usr/sap/
+<span class="cmd">systemctl</span> restart gcs-explorer
+
+<span class="comment"># Cleanup</span>
+<span class="cmd">rm</span> -rf /tmp/cockpit_backup_YYYYMMDD_HHMMSS /tmp/sap_specialist_cockpit_YYYYMMDD_HHMMSS.tar.gz</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Partial Restore &mdash; SSL Certificate Only</h3>
+    <p>If the SSL certificate has been accidentally deleted or overwritten:</p>
+    <div class="cmd-block"><span class="comment"># Download, extract, and restore SSL files</span>
+<span class="cmd">gsutil</span> cp <span class="string">gs://sap_cds_dbt/SAPSpecialistCockpitBackup/sap_specialist_cockpit_YYYYMMDD_HHMMSS.tar.gz</span> /tmp/
+<span class="cmd">cd</span> /tmp && <span class="cmd">tar</span> xzf sap_specialist_cockpit_YYYYMMDD_HHMMSS.tar.gz
+
+<span class="comment"># Restore certificate and key</span>
+<span class="cmd">cp</span> cockpit_backup_YYYYMMDD_HHMMSS/server/gcs_explorer_cert.pem /usr/sap/
+<span class="cmd">cp</span> cockpit_backup_YYYYMMDD_HHMMSS/server/gcs_explorer_key.pem /usr/sap/
+<span class="cmd">chmod</span> 600 /usr/sap/gcs_explorer_key.pem
+
+<span class="comment"># Restart both servers</span>
+<span class="cmd">systemctl</span> restart gcs-explorer gcs-explorer-dev
+
+<span class="comment"># Cleanup</span>
+<span class="cmd">rm</span> -rf /tmp/cockpit_backup_YYYYMMDD_HHMMSS /tmp/sap_specialist_cockpit_YYYYMMDD_HHMMSS.tar.gz</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- VERIFY -->
+<!-- ============================================================ -->
+<div class="section" id="verify">
+  <div class="section-title">Verify After Restore</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--success)"></span> Post-Restore Verification</h3>
+    <p>After a full or partial restore, run these checks:</p>
+    <div class="cmd-block"><span class="comment"># 1. Check services are running</span>
+<span class="cmd">systemctl</span> status gcs-explorer --no-pager
+<span class="cmd">systemctl</span> status gcs-explorer-dev --no-pager
+<span class="cmd">systemctl</span> status gcs-explorer-watchdog.timer --no-pager
+
+<span class="comment"># 2. Test HTTPS health endpoint</span>
+<span class="cmd">curl</span> -sk https://localhost/datalake_reader/api/health
+
+<span class="comment"># 3. Test portal landing page</span>
+<span class="cmd">curl</span> -sk -o /dev/null -w <span class="string">"%{http_code}"</span> https://localhost/sap_skills/
+
+<span class="comment"># 4. Test a documentation page</span>
+<span class="cmd">curl</span> -sk -o /dev/null -w <span class="string">"%{http_code}"</span> https://localhost/sap_skills/docs/SAP_ECC6_EHP8.html
+
+<span class="comment"># 5. Verify SSL certificate</span>
+<span class="cmd">openssl</span> x509 -in /usr/sap/gcs_explorer_cert.pem -noout -dates
+
+<span class="comment"># 6. Verify crontab</span>
+<span class="cmd">crontab</span> -l
+
+<span class="comment"># 7. Verify helper scripts exist</span>
+<span class="cmd">ls</span> -la /usr/local/bin/{backup_webserver,brbackup_aba,brarchive_aba}.sh \
+       /usr/local/bin/{s4h_license_query,ecc8_license_query,sq1_db_query,sq1_trigger_backup,sq1_license_query}.py</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SCHEDULED -->
+<!-- ============================================================ -->
+<div class="section" id="scheduled">
+  <div class="section-title">Scheduled Backups</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Existing Scheduled Backup</h3>
+    <p>The portal already has a daily webserver backup that runs Monday&ndash;Friday at 23:00 via <code>/usr/local/bin/backup_webserver.sh</code>. This backs up to <code>gs://sap-hana-backint/sapidesecc8_webserver/</code>.</p>
+
+    <div class="info-box">
+      <strong>Two backup destinations:</strong><br>
+      &bull; <code>gs://sap-hana-backint/sapidesecc8_webserver/</code> &mdash; daily automated backup (existing cron)<br>
+      &bull; <code>gs://sap_cds_dbt/SAPSpecialistCockpitBackup/</code> &mdash; full timestamped archives (this guide)
+    </div>
+
+    <p>The full cockpit backup described in this guide is more comprehensive (includes helper scripts, systemd units, crontab) and uses timestamped tar archives for point-in-time recovery. Run it manually before and after major changes.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--warning)"></span> When to Create a Backup</h3>
+    <table>
+      <thead><tr><th>Scenario</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td>Before updating <code>gcs_explorer_server.py</code></td><td>Full backup &mdash; server changes can break all APIs</td></tr>
+        <tr><td>Before renewing the SSL certificate</td><td>Full backup &mdash; wrong cert/key combo takes the portal offline</td></tr>
+        <tr><td>After adding new cockpit pages or features</td><td>Full backup &mdash; capture the new state</td></tr>
+        <tr><td>Before modifying crontab entries</td><td>Full backup &mdash; crontab is included in archive</td></tr>
+        <tr><td>After deploying a major release</td><td>Full backup &mdash; create a known-good restore point</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- QUICK REFERENCE -->
+<!-- ============================================================ -->
+<div class="section" id="quick-ref">
+  <div class="section-title">Quick Reference</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Backup Commands</h3>
+    <table>
+      <thead><tr><th>Action</th><th>Command</th></tr></thead>
+      <tbody>
+        <tr><td>Create full backup</td><td><code>ssh root@sapidesecc8</code> then run the backup script above</td></tr>
+        <tr><td>List backups</td><td><code>gsutil ls -l gs://sap_cds_dbt/SAPSpecialistCockpitBackup/</code></td></tr>
+        <tr><td>Check backup size</td><td><code>gsutil du -sh gs://sap_cds_dbt/SAPSpecialistCockpitBackup/</code></td></tr>
+        <tr><td>Download a backup</td><td><code>gsutil cp gs://sap_cds_dbt/SAPSpecialistCockpitBackup/&lt;file&gt; /tmp/</code></td></tr>
+        <tr><td>Delete a backup</td><td><code>gsutil rm gs://sap_cds_dbt/SAPSpecialistCockpitBackup/&lt;file&gt;</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--danger)"></span> Restore Commands</h3>
+    <table>
+      <thead><tr><th>Action</th><th>Command</th></tr></thead>
+      <tbody>
+        <tr><td>Download backup</td><td><code>gsutil cp gs://sap_cds_dbt/SAPSpecialistCockpitBackup/&lt;file&gt; /tmp/</code></td></tr>
+        <tr><td>Extract archive</td><td><code>cd /tmp && tar xzf &lt;file&gt;</code></td></tr>
+        <tr><td>Restore portal</td><td><code>cp -r cockpit_backup_*/sap_skills/* /usr/sap/sap_skills/</code></td></tr>
+        <tr><td>Restore server</td><td><code>cp cockpit_backup_*/server/gcs_explorer_server.py /usr/sap/</code></td></tr>
+        <tr><td>Restore SSL</td><td><code>cp cockpit_backup_*/server/gcs_explorer_*.pem /usr/sap/</code></td></tr>
+        <tr><td>Restore systemd</td><td><code>cp cockpit_backup_*/systemd/* /etc/systemd/system/</code></td></tr>
+        <tr><td>Restore scripts</td><td><code>cp cockpit_backup_*/scripts/* /usr/local/bin/</code></td></tr>
+        <tr><td>Restore crontab</td><td><code>crontab cockpit_backup_*/crontab.txt</code></td></tr>
+        <tr><td>Restart services</td><td><code>systemctl daemon-reload && systemctl restart gcs-explorer gcs-explorer-dev</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
+</div>
+
+</body>
+</html>
