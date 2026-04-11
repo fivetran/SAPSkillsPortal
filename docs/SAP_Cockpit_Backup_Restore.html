@@ -239,6 +239,7 @@
 <div class="nav">
   <div class="nav-inner">
     <a href="#overview">Overview</a>
+    <a href="#console">Console</a>
     <a href="#whats-backed-up">Contents</a>
     <a href="#backup">Backup</a>
     <a href="#restore">Restore</a>
@@ -269,6 +270,81 @@
         <tr><td><strong>SSH Access</strong></td><td><code>ssh root@sapidesecc8</code></td></tr>
       </tbody>
     </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- INTERACTIVE CONSOLE -->
+<!-- ============================================================ -->
+<div class="section" id="console">
+  <div class="section-title">Backup &amp; Restore Console</div>
+
+  <!-- CREATE BACKUP -->
+  <div class="card">
+    <h3><span class="dot" style="background: var(--success)"></span> Create Backup</h3>
+    <p>Select the scope and create a new timestamped backup archive in Google Cloud Storage.</p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px;">
+      <select id="bk-scope" style="padding:7px 12px; border:1px solid var(--border); border-radius:6px; font-size:0.9rem; background:white;">
+        <option value="full">Full Backup</option>
+        <option value="portal">Portal Only</option>
+        <option value="server">Server Only</option>
+        <option value="ssl">SSL Certificate Only</option>
+        <option value="scripts">Helper Scripts Only</option>
+        <option value="systemd">Systemd Units Only</option>
+        <option value="crontab">Crontab Only</option>
+      </select>
+      <button onclick="bkCreateBackup()" id="bk-create-btn" style="font-size:0.9rem; padding:7px 20px; background:var(--success); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Create Backup</button>
+    </div>
+  </div>
+
+  <!-- EXISTING BACKUPS -->
+  <div class="card">
+    <h3 style="justify-content:space-between;">
+      <span style="display:flex; align-items:center; gap:10px;"><span class="dot" style="background: var(--primary)"></span> Existing Backups</span>
+      <button onclick="bkListBackups()" id="bk-refresh-btn" style="font-size:0.78rem; padding:5px 14px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Refresh</button>
+    </h3>
+    <p style="font-size:0.88rem; color:var(--text-light);">GCS Bucket: <code>gs://sap_cds_dbt/SAPSpecialistCockpitBackup/</code></p>
+    <div id="bk-list" style="margin-top:12px; font-size:0.9rem; color:var(--text-light);">Loading backups...</div>
+  </div>
+
+  <!-- RESTORE PANEL (shown after selecting a backup) -->
+  <div class="card" id="bk-restore-panel" style="display:none;">
+    <h3><span class="dot" style="background: var(--danger)"></span> Restore from: <span id="bk-restore-name" style="color:var(--text); font-weight:600;"></span></h3>
+    <p>Select an action to perform on the selected backup archive.</p>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center; margin-top:12px;">
+      <select id="bk-restore-scope" style="padding:7px 12px; border:1px solid var(--border); border-radius:6px; font-size:0.9rem; background:white;">
+        <option value="full">Full Restore</option>
+        <option value="portal">Portal Only</option>
+        <option value="server">Server Only</option>
+        <option value="ssl">SSL Certificate Only</option>
+        <option value="scripts">Helper Scripts Only</option>
+        <option value="systemd">Systemd Units Only</option>
+        <option value="crontab">Crontab Only</option>
+      </select>
+      <button onclick="bkVerifyBackup()" style="font-size:0.88rem; padding:7px 16px; background:#0073FF; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Verify</button>
+      <button onclick="bkDryRun()" style="font-size:0.88rem; padding:7px 16px; background:var(--warning); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Dry Run</button>
+      <button onclick="bkRestore()" id="bk-restore-btn" style="font-size:0.88rem; padding:7px 16px; background:var(--danger); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Restore</button>
+      <button onclick="bkDeleteBackup()" style="font-size:0.88rem; padding:7px 16px; background:var(--text-light); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Delete</button>
+    </div>
+    <div class="warn-box" style="margin-top:14px;">
+      <strong>Verify</strong> inspects the archive contents without modifying anything. <strong>Dry Run</strong> simulates the restore and shows what would happen. <strong>Restore</strong> overwrites files on the server. <strong>Delete</strong> permanently removes the archive from GCS. Both Restore and Delete require the master password.
+    </div>
+  </div>
+
+  <!-- STATUS OUTPUT -->
+  <div id="bk-status" style="display:none; padding:16px 20px; border-radius:8px; font-size:0.9rem; white-space:pre-wrap; max-height:300px; overflow-y:auto; margin-bottom:20px; font-family:'SFMono-Regular',Consolas,'Liberation Mono',Menlo,monospace; line-height:1.6;"></div>
+</div>
+
+<!-- Master Password Modal -->
+<div id="bk-pwd-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+  <div style="background:white; border-radius:12px; padding:28px; max-width:440px; width:90%; box-shadow:0 8px 30px rgba(0,0,0,0.25);">
+    <div id="bk-pwd-title" style="font-size:1.1rem; font-weight:700; color:var(--text); margin-bottom:8px;">Enter master password</div>
+    <div id="bk-pwd-warning" style="font-size:0.88rem; color:#721c24; margin-bottom:16px; padding:12px 14px; background:#f8d7da; border-radius:8px; border-left:4px solid var(--danger); line-height:1.5;"></div>
+    <input id="bk-pwd-input" type="password" placeholder="Master password" style="width:100%; padding:12px 14px; border:1px solid var(--border); border-radius:6px; font-size:1rem; outline:none; box-sizing:border-box;" onkeydown="if(event.key==='Enter')document.getElementById('bk-pwd-ok').click();">
+    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:16px;">
+      <button onclick="bkClosePwd(null)" style="padding:8px 20px; background:var(--border); color:var(--text); border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.9rem;">Cancel</button>
+      <button id="bk-pwd-ok" onclick="bkClosePwd(document.getElementById('bk-pwd-input').value)" style="padding:8px 20px; background:var(--danger); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.9rem;">Confirm</button>
+    </div>
   </div>
 </div>
 
@@ -617,6 +693,237 @@
 <div class="footer">
   Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
 </div>
+
+<script>
+// ============================================================
+// Backup & Restore Console
+// ============================================================
+var bkSelectedArchive = null;
+var bkPwdResolve = null;
+
+function bkShowStatus(msg, type) {
+  var el = document.getElementById('bk-status');
+  el.style.display = 'block';
+  el.style.background = type === 'error' ? '#f8d7da' : type === 'success' ? '#d4edda' : type === 'warn' ? '#fff3cd' : '#e6eff5';
+  el.style.color = type === 'error' ? '#721c24' : type === 'success' ? '#155724' : type === 'warn' ? '#856404' : '#2c3e50';
+  el.textContent = msg;
+}
+
+function bkApi(action, data) {
+  return fetch('/sap_skills/api/cockpit_backup/' + action, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(data || {})
+  }).then(function(r) { return r.json(); });
+}
+
+function bkAskPassword(title, warning) {
+  return new Promise(function(resolve) {
+    bkPwdResolve = resolve;
+    document.getElementById('bk-pwd-title').textContent = title || 'Enter master password';
+    document.getElementById('bk-pwd-warning').innerHTML = warning || '';
+    document.getElementById('bk-pwd-input').value = '';
+    document.getElementById('bk-pwd-overlay').style.display = 'flex';
+    setTimeout(function() { document.getElementById('bk-pwd-input').focus(); }, 100);
+  });
+}
+
+function bkClosePwd(val) {
+  document.getElementById('bk-pwd-overlay').style.display = 'none';
+  if (bkPwdResolve) { bkPwdResolve(val); bkPwdResolve = null; }
+}
+
+function bkListBackups() {
+  var el = document.getElementById('bk-list');
+  el.innerHTML = '<span style="color:var(--text-light);">Loading...</span>';
+  bkApi('list').then(function(data) {
+    if (data.status === 'ok' && data.archives) {
+      if (data.archives.length === 0) {
+        el.innerHTML = '<span style="color:var(--text-light);">No backups found in GCS bucket.</span>';
+        return;
+      }
+      var html = '<table style="width:100%; border-collapse:collapse; font-size:0.9rem;">';
+      html += '<tr style="border-bottom:2px solid var(--border);"><th style="text-align:left; padding:8px 12px; font-weight:600; color:var(--primary-dark); font-size:0.82rem; text-transform:uppercase; letter-spacing:0.3px; background:var(--accent-bg);">Date</th><th style="text-align:right; padding:8px 12px; font-weight:600; color:var(--primary-dark); font-size:0.82rem; text-transform:uppercase; letter-spacing:0.3px; background:var(--accent-bg);">Size</th><th style="width:30px; background:var(--accent-bg);"></th></tr>';
+      data.archives.forEach(function(a) {
+        var sel = (bkSelectedArchive === a.name);
+        var bg = sel ? 'background:var(--accent-bg); font-weight:600;' : '';
+        html += '<tr style="border-bottom:1px solid var(--border); cursor:pointer; transition:background 0.15s; ' + bg + '" onclick="bkSelectArchive(\'' + a.name + '\')" onmouseover="if(!this.style.fontWeight)this.style.background=\'#fef9f2\'" onmouseout="if(!this.style.fontWeight)this.style.background=\'\'">';
+        html += '<td style="padding:8px 12px;">' + a.date + '</td>';
+        html += '<td style="padding:8px 12px; text-align:right;">' + a.size_mb + ' MB</td>';
+        html += '<td style="padding:8px 12px; text-align:center;">' + (sel ? '<span style="color:var(--primary); font-weight:700;">&#9654;</span>' : '') + '</td>';
+        html += '</tr>';
+      });
+      html += '</table>';
+      el.innerHTML = html;
+    } else {
+      el.innerHTML = '<span style="color:var(--danger);">Error: ' + (data.message || 'Unknown error') + '</span>';
+    }
+  }).catch(function(e) {
+    el.innerHTML = '<span style="color:var(--danger);">Failed to load backups</span>';
+  });
+}
+
+function bkSelectArchive(name) {
+  bkSelectedArchive = name;
+  document.getElementById('bk-restore-panel').style.display = 'block';
+  document.getElementById('bk-restore-name').textContent = name;
+  document.getElementById('bk-status').style.display = 'none';
+  bkListBackups();
+}
+
+function bkCreateBackup() {
+  var scope = document.getElementById('bk-scope').value;
+  var btn = document.getElementById('bk-create-btn');
+  if (!confirm('Create a ' + scope.toUpperCase() + ' backup of the cockpit?\n\nThis will create a timestamped archive and upload it to Google Cloud Storage.')) return;
+  btn.textContent = 'Creating...';
+  btn.disabled = true;
+  bkShowStatus('Creating ' + scope + ' backup... This may take a minute.', 'info');
+  bkApi('backup', {scope: scope}).then(function(data) {
+    btn.textContent = 'Create Backup';
+    btn.disabled = false;
+    if (data.status === 'ok') {
+      bkShowStatus('Backup created successfully!\n\nArchive:   ' + data.archive + '\nSize:      ' + data.size_mb + ' MB\nScope:     ' + data.scope + '\nGCS Path:  ' + data.gcs_path, 'success');
+      bkListBackups();
+    } else {
+      bkShowStatus('Backup failed: ' + (data.message || 'Unknown error'), 'error');
+    }
+  }).catch(function(e) {
+    btn.textContent = 'Create Backup';
+    btn.disabled = false;
+    bkShowStatus('Backup request failed: ' + e, 'error');
+  });
+}
+
+function bkVerifyBackup() {
+  if (!bkSelectedArchive) return;
+  bkShowStatus('Verifying archive contents...', 'info');
+  bkApi('verify', {archive: bkSelectedArchive}).then(function(data) {
+    if (data.status === 'ok') {
+      var msg = 'Archive: ' + data.archive + '\n';
+      msg += ''.padStart(50, '\u2500') + '\n';
+      msg += 'Portal files:   ' + data.portal_files + '\n';
+      msg += 'Server files:   ' + data.server_files + '\n';
+      msg += 'Systemd files:  ' + data.systemd_files + '\n';
+      msg += 'Script files:   ' + data.script_files + '\n';
+      msg += 'Crontab:        ' + (data.crontab ? 'Yes' : 'No') + '\n';
+      if (data.details) {
+        msg += '\n';
+        if (data.details.server.length > 0) msg += 'Server:\n  ' + data.details.server.join('\n  ') + '\n';
+        if (data.details.systemd.length > 0) msg += 'Systemd:\n  ' + data.details.systemd.join('\n  ') + '\n';
+        if (data.details.scripts.length > 0) msg += 'Scripts:\n  ' + data.details.scripts.join('\n  ') + '\n';
+      }
+      bkShowStatus(msg, 'success');
+    } else {
+      bkShowStatus('Verify failed: ' + (data.message || 'Unknown error'), 'error');
+    }
+  }).catch(function(e) {
+    bkShowStatus('Verify request failed: ' + e, 'error');
+  });
+}
+
+function bkDryRun() {
+  if (!bkSelectedArchive) return;
+  var scope = document.getElementById('bk-restore-scope').value;
+  bkAskPassword(
+    'Master password required for dry-run restore',
+    '<strong>DRY RUN</strong> &mdash; No files will be modified. This simulates the restore and shows what actions would be performed. The master password is still required to authorize the operation.'
+  ).then(function(pwd) {
+    if (!pwd) { bkShowStatus('Cancelled.', 'warn'); return; }
+    bkShowStatus('Running dry-run restore (' + scope + ')...', 'info');
+    bkApi('restore', {archive: bkSelectedArchive, scope: scope, master_password: pwd, dry_run: true}).then(function(data) {
+      if (data.status === 'ok') {
+        var msg = 'DRY RUN \u2014 ' + data.scope.toUpperCase() + ' restore from: ' + data.archive + '\n';
+        msg += ''.padStart(50, '\u2500') + '\n';
+        msg += 'Actions that WOULD be performed:\n\n';
+        (data.actions || []).forEach(function(a) { msg += '  \u2022 ' + a + '\n'; });
+        msg += '\nNo files were modified.';
+        bkShowStatus(msg, 'warn');
+      } else {
+        bkShowStatus('Dry run failed: ' + (data.message || 'Unknown error'), 'error');
+      }
+    }).catch(function(e) {
+      bkShowStatus('Dry run request failed: ' + e, 'error');
+    });
+  });
+}
+
+function bkRestore() {
+  if (!bkSelectedArchive) return;
+  var scope = document.getElementById('bk-restore-scope').value;
+  var scopeLabel = scope === 'full' ? 'FULL' : scope.toUpperCase();
+  var warningHtml = '<strong>DANGER: ' + scopeLabel + ' RESTORE</strong><br><br>' +
+    'This will <strong>OVERWRITE</strong> existing files on the server with the contents of the selected backup.<br><br>';
+  if (scope === 'full') {
+    warningHtml += 'A FULL restore replaces <strong>ALL</strong> portal pages, server scripts, SSL certificates, systemd units, helper scripts, and crontab.<br><br>';
+  }
+  warningHtml += 'Any changes made after this backup was taken will be <strong>PERMANENTLY LOST</strong>.';
+  if (scope === 'server' || scope === 'ssl' || scope === 'full') {
+    warningHtml += '<br><br>The web server will be <strong>RESTARTED</strong> after restore.';
+  }
+  warningHtml += '<br><br>Enter the master password to proceed.';
+
+  bkAskPassword('Master password required for ' + scopeLabel + ' restore', warningHtml).then(function(pwd) {
+    if (!pwd) { bkShowStatus('Restore cancelled.', 'warn'); return; }
+    if (!confirm('FINAL CONFIRMATION\n\nYou are about to perform a ' + scopeLabel + ' restore from:\n' + bkSelectedArchive + '\n\nThis action CANNOT be undone.\nAre you absolutely sure?')) {
+      bkShowStatus('Restore cancelled.', 'warn');
+      return;
+    }
+    var btn = document.getElementById('bk-restore-btn');
+    btn.textContent = 'Restoring...';
+    btn.disabled = true;
+    bkShowStatus('Restoring ' + scope + ' from ' + bkSelectedArchive + '...', 'info');
+    bkApi('restore', {archive: bkSelectedArchive, scope: scope, master_password: pwd}).then(function(data) {
+      btn.textContent = 'Restore';
+      btn.disabled = false;
+      if (data.status === 'ok') {
+        var msg = 'Restore completed successfully!\n';
+        msg += ''.padStart(50, '\u2500') + '\n';
+        msg += 'Scope:   ' + data.scope + '\n';
+        msg += 'Archive: ' + data.archive + '\n\n';
+        msg += 'Actions performed:\n\n';
+        (data.actions || []).forEach(function(a) { msg += '  \u2714 ' + a + '\n'; });
+        bkShowStatus(msg, 'success');
+      } else {
+        bkShowStatus('Restore failed: ' + (data.message || 'Unknown error'), 'error');
+      }
+    }).catch(function(e) {
+      btn.textContent = 'Restore';
+      btn.disabled = false;
+      bkShowStatus('Restore request failed: ' + e, 'error');
+    });
+  });
+}
+
+function bkDeleteBackup() {
+  if (!bkSelectedArchive) return;
+  bkAskPassword(
+    'Master password required to delete backup',
+    '<strong>WARNING:</strong> You are about to <strong>permanently delete</strong> the backup archive:<br><br><code>' + bkSelectedArchive + '</code><br><br>from Google Cloud Storage. This action <strong>cannot be undone</strong>.'
+  ).then(function(pwd) {
+    if (!pwd) { bkShowStatus('Delete cancelled.', 'warn'); return; }
+    if (!confirm('Delete backup: ' + bkSelectedArchive + '?\n\nThis cannot be undone.')) {
+      bkShowStatus('Delete cancelled.', 'warn');
+      return;
+    }
+    bkShowStatus('Deleting ' + bkSelectedArchive + '...', 'info');
+    bkApi('delete', {archive: bkSelectedArchive, master_password: pwd}).then(function(data) {
+      if (data.status === 'ok') {
+        bkShowStatus('Deleted: ' + bkSelectedArchive, 'success');
+        bkSelectedArchive = null;
+        document.getElementById('bk-restore-panel').style.display = 'none';
+        bkListBackups();
+      } else {
+        bkShowStatus('Delete failed: ' + (data.message || 'Unknown error'), 'error');
+      }
+    }).catch(function(e) {
+      bkShowStatus('Delete request failed: ' + e, 'error');
+    });
+  });
+}
+
+// Auto-load backup list on page load
+document.addEventListener('DOMContentLoaded', function() { bkListBackups(); });
+</script>
 
 </body>
 </html>
