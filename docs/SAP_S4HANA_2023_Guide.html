@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S/4HANA 2023 Management Cockpit — User Guide</title>
+<style>
+  :root {
+    --primary: #0EA5E9;
+    --primary-light: #38BDF8;
+    --primary-dark: #0284C7;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --warning: #f39c12;
+    --danger: #e74c3c;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #0EA5E9 0%, #0284C7 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+    position: relative;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary-dark);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #e6f5f5; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--primary-dark);
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  p { margin-bottom: 12px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 12px 0;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: #e6f5f5;
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  tr:hover td { background: #f0fafa; }
+
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: #c0392b;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: white;
+  }
+  .badge-green { background: var(--success); }
+  .badge-red { background: var(--danger); }
+  .badge-yellow { background: var(--warning); }
+  .badge-blue { background: var(--primary); }
+  .badge-grey { background: var(--text-light); }
+
+  .info-box {
+    background: #e6f5f5;
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+  .warn-box {
+    background: #fef3cd;
+    border-left: 4px solid var(--warning);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+  .danger-box {
+    background: #f8d7da;
+    border-left: 4px solid var(--danger);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+
+  .step-list { counter-reset: step; list-style: none; padding: 0; }
+  .step-list li {
+    counter-increment: step;
+    padding: 10px 0 10px 48px;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+  }
+  .step-list li:last-child { border-bottom: none; }
+  .step-list li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 32px;
+    height: 32px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.88rem;
+  }
+
+  .screenshot-hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: #f0f4ff;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    color: var(--primary-dark);
+    margin: 8px 0;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  .back-link { position: absolute; top: 16px; right: 24px; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .back-link:hover { color: #fff; text-decoration: underline; }</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <a href="/sap_skills/" class="back-link">Go back to the main page</a>
+  <h1>S/4HANA 2023 &mdash; User Guide</h1>
+  <div class="subtitle">How to use the Management Cockpit for SAP S/4HANA IDES</div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#system-info">System Info</a>
+    <a href="#status">Status</a>
+    <a href="#backup">Backup</a>
+    <a href="#startstop">Start / Stop</a>
+    <a href="#disk">Disk Space</a>
+    <a href="#links">Links</a>
+    <a href="#security">Security</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+    <a href="SAP_S4HANA_2023.html">Back to Cockpit</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- OVERVIEW -->
+<!-- ============================================================ -->
+<div class="section" id="overview">
+  <div class="section-title">Overview</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> What is the S/4HANA 2023 Cockpit?</h3>
+    <p>The S/4HANA 2023 Management Cockpit is a web-based dashboard for monitoring and operating the SAP S/4HANA IDES demonstration environment hosted on <code>sapidess4.fivetran-internal-sales.com</code>.</p>
+    <p>From a single page you can:</p>
+    <ul style="margin: 8px 0 12px 24px;">
+      <li>View server details, HANA version, and tenant information</li>
+      <li>Monitor disk space with visual progress bars</li>
+      <li>Check the live status of the SAP Application Server and both HANA database instances</li>
+      <li>Trigger on-demand HANA backups via BACKINT to Google Cloud Storage</li>
+      <li>Start and stop SAP and HANA services with safety controls</li>
+      <li>Access links to SSO, HANA Cockpit, Web IDE, GCP console, and all business process docs</li>
+    </ul>
+    <div class="info-box">
+      <strong>URL:</strong> <code>https://sapidesecc8.fivetran-internal-sales.com/sap_skills/docs/SAP_S4HANA_2023.html</code>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SYSTEM INFO -->
+<!-- ============================================================ -->
+<div class="section" id="system-info">
+  <div class="section-title">System Information</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Server Details</h3>
+    <p>The <strong>Server Details</strong> card displays static and dynamic information about the SAP server:</p>
+    <table>
+      <thead><tr><th>Field</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>Hostname</td><td>Server hostname and FQDN. Includes an <span class="badge badge-blue">SSH</span> button to open a terminal session.</td></tr>
+        <tr><td>SAP System</td><td>SAP product version (S/4HANA 2023 IDES)</td></tr>
+        <tr><td>SID / Instance Nr</td><td>System ID <code>S4H</code> and instance number <code>03</code></td></tr>
+        <tr><td>Client</td><td>SAP client <code>100</code> (used for all operations)</td></tr>
+        <tr><td>Database</td><td>HANA version, retrieved live from the server</td></tr>
+        <tr><td>Tenant</td><td>Active HANA database tenant name</td></tr>
+        <tr><td>OS</td><td>Operating system version</td></tr>
+        <tr><td>IP Addresses</td><td>Private (VPC) and public IP addresses</td></tr>
+        <tr><td>CPUs</td><td>Number of virtual CPUs, retrieved live from the server via <code>nproc</code></td></tr>
+        <tr><td>Memory</td><td>Total RAM in GB, retrieved live from the server via <code>free -g</code></td></tr>
+      </tbody>
+    </table>
+    <p>Click the <strong>Refresh</strong> button at the top right of the section to re-query the HANA version, OS, and tenant name from the live server.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- STATUS -->
+<!-- ============================================================ -->
+<div class="section" id="status">
+  <div class="section-title">Status Cards</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Understanding the Status Section</h3>
+    <p>The Status section contains three cards that show the real-time state of the system components. Click <strong>Check Status</strong> to query all three at once.</p>
+
+    <table>
+      <thead><tr><th>Card</th><th>What it monitors</th><th>Instance</th></tr></thead>
+      <tbody>
+        <tr><td><strong>SAP Application Server</strong></td><td>SAP NetWeaver ABAP stack (ASCS + dialog instance)</td><td>SID <code>S4H</code>, instance <code>03</code>, user <code>s4hadm</code></td></tr>
+        <tr><td><strong>SAP HANA Database</strong></td><td>Primary HANA instance for S/4HANA data</td><td>SID <code>FIV</code>, instance <code>00</code>, user <code>fivadm</code></td></tr>
+        <tr><td><strong>HANA Cockpit Database</strong></td><td>Separate HANA instance for DBA Cockpit &amp; Web IDE</td><td>SID <code>PIT</code>, instance <code>96</code>, user <code>pitadm</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--success)"></span> Status Indicators</h3>
+    <p>Each card displays a colored dot and status text:</p>
+    <table>
+      <thead><tr><th>Indicator</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-green">Green dot + Active</span></td><td>The service is running and responding to queries</td></tr>
+        <tr><td><span class="badge badge-red">Red dot + Inactive</span></td><td>The service is down or unreachable</td></tr>
+        <tr><td><span class="badge badge-grey">Grey dot + Unknown</span></td><td>Status has not been checked yet (page just loaded, waiting for response)</td></tr>
+      </tbody>
+    </table>
+    <p>For HANA cards, the status also shows the <strong>tenant name</strong> and the <strong>last successful backup date</strong> (e.g., "April 09, 2026").</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- BACKUP -->
+<!-- ============================================================ -->
+<div class="section" id="backup">
+  <div class="section-title">Backup Operations</div>
+
+  <!-- HANA Backup Architecture -->
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> HANA Backup Architecture</h3>
+    <p>HANA backups use <strong>Google Cloud's SAP Agent Backint</strong> &mdash; not disk-based snapshots. The Backint agent streams data directly from HANA to a Google Cloud Storage bucket.</p>
+
+    <table>
+      <thead><tr><th>Component</th><th>Path / Value</th></tr></thead>
+      <tbody>
+        <tr><td>Backint binary</td><td><code>/usr/bin/google_cloud_sap_agent backint</code></td></tr>
+        <tr><td>Wrapper script</td><td><code>/hana/shared/FIV/global/hdb/opt/backint/backint-gcs/backint</code></td></tr>
+        <tr><td>GCS Bucket</td><td><code>gs://sap-hana-backint/</code> (GCP project: <em>internal-sales</em>)</td></tr>
+        <tr><td>Bucket Console</td><td><a href="https://console.cloud.google.com/storage/browser/sap-hana-backint" target="_blank"><code>https://console.cloud.google.com/storage/browser/sap-hana-backint</code></a></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- FIV Tenant Backup -->
+  <div class="card">
+    <h3><span class="dot" style="background: var(--success)"></span> FIV Tenant (Main S/4HANA Database)</h3>
+    <p>The FIV tenant holds all S/4HANA application data. Backups are scheduled automatically and can also be triggered manually.</p>
+
+    <table>
+      <thead><tr><th>Setting</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Backint parameters file</td><td><code>/hana/shared/FIV/global/hdb/opt/backint/backint-gcs/parameters.json</code></td></tr>
+        <tr><td>Bucket</td><td><code>sap-hana-backint</code></td></tr>
+        <tr><td>Compression</td><td><code>true</code> (algorithm: <strong>lz4</strong>)</td></tr>
+        <tr><td>Service account key</td><td><code>/usr/sap/FIV/home/internal-sales-4b50698e74ec.json</code></td></tr>
+        <tr><td>Log to cloud</td><td><code>true</code></td></tr>
+        <tr><td>Parallel backint channels</td><td><strong>4</strong></td></tr>
+        <tr><td>Backint logs</td><td><code>/hana/shared/FIV/HDB00/sapidess4/trace/backint.log</code></td></tr>
+        <tr><td>Data backup destination</td><td><code>gs://sap-hana-backint/FIV/</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:20px;"><span class="dot" style="background: var(--primary)"></span> FIV Scheduled Backup</h3>
+    <p>FIV data backups are scheduled by the HANA Cockpit:</p>
+    <ul style="margin: 8px 0 12px 24px;">
+      <li><strong>Schedule:</strong> Every Saturday at 09:33 server time (PDT)</li>
+      <li><strong>Comment:</strong> "FIV Saturday Scheduled backup"</li>
+      <li><strong>Catalog and log backups</strong> also use Backint (continuous log backup, immediate mode)</li>
+      <li>The cockpit page shows the last backup and next backup in Amsterdam and LA timezones with a <strong>live countdown</strong></li>
+      <li>Manual backup via the <span class="badge badge-blue">Backup Now</span> button triggers <code>BACKUP DATA USING BACKINT</code></li>
+    </ul>
+
+    <div class="warn-box">
+      <strong>Schedule guard:</strong> FIV manual backup is blocked if the next scheduled backup is within 1 hour.
+    </div>
+  </div>
+
+  <!-- PIT Tenant Backup -->
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> PIT Tenant (HANA Cockpit SYSTEMDB)</h3>
+    <p>The PIT instance hosts the HANA Cockpit and Web IDE. Its backups are triggered manually.</p>
+
+    <table>
+      <thead><tr><th>Setting</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Backint parameters file</td><td><code>/hana/shared/PIT/global/hdb/opt/backint/backint-gcs/parameters.json</code></td></tr>
+        <tr><td>Bucket</td><td><code>sap-hana-backint</code></td></tr>
+        <tr><td>Compression</td><td><code>true</code></td></tr>
+        <tr><td>Service account key</td><td><code>/usr/sap/PIT/home/internal-sales-4b50698e74ec.json</code></td></tr>
+        <tr><td>Data backup destination</td><td><code>gs://sap-hana-backint/PIT/</code></td></tr>
+      </tbody>
+    </table>
+
+    <p>Backups are triggered manually via the cockpit page <span class="badge badge-blue">Backup Now</span> button, which runs <code>BACKUP DATA USING BACKINT</code> on SYSTEMDB port <code>39613</code>.</p>
+  </div>
+
+  <!-- HANA global.ini Backup Settings -->
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Key HANA global.ini Backup Settings</h3>
+    <p>The following settings in <code>global.ini</code> control the Backint integration for the FIV tenant:</p>
+
+    <table>
+      <thead><tr><th>Parameter</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td><code>catalog_backup_using_backint</code></td><td><code>true</code></td></tr>
+        <tr><td><code>data_backup_parameter_file</code></td><td><code>/usr/sap/FIV/SYS/global/hdb/opt/backint/backint-gcs/parameters.json</code></td></tr>
+        <tr><td><code>log_backup_using_backint</code></td><td><code>true</code></td></tr>
+        <tr><td><code>log_backup_interval_mode</code></td><td><code>immediate</code></td></tr>
+        <tr><td><code>parallel_data_backup_backint_channels</code></td><td><code>4</code></td></tr>
+        <tr><td><code>data_backup_compression_algorithm</code></td><td><code>lz4</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- GCS Bucket Structure -->
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> GCS Bucket Structure</h3>
+    <p>The <code>gs://sap-hana-backint/</code> bucket contains backups for all SAP systems:</p>
+
+    <table>
+      <thead><tr><th>Path</th><th>Contents</th></tr></thead>
+      <tbody>
+        <tr><td><code>gs://sap-hana-backint/FIV/</code></td><td>FIV tenant data + log backups</td></tr>
+        <tr><td><code>gs://sap-hana-backint/PIT/</code></td><td>PIT / SYSTEMDB backups</td></tr>
+        <tr><td><code>gs://sap-hana-backint/SAP_ON_ORACLE_BACKUP/</code></td><td>ECC Oracle brbackup copies</td></tr>
+        <tr><td><code>gs://sap-hana-backint/sapidesecc8_webserver/</code></td><td>Web portal backups</td></tr>
+      </tbody>
+    </table>
+
+    <p>Additional directories in the bucket store kernel packages, host agent binaries, and archive files.</p>
+  </div>
+
+  <!-- On-Demand Backup Workflow -->
+  <div class="card">
+    <h3><span class="dot" style="background: var(--warning)"></span> On-Demand Backup Workflow</h3>
+    <p>Both HANA cards (FIV and PIT) include backup controls:</p>
+
+    <table>
+      <thead><tr><th>Button</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-blue">Backup Now</span></td><td>Triggers an immediate <code>BACKUP DATA USING BACKINT</code> to Google Cloud Storage</td></tr>
+        <tr><td><span class="badge badge-grey">Refresh</span></td><td>Checks whether a backup is currently running and updates the timer</td></tr>
+      </tbody>
+    </table>
+
+    <ol class="step-list">
+      <li>Click <strong>Backup Now</strong> on the desired HANA card (FIV or PIT/Cockpit).</li>
+      <li>A confirmation dialog appears: <em>"Start an immediate BACKINT backup for tenant FIV?"</em>. Click OK.</li>
+      <li>The button changes to <strong>"Running..."</strong> and a live timer starts counting (e.g., <code>Backup running: 02:34</code>).</li>
+      <li>The backup runs in the background on the server. You can navigate away &mdash; the timer is purely local.</li>
+      <li>Click <strong>Refresh</strong> to check progress. When the backup completes, the timer disappears and the last backup date updates.</li>
+    </ol>
+
+    <div class="info-box">
+      <strong>Backup destination:</strong> Google Cloud Storage bucket <code>sap-hana-backint</code>. View backups in the <strong>Links</strong> section under "Backint Backup Destination".
+    </div>
+
+    <div class="warn-box">
+      <strong>Note:</strong> Only one backup per HANA instance can run at a time. If a backup is already running, the "Backup Now" button is disabled. Use "Refresh" to check status.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- START / STOP -->
+<!-- ============================================================ -->
+<div class="section" id="startstop">
+  <div class="section-title">Start / Stop Operations</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--success)"></span> Starting Services</h3>
+    <p>Each status card has a green <span class="badge badge-green">Start</span> button:</p>
+    <table>
+      <thead><tr><th>Button</th><th>What it does</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Start SAP</strong></td><td>Runs <code>startsap R3</code> as <code>s4hadm</code> &mdash; starts the ABAP application server</td></tr>
+        <tr><td><strong>Start DB</strong> (FIV)</td><td>Runs <code>HDB start</code> as <code>fivadm</code> &mdash; starts the primary HANA instance</td></tr>
+        <tr><td><strong>Start DB</strong> (PIT)</td><td>Runs <code>HDB start</code> as <code>pitadm</code> &mdash; starts the Cockpit HANA instance</td></tr>
+      </tbody>
+    </table>
+    <p>A confirmation dialog asks you to confirm before starting. If the service is already running, you will see an informational message instead of starting it again.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--danger)"></span> Stopping Services</h3>
+    <p>Each status card has a red <span class="badge badge-red">Stop</span> button. Stopping is a two-step authorization process:</p>
+
+    <ol class="step-list">
+      <li><strong>Warning dialog</strong> &mdash; a confirmation message explains the impact (e.g., "All connected users will be disconnected" or "Shut SAP down first before stopping the database").</li>
+      <li><strong>Master password</strong> &mdash; you must enter the vault master password. If the password is wrong, the operation is rejected.</li>
+    </ol>
+
+    <table>
+      <thead><tr><th>Button</th><th>What it does</th><th>Pre-check</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Stop SAP</strong></td><td>Runs <code>stopsap R3</code> as <code>s4hadm</code></td><td>If SAP is already down, returns info message</td></tr>
+        <tr><td><strong>Stop DB</strong> (FIV)</td><td>Runs <code>HDB stop</code> as <code>fivadm</code></td><td>If HANA is already down, returns info message</td></tr>
+        <tr><td><strong>Stop DB</strong> (PIT)</td><td>Runs <code>HDB stop</code> as <code>pitadm</code></td><td>If HANA is already down, returns info message</td></tr>
+      </tbody>
+    </table>
+
+    <div class="danger-box">
+      <strong>Important &mdash; Shutdown Order:</strong> Always stop SAP Application Server <em>before</em> stopping the HANA FIV database. Stopping the database while SAP is running can cause data corruption. The cockpit warns you about this.
+    </div>
+
+    <div class="info-box">
+      <strong>Startup Order:</strong> When bringing the system back up, start HANA FIV first, then SAP Application Server. The PIT (Cockpit) database is independent and can be started/stopped at any time.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Recommended Shutdown Sequence</h3>
+    <ol class="step-list">
+      <li><strong>Stop SAP</strong> &mdash; Click "Stop SAP", confirm the warning, enter the master password.</li>
+      <li><strong>Check Status</strong> &mdash; Click "Check Status" and wait until SAP shows <span class="badge badge-red">Inactive</span>.</li>
+      <li><strong>Stop HANA FIV</strong> &mdash; Click "Stop DB" on the HANA Database card.</li>
+      <li><strong>(Optional) Stop HANA PIT</strong> &mdash; Click "Stop DB" on the Cockpit card if you also want to shut down the DBA Cockpit.</li>
+    </ol>
+
+    <h3 style="margin-top:20px;"><span class="dot" style="background: var(--primary)"></span> Recommended Startup Sequence</h3>
+    <ol class="step-list">
+      <li><strong>Start HANA FIV</strong> &mdash; Click "Start DB" on the HANA Database card. Wait until status shows <span class="badge badge-green">Active</span>.</li>
+      <li><strong>(Optional) Start HANA PIT</strong> &mdash; Click "Start DB" on the Cockpit card.</li>
+      <li><strong>Start SAP</strong> &mdash; Click "Start SAP". The ABAP stack needs the database to be running first.</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- DISK SPACE -->
+<!-- ============================================================ -->
+<div class="section" id="disk">
+  <div class="section-title">Disk Space</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Filesystem Monitor</h3>
+    <p>The Disk Space card appears next to Server Details and shows all mounted filesystems with visual progress bars.</p>
+
+    <table>
+      <thead><tr><th>Bar Color</th><th>Usage Level</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-green">Green</span></td><td>Below 70%</td><td>Normal &mdash; no action needed</td></tr>
+        <tr><td><span class="badge badge-yellow">Yellow</span></td><td>70% &ndash; 85%</td><td>Monitor &mdash; plan cleanup soon</td></tr>
+        <tr><td><span class="badge badge-red">Red</span></td><td>Above 85%</td><td>Critical &mdash; free space immediately</td></tr>
+      </tbody>
+    </table>
+
+    <p>Each filesystem row shows: mount point, usage percentage bar, total size, and available space. Click <strong>Refresh</strong> to update the data.</p>
+
+    <h3 style="margin-top:20px;"><span class="dot" style="background: var(--warning)"></span> Key Filesystems to Watch</h3>
+    <table>
+      <thead><tr><th>Mount</th><th>Contains</th><th>Why it matters</th></tr></thead>
+      <tbody>
+        <tr><td><code>/hana/data</code></td><td>HANA database data files</td><td>If full, HANA stops accepting writes and may crash</td></tr>
+        <tr><td><code>/hana/log</code></td><td>HANA transaction logs</td><td>If full, all database transactions halt</td></tr>
+        <tr><td><code>/sap_backup</code></td><td>Local backup staging area</td><td>Backups fail if insufficient space</td></tr>
+        <tr><td><code>/usr/sap</code></td><td>SAP binaries and work files</td><td>SAP cannot start if this is full</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LINKS -->
+<!-- ============================================================ -->
+<div class="section" id="links">
+  <div class="section-title">Links &amp; Resources</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Available Links</h3>
+    <p>The Links section provides quick access to external tools and documentation:</p>
+
+    <table>
+      <thead><tr><th>Link</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>SSO S/4HANA</strong></td><td>SAP GUI Web access via Okta SAML single sign-on</td></tr>
+        <tr><td><strong>HANA Cockpit</strong></td><td>SAP HANA Database Administration Cockpit (port 51024). Manage databases, monitor performance, view alerts.</td></tr>
+        <tr><td><strong>Web IDE</strong></td><td>SAP HANA Web-based Development Workbench (port 8000). Credentials are auto-loaded from the encrypted vault &mdash; displayed next to the link.</td></tr>
+        <tr><td><strong>VM Settings</strong></td><td>Google Cloud Compute Engine instance details for the SAP server</td></tr>
+        <tr><td><strong>DNS Registration</strong></td><td>Google Cloud DNS zone for <code>fivetran-internal-sales.com</code></td></tr>
+        <tr><td><strong>Backint Backup Destination</strong></td><td>GCS bucket where HANA backups are stored</td></tr>
+        <tr><td><strong>Technical Details</strong></td><td>Slab documentation for the S/4HANA demo environment</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:20px;"><span class="dot" style="background: var(--primary)"></span> Business Process Documentation</h3>
+    <p>The lower section of the Links card contains links to all SAP business process workflow documentation:</p>
+    <table>
+      <thead><tr><th>Document</th><th>Process Flow</th></tr></thead>
+      <tbody>
+        <tr><td>Order to Cash (OTC)</td><td>Sales Order &rarr; Delivery &rarr; Goods Issue &rarr; Billing &rarr; Payment</td></tr>
+        <tr><td>Procure to Pay (P2P)</td><td>Purchase Order &rarr; Goods Receipt &rarr; Invoice Verification &rarr; Payment</td></tr>
+        <tr><td>Plan to Produce (PP)</td><td>BOM &rarr; Routing &rarr; Production Order &rarr; Confirmation</td></tr>
+        <tr><td>MRP</td><td>PIR &rarr; MRP Run &rarr; Planned Orders &rarr; Purchase Requisitions</td></tr>
+        <tr><td>Housekeeping</td><td>Period Close, Number Ranges, Material Ledger, System Cleanup</td></tr>
+        <tr><td>CDS View Extraction</td><td>8-Phase Pipeline: Dependencies &rarr; Metadata &rarr; SQL &rarr; BFS Chain</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECURITY -->
+<!-- ============================================================ -->
+<div class="section" id="security">
+  <div class="section-title">Security &amp; Credentials</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Credential Management</h3>
+    <p>The cockpit follows a strict no-hardcoded-passwords policy. All credentials are stored in the encrypted vault on the server and retrieved at runtime.</p>
+
+    <table>
+      <thead><tr><th>Credential</th><th>How it's used</th><th>Vault access</th></tr></thead>
+      <tbody>
+        <tr><td>HANA FIV (SAPHANADB)</td><td>Status checks, backup triggers, version queries</td><td>Auto-read (no password needed)</td></tr>
+        <tr><td>HANA PIT (SYSTEM)</td><td>Cockpit status checks, backup triggers</td><td>Auto-read (no password needed)</td></tr>
+        <tr><td>Web IDE credentials</td><td>Displayed next to Web IDE link on page load</td><td>Auto-read (no password needed)</td></tr>
+        <tr><td>SAP OS users (s4hadm, fivadm, pitadm)</td><td>Start/stop commands via <code>su -</code></td><td>Auto-read (no password needed)</td></tr>
+        <tr><td>Master password</td><td>Required for all <strong>stop</strong> operations</td><td>Validates against vault encryption key</td></tr>
+      </tbody>
+    </table>
+
+    <div class="warn-box">
+      <strong>Master Password:</strong> The master password is required only for destructive operations (stopping services). Reading credentials from the vault does not require it. If you do not know the master password, contact the SAP Specialist team.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TROUBLESHOOTING -->
+<!-- ============================================================ -->
+<div class="section" id="troubleshooting">
+  <div class="section-title">Troubleshooting</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--warning)"></span> Common Issues</h3>
+    <table>
+      <thead><tr><th>Problem</th><th>Cause</th><th>Solution</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>All status cards show "Error"</td>
+          <td>Web server API cannot reach sapidess4</td>
+          <td>Check if <code>sapidess4</code> VM is running in GCP. The web server (<code>sapidesecc8</code>) must be able to reach it.</td>
+        </tr>
+        <tr>
+          <td>SAP shows Inactive but HANA is Active</td>
+          <td>SAP application server is stopped</td>
+          <td>Click "Start SAP" to start the ABAP stack. The database must be running first.</td>
+        </tr>
+        <tr>
+          <td>Backup Now returns "Error"</td>
+          <td>HANA instance is down, or BACKINT agent not configured</td>
+          <td>Ensure the HANA instance is Active first. Check BACKINT configuration in <code>/usr/sap/FIV/SYS/global/hdb/opt/</code></td>
+        </tr>
+        <tr>
+          <td>Stop button says "Wrong master password"</td>
+          <td>Incorrect master password entered</td>
+          <td>Retry with the correct master password. Contact SAP Specialist team if forgotten.</td>
+        </tr>
+        <tr>
+          <td>Start/Stop button shows "Already running" or "Already stopped"</td>
+          <td>The service is already in the requested state</td>
+          <td>This is informational &mdash; no action needed. Click "Check Status" to confirm.</td>
+        </tr>
+        <tr>
+          <td>Disk Space shows "Error loading"</td>
+          <td>API endpoint unreachable or server restart needed</td>
+          <td>Try clicking "Refresh". If persistent, the gcs-explorer service on sapidesecc8 may need a restart.</td>
+        </tr>
+        <tr>
+          <td>Web IDE credentials not showing</td>
+          <td>Vault read failed or credentials not stored</td>
+          <td>Check that <code>hana_ide_user</code> and <code>hana_ide_password</code> exist in the vault.</td>
+        </tr>
+        <tr>
+          <td>Web IDE is very slow</td>
+          <td>HANA delta store fragmentation</td>
+          <td>A weekly delta merge cron runs Sundays at 02:00 on sapidess4. If slowness recurs mid-week, run <code>ssh root@sapidess4 /usr/local/bin/hana_delta_merge.sh</code></td>
+        </tr>
+        <tr>
+          <td>Page returns 404</td>
+          <td>HTML file missing from server</td>
+          <td>Re-deploy: <code>scp SAP_S4HANA_2023.html root@sapidesecc8:/usr/sap/sap_skills/docs/</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Architecture</h3>
+    <p>The cockpit page is a static HTML file served by the Python HTTPS server on <code>sapidesecc8</code> (port 443). All dynamic data comes from API endpoints on the same server:</p>
+    <table>
+      <thead><tr><th>API Endpoint</th><th>Method</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>/sap_skills/api/system_status</code></td><td>GET</td><td>SAP + HANA FIV + PIT status, tenant names, last backup dates</td></tr>
+        <tr><td><code>/sap_skills/api/hana_version</code></td><td>GET</td><td>HANA version, OS version, tenant name</td></tr>
+        <tr><td><code>/sap_skills/api/backup_running</code></td><td>GET</td><td>Check if any backup is currently in progress</td></tr>
+        <tr><td><code>/sap_skills/api/hana_ide_credentials</code></td><td>GET</td><td>Web IDE user/password from vault</td></tr>
+        <tr><td><code>/sap_skills/api/disk_space</code></td><td>GET</td><td>Filesystem usage (df -h)</td></tr>
+        <tr><td><code>/sap_skills/api/hardware_info</code></td><td>GET</td><td>CPU count (nproc) and total memory (free -g)</td></tr>
+        <tr><td><code>/sap_skills/api/trigger_backup</code></td><td>POST</td><td>Start BACKINT backup (target: fiv or pit)</td></tr>
+        <tr><td><code>/sap_skills/api/hana_control</code></td><td>POST</td><td>Start/stop HANA (target + action + master password for stop)</td></tr>
+        <tr><td><code>/sap_skills/api/sap_control</code></td><td>POST</td><td>Start/stop SAP application server (action + master password for stop)</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      The web server runs on <code>sapidesecc8</code> and connects to <code>sapidess4</code> via SSH/hdbsql to execute commands. No credentials are hardcoded in the HTML &mdash; all sensitive data flows through the server-side vault.
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
+</div>
+
+</body>
+</html>

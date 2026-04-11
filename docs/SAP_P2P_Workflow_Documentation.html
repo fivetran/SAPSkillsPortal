@@ -38,6 +38,7 @@
     color: white;
     padding: 40px 0;
     text-align: center;
+    position: relative;
   }
   .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
   .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
@@ -293,12 +294,14 @@
     border-top: 1px solid var(--border);
     margin-top: 40px;
   }
-</style>
+  .back-link { position: absolute; top: 16px; right: 24px; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .back-link:hover { color: #fff; text-decoration: underline; }</style>
 </head>
 <body>
 
 <!-- HEADER -->
 <div class="header">
+  <a href="/sap_skills/" class="back-link">Go back to the main page</a>
   <h1>SAP Procure-to-Pay Workflow</h1>
   <div class="subtitle">S/4HANA IDES &mdash; Automated PTP Data Generator via JCo RFC</div>
   <span class="badge">Operational</span>

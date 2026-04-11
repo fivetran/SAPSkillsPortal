@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECC 6.0 SQ1 — SAP Management Cockpit</title>
+<style>
+  :root {
+    --primary: #1a5c8a;
+    --primary-light: #2980b9;
+    --primary-dark: #13455e;
+    --accent: #1a5c8a;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #1a5c8a 0%, #13455e 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+    position: relative;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+
+  /* Navigation */
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary-dark);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #e6eff5; }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: #e6eff5;
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  tr:hover td { background: #f0f6fa; }
+
+  /* Code */
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: #c0392b;
+  }
+
+  /* Info boxes */
+  .info-box {
+    background: #e6eff5;
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+
+  /* Link list */
+  .link-list {
+    list-style: none;
+    padding: 0;
+  }
+  .link-list li {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .link-list li:last-child { border-bottom: none; }
+  .link-list a {
+    color: var(--primary-dark);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .link-list a:hover { text-decoration: underline; }
+  .link-list .link-desc {
+    color: var(--text-light);
+    font-size: 0.85rem;
+  }
+
+  /* Status grid */
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 16px;
+    margin-top: 16px;
+  }
+
+  /* Disk bar */
+  .disk-bar-bg {
+    background: #e9ecef;
+    border-radius: 4px;
+    height: 8px;
+    width: 100%;
+    overflow: hidden;
+  }
+  .disk-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s;
+  }
+  .disk-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.84rem;
+  }
+  .disk-row:last-child { border-bottom: none; }
+  .disk-mount { font-weight: 600; color: var(--text); min-width: 100px; }
+  .disk-info { color: var(--text-light); font-size: 0.78rem; white-space: nowrap; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  .back-link { position: absolute; top: 16px; right: 24px; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .back-link:hover { color: #fff; text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <a href="/sap_skills/" class="back-link">Go back to the main page</a>
+  <h1>ECC 6.0 &mdash; SQ1</h1>
+  <div class="subtitle">SAP ECC IDES Application Server on Microsoft SQL Server</div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#system">System Info</a>
+    <a href="#status">Status</a>
+    <a href="#links">Links</a>
+    <a href="SAP_ECC6_SQ1_Guide.html">Documentation</a>
+    <a href="SAP_Management_Cockpit.html">Back to Cockpit</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- SYSTEM INFO -->
+<!-- ============================================================ -->
+<div class="section" id="system">
+  <div class="section-title">System Information</div>
+
+  <div style="display:flex; gap:20px; flex-wrap:wrap;">
+  <div class="card" style="flex:2; min-width:480px;">
+    <h3><span class="dot" style="background: var(--primary)"></span> Server Details</h3>
+    <table>
+      <thead>
+        <tr><th>Property</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Hostname</td><td><code>sap-sql-ides</code></td></tr>
+        <tr><td>SAP System</td><td>SAP ECC 6.0 &mdash; IDES</td></tr>
+        <tr><td>SID</td><td><code>SQ1</code></td></tr>
+        <tr><td>Instance</td><td><code>D00</code> (Dialog)</td></tr>
+        <tr><td>Instance Nr</td><td><code>00</code></td></tr>
+        <tr><td>Client</td><td><code>800</code></td></tr>
+        <tr><td>Database</td><td>Microsoft SQL Server 2012 SP1 (11.0.3393.0) &mdash; <code>SAP-SQL-IDES\SQ1</code></td></tr>
+        <tr><td>DB Name</td><td><code>SQ1</code></td></tr>
+        <tr><td>OS</td><td>Windows Server 2022 Datacenter <button onclick="rdpConnect()" id="rdp-btn" style="display:inline-block; margin-left:12px; padding:3px 12px; background:#7c3aed; color:white; border:none; border-radius:5px; font-size:0.78rem; font-weight:600; cursor:pointer;">RDP</button></td></tr>
+        <tr><td>IP Addresses</td><td>Private <code>10.128.0.51</code> &mdash; Public <code>104.154.109.8</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card" style="flex:1; min-width:260px;">
+    <h3 style="display:flex; align-items:center; justify-content:space-between;">
+      <span><span class="dot" style="background: var(--primary)"></span> Disk Space</span>
+      <button onclick="loadDiskSpace()" id="disk-refresh-btn" style="font-size:0.72rem; padding:4px 10px; background:var(--primary); color:white; border:none; border-radius:5px; cursor:pointer; font-weight:600;">Refresh</button>
+    </h3>
+    <div id="disk-space-content" style="font-size:0.88rem; color:var(--text-light);">Loading...</div>
+  </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- STATUS -->
+<!-- ============================================================ -->
+<div class="section" id="status">
+  <div class="section-title" style="display:flex; align-items:center; justify-content:space-between;">
+    Status
+    <button onclick="refreshStatus()" id="status-btn" style="font-size:0.8rem; padding:6px 14px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Check Status</button>
+  </div>
+
+  <div style="display:flex; gap:20px; flex-wrap:wrap;">
+    <div class="card" style="flex:1; min-width:300px; text-align:center;">
+      <h3 style="justify-content:center;"><span id="sap-dot" class="dot" style="background: #6c757d"></span> SAP Application Server</h3>
+      <div id="sap-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
+      <div id="sap-status-detail" style="font-size:0.85rem; color:var(--text-light);">Click "Check Status" to verify</div>
+      <div style="margin-top:12px; display:flex; gap:8px; justify-content:center;">
+        <button id="sap-start-btn" onclick="sapControl('start')" style="font-size:0.78rem; padding:5px 14px; background:#27ae60; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Start SAP</button>
+        <button id="sap-stop-btn" onclick="sapControl('stop')" style="font-size:0.78rem; padding:5px 14px; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Stop SAP</button>
+      </div>
+    </div>
+    <div class="card" style="flex:1; min-width:300px; text-align:center;">
+      <h3 style="justify-content:center;"><span id="db-dot" class="dot" style="background: #6c757d"></span> SQL Server Database</h3>
+      <div id="db-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
+      <div id="db-status-detail" style="font-size:0.85rem; color:var(--text-light);"></div>
+      <div id="db-last-backup" style="font-size:0.82rem; color:var(--text-light); margin-top:6px;"></div>
+      <div id="db-backup-running" style="font-size:0.85rem; font-weight:600; margin-top:8px; color:#6c757d;">—</div>
+      <div style="font-size:0.78rem; color:var(--text-light); margin-top:4px;">Backup location: <code style="background:rgba(0,0,0,0.06); padding:1px 5px; border-radius:3px; font-size:0.78rem;">D:\Backup</code></div>
+      <div style="margin-top:12px;">
+        <button id="db-backup-btn" onclick="triggerBackup()" style="font-size:0.78rem; padding:5px 14px; background:#7c3aed; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Backup Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SAP LICENSE -->
+<!-- ============================================================ -->
+<div class="section" id="license-section">
+  <div class="section-title">SAP License</div>
+  <div class="card" style="text-align:center;">
+    <div id="license-content" style="color:var(--text-light); font-size:0.9rem;">Loading license info...</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LINKS -->
+<!-- ============================================================ -->
+<div class="section" id="links">
+  <div class="section-title">Links</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Resources</h3>
+    <ul class="link-list">
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-central1-a/instances/sap-sql?project=internal-sales" target="_blank" style="flex-shrink:0;">
+            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-central1-a/instances/sap-sql?project=internal-sales" target="_blank">VM Settings</a>
+            <div class="link-desc">Google Cloud Compute Engine &mdash; sap-sql</div>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- PASSWORD MODAL -->
+<div id="pwd-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+  <div style="background:white; border-radius:12px; padding:28px; max-width:360px; width:90%; box-shadow:0 8px 30px rgba(0,0,0,0.3);">
+    <div id="pwd-title" style="font-size:1rem; font-weight:700; color:var(--text); margin-bottom:14px;">Enter master password</div>
+    <input id="pwd-input" type="password" placeholder="Master password" style="width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:6px; font-size:0.95rem; outline:none; box-sizing:border-box;" onkeydown="if(event.key==='Enter')document.getElementById('pwd-ok').click();">
+    <div style="display:flex; gap:10px; margin-top:16px; justify-content:flex-end;">
+      <button onclick="closePwdModal(null)" style="padding:7px 18px; background:#e9ecef; color:var(--text); border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85rem;">Cancel</button>
+      <button id="pwd-ok" onclick="closePwdModal(document.getElementById('pwd-input').value)" style="padding:7px 18px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85rem;">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
+</div>
+
+<!-- SCRIPTS -->
+<script>
+function refreshStatus() {
+  var btn = document.getElementById('status-btn');
+  btn.textContent = 'Checking...';
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  fetch('/sap_skills/api/sq1_system_status')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        // SAP status
+        document.getElementById('sap-status').textContent = data.sap.active ? 'Active' : 'Inactive';
+        document.getElementById('sap-status').style.color = data.sap.active ? '#166534' : '#991b1b';
+        document.getElementById('sap-dot').style.background = data.sap.active ? '#27ae60' : '#e74c3c';
+        document.getElementById('sap-status-detail').textContent = data.sap.detail || '';
+        // DB status
+        if (data.db) {
+          document.getElementById('db-status').textContent = data.db.active ? 'Online' : (data.db.detail || 'Offline');
+          document.getElementById('db-status').style.color = data.db.active ? '#166534' : '#991b1b';
+          document.getElementById('db-dot').style.background = data.db.active ? '#27ae60' : '#e74c3c';
+          document.getElementById('db-status-detail').textContent = data.db.detail || '';
+          if (data.db.last_backup_utc) {
+            var lb = new Date(data.db.last_backup_utc);
+            var lbAms = lb.toLocaleString('en-GB', {timeZone:'Europe/Amsterdam', month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit'});
+            var lbLA = lb.toLocaleString('en-US', {timeZone:'America/Los_Angeles', month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit'});
+            document.getElementById('db-last-backup').innerHTML = 'Last backup: ' + lbAms + ' (AMS) / ' + lbLA + ' (LA)';
+          } else {
+            document.getElementById('db-last-backup').textContent = 'No backup found';
+          }
+          // Backup running status
+          var bkEl = document.getElementById('db-backup-running');
+          if (data.db.backup_running) {
+            var pctText = data.db.backup_pct ? ' (' + data.db.backup_pct + '%)' : '';
+            bkEl.innerHTML = '<span style="color:#b35900;">&#9679;</span> Backup Running' + pctText;
+            bkEl.style.color = '#b35900';
+          } else {
+            bkEl.innerHTML = '<span style="color:#166534;">&#9679;</span> No Backup Running';
+            bkEl.style.color = '#166534';
+          }
+        }
+        btn.textContent = 'Checked!';
+        btn.style.background = '#27ae60';
+      } else {
+        document.getElementById('sap-status').textContent = 'Error';
+        btn.textContent = 'Error';
+        btn.style.background = '#e74c3c';
+      }
+      setTimeout(function() { btn.textContent = 'Check Status'; btn.style.background = 'var(--primary)'; btn.style.opacity = '1'; btn.disabled = false; }, 3000);
+    })
+    .catch(function() {
+      document.getElementById('sap-status').textContent = 'Error';
+      btn.textContent = 'Error';
+      btn.style.background = '#e74c3c';
+      setTimeout(function() { btn.textContent = 'Check Status'; btn.style.background = 'var(--primary)'; btn.style.opacity = '1'; btn.disabled = false; }, 3000);
+    });
+}
+
+function triggerBackup() {
+  var btn = document.getElementById('db-backup-btn');
+  if (!confirm('This will run a FULL compressed backup of the SQ1 database to D:\\Backup.\n\nThe database remains online during backup.\n\nProceed?')) return;
+  askPassword('Enter master password to authorize backup').then(function(pwd) {
+    if (!pwd) return;
+    btn.textContent = 'Backing up...';
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    fetch('/sap_skills/api/sq1_trigger_backup', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({master_password: pwd})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        btn.textContent = 'Backup complete';
+        btn.style.background = '#27ae60';
+        refreshStatus();
+      } else {
+        btn.textContent = data.message || 'Error';
+        btn.style.background = '#e74c3c';
+      }
+      setTimeout(function() {
+        btn.textContent = 'Backup Now';
+        btn.style.background = '#7c3aed';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }, 5000);
+    })
+    .catch(function() {
+      btn.textContent = 'Error';
+      btn.style.background = '#e74c3c';
+      setTimeout(function() {
+        btn.textContent = 'Backup Now';
+        btn.style.background = '#7c3aed';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }, 3000);
+    });
+  });
+}
+
+var _pwdResolve = null;
+function askPassword(title) {
+  return new Promise(function(resolve) {
+    _pwdResolve = resolve;
+    document.getElementById('pwd-title').textContent = title || 'Enter master password';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-overlay').style.display = 'flex';
+    document.getElementById('pwd-input').focus();
+  });
+}
+function closePwdModal(val) {
+  document.getElementById('pwd-overlay').style.display = 'none';
+  if (_pwdResolve) { _pwdResolve(val); _pwdResolve = null; }
+}
+
+function sapControl(action) {
+  var btn = document.getElementById('sap-' + action + '-btn');
+  if (action === 'stop') {
+    if (!confirm('WARNING: Stopping SAP SQ1 Application Server.\n\nAll connected users will be disconnected.')) return;
+    askPassword('Enter master password to stop SAP').then(function(pwd) {
+      if (!pwd) return;
+      doSapControl(action, pwd, btn);
+    });
+  } else {
+    if (!confirm('Start SAP SQ1 Application Server?')) return;
+    doSapControl(action, null, btn);
+  }
+}
+
+function pollStatus(action, btn, attempt) {
+  var maxAttempts = 6;
+  var secs = 30 - 0;
+  var countdown = setInterval(function() {
+    secs--;
+    if (secs > 0) btn.textContent = (action === 'stop' ? 'Stopping' : 'Starting') + '... check in ' + secs + 's';
+  }, 1000);
+  setTimeout(function() {
+    clearInterval(countdown);
+    btn.textContent = 'Checking status...';
+    refreshStatus();
+    setTimeout(function() {
+      var statusEl = document.getElementById('sap-status');
+      var isActive = statusEl && statusEl.textContent === 'Active';
+      var targetReached = (action === 'stop' && !isActive) || (action === 'start' && isActive);
+      if (targetReached) {
+        btn.textContent = action === 'stop' ? 'Stopped' : 'Started';
+        btn.style.background = '#1a5c8a';
+        setTimeout(function() {
+          btn.textContent = action === 'stop' ? 'Stop SAP' : 'Start SAP';
+          btn.style.background = action === 'stop' ? '#e74c3c' : '#27ae60';
+          btn.disabled = false;
+          btn.style.opacity = '1';
+        }, 3000);
+      } else if (attempt < maxAttempts) {
+        pollStatus(action, btn, attempt + 1);
+      } else {
+        btn.textContent = 'Timeout — check manually';
+        btn.style.background = '#f39c12';
+        setTimeout(function() {
+          btn.textContent = action === 'stop' ? 'Stop SAP' : 'Start SAP';
+          btn.style.background = action === 'stop' ? '#e74c3c' : '#27ae60';
+          btn.disabled = false;
+          btn.style.opacity = '1';
+        }, 4000);
+      }
+    }, 3000);
+  }, 30000);
+}
+
+function doSapControl(action, pwd, btn) {
+  btn.textContent = action === 'stop' ? 'Stopping...' : 'Starting...';
+  btn.disabled = true;
+  btn.style.opacity = '0.5';
+
+  fetch('/sap_skills/api/sq1_sap_control', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({action: action, master_password: pwd})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      btn.textContent = action === 'stop' ? 'Stop issued' : 'Start issued';
+      btn.style.background = '#1a5c8a';
+      pollStatus(action, btn, 1);
+    } else {
+      btn.textContent = data.message || 'Error';
+      btn.style.background = '#e74c3c';
+      setTimeout(function() {
+        btn.textContent = action === 'stop' ? 'Stop SAP' : 'Start SAP';
+        btn.style.background = action === 'stop' ? '#e74c3c' : '#27ae60';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }, 4000);
+    }
+  })
+  .catch(function() {
+    btn.textContent = 'Error';
+    setTimeout(function() {
+      btn.textContent = action === 'stop' ? 'Stop SAP' : 'Start SAP';
+      btn.style.background = action === 'stop' ? '#e74c3c' : '#27ae60';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }, 3000);
+  });
+}
+
+function loadDiskSpace() {
+  var container = document.getElementById('disk-space-content');
+  var btn = document.getElementById('disk-refresh-btn');
+  btn.textContent = 'Loading...';
+  btn.disabled = true;
+  fetch('/sap_skills/api/sq1_disk_space')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      var html = '';
+      data.filesystems.forEach(function(fs) {
+        var pct = parseInt(fs.used_pct) || 0;
+        var color = pct >= 85 ? '#e74c3c' : pct >= 70 ? '#f39c12' : '#27ae60';
+        html += '<div class="disk-row">' +
+          '<div class="disk-mount">' + fs.mount + '</div>' +
+          '<div style="flex:1;">' +
+            '<div class="disk-bar-bg"><div class="disk-bar-fill" style="width:' + pct + '%; background:' + color + ';"></div></div>' +
+          '</div>' +
+          '<div class="disk-info">' + pct + '% &mdash; ' + fs.size + ' &mdash; ' + fs.avail + ' free</div>' +
+        '</div>';
+      });
+      container.innerHTML = html;
+    }
+    btn.textContent = 'Refresh';
+    btn.disabled = false;
+  })
+  .catch(function() {
+    container.textContent = 'Error loading disk space';
+    btn.textContent = 'Refresh';
+    btn.disabled = false;
+  });
+}
+
+function loadLicense() {
+  var el = document.getElementById('license-content');
+  fetch('/sap_skills/api/sq1_license')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok' && data.licenses) {
+        var html = '<table style="width:100%; border-collapse:collapse; font-size:0.85rem;">';
+        html += '<tr style="border-bottom:1px solid rgba(0,0,0,0.1);">';
+        html += '<th style="text-align:left; padding:6px 10px; font-weight:600;">License Type</th>';
+        html += '<th style="text-align:center; padding:6px 10px; font-weight:600;">Valid From</th>';
+        html += '<th style="text-align:center; padding:6px 10px; font-weight:600;">Valid To</th>';
+        html += '<th style="text-align:center; padding:6px 10px; font-weight:600;">Status</th>';
+        html += '</tr>';
+        data.licenses.forEach(function(lic) {
+          if (lic.status === 'key') return;
+          if (!lic.valid_from && !lic.valid_to) return;
+          var statusColor, statusText, statusIcon;
+          if (lic.status === 'expired') {
+            statusColor = '#991b1b'; statusText = 'Expired'; statusIcon = '&#10060;';
+          } else if (lic.status === 'expiring_soon') {
+            statusColor = '#b35900'; statusText = 'Expiring Soon'; statusIcon = '&#9888;';
+          } else if (lic.status === 'valid') {
+            statusColor = '#166534'; statusText = 'Valid'; statusIcon = '&#9989;';
+          } else {
+            statusColor = '#6c757d'; statusText = 'Unknown'; statusIcon = '&#8212;';
+          }
+          html += '<tr style="border-bottom:1px solid rgba(0,0,0,0.05);">';
+          html += '<td style="text-align:left; padding:6px 10px;">' + lic.type + '</td>';
+          html += '<td style="text-align:center; padding:6px 10px;">' + (lic.valid_from || '—') + '</td>';
+          html += '<td style="text-align:center; padding:6px 10px;">' + (lic.valid_to || '—') + '</td>';
+          html += '<td style="text-align:center; padding:6px 10px; font-weight:700; color:' + statusColor + ';">' + statusIcon + ' ' + statusText + '</td>';
+          html += '</tr>';
+        });
+        html += '</table>';
+        el.innerHTML = html;
+      } else {
+        el.textContent = 'Could not load license info';
+      }
+    })
+    .catch(function() {
+      el.textContent = 'Error loading license info';
+    });
+}
+
+// Auto-load on page open + refresh every 5 minutes
+document.addEventListener('DOMContentLoaded', function() {
+  refreshStatus();
+  loadDiskSpace();
+  loadLicense();
+  setInterval(function() { refreshStatus(); loadLicense(); }, 300000);
+});
+</script>
+
+</body>
+</html>

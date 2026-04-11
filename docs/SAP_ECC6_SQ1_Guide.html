@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP ECC 6.0 SQ1 Management Cockpit &mdash; User Guide</title>
+<style>
+  :root {
+    --primary: #1a5c8a;
+    --primary-light: #2980b9;
+    --primary-dark: #13455e;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --warning: #f39c12;
+    --danger: #e74c3c;
+    --code-bg: #f1f3f5;
+    --accent-bg: #e6eff5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #1a5c8a 0%, #13455e 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+    position: relative;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary-dark);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: var(--accent-bg); }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--primary-dark);
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  p { margin-bottom: 12px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 12px 0;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: var(--accent-bg);
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  tr:hover td { background: #f0f6fa; }
+
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: #13455e;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: white;
+  }
+  .badge-green { background: var(--success); }
+  .badge-red { background: var(--danger); }
+  .badge-yellow { background: var(--warning); }
+  .badge-blue { background: var(--primary); }
+  .badge-purple { background: #7c3aed; }
+  .badge-grey { background: var(--text-light); }
+
+  .info-box {
+    background: var(--accent-bg);
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+  .warn-box {
+    background: #fef3cd;
+    border-left: 4px solid var(--warning);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+  .danger-box {
+    background: #f8d7da;
+    border-left: 4px solid var(--danger);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+
+  .step-list { counter-reset: step; list-style: none; padding: 0; }
+  .step-list li {
+    counter-increment: step;
+    padding: 10px 0 10px 48px;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+  }
+  .step-list li:last-child { border-bottom: none; }
+  .step-list li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 32px;
+    height: 32px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.88rem;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  .back-link { position: absolute; top: 16px; right: 24px; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .back-link:hover { color: #fff; text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <a href="/sap_skills/" class="back-link">Go back to the main page</a>
+  <h1>SAP ECC 6.0 SQ1 &mdash; User Guide</h1>
+  <div class="subtitle">How to use the Management Cockpit for SAP ECC on Microsoft SQL Server</div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#system-info">System Info</a>
+    <a href="#status">Status</a>
+    <a href="#backup">Backup</a>
+    <a href="#startstop">Start / Stop</a>
+    <a href="#disk">Disk Space</a>
+    <a href="#license">License</a>
+    <a href="#links">Links</a>
+    <a href="#rdp">RDP Access</a>
+    <a href="#security">Security</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+    <a href="#architecture">Architecture</a>
+    <a href="SAP_ECC6_SQ1.html">Back to Cockpit</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- OVERVIEW -->
+<!-- ============================================================ -->
+<div class="section" id="overview">
+  <div class="section-title">Overview</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> What is the ECC 6.0 SQ1 Cockpit?</h3>
+    <p>The SAP ECC 6.0 SQ1 Management Cockpit is a web-based dashboard for monitoring and operating the SAP ECC IDES demonstration environment running on <strong>Microsoft SQL Server</strong> hosted on a Windows Server VM (<code>sap-sql-ides</code>). Unlike the ECC EHP8 system (Oracle on Linux) and S/4HANA (HANA on Linux), this system runs on a <strong>Windows</strong> platform.</p>
+    <p>From a single page you can:</p>
+    <ul style="margin: 8px 0 12px 24px;">
+      <li>View server details, SQL Server database state, and version information</li>
+      <li>Monitor disk space with visual progress bars</li>
+      <li>Check the live status of the SAP Application Server and SQL Server Database</li>
+      <li>Monitor whether a backup is currently running (with percent complete)</li>
+      <li>Trigger on-demand SQL Server full compressed backups</li>
+      <li>Start and stop SAP services via sapcontrol SOAP API</li>
+      <li>Check SAP license validity with automatic expiry detection</li>
+      <li>Access links to GCP console, DNS settings, and technical documentation</li>
+      <li>Connect via RDP with automatic credential retrieval</li>
+    </ul>
+    <div class="info-box">
+      <strong>URL:</strong> <code>https://sapidesecc8.fivetran-internal-sales.com/sap_skills/docs/SAP_ECC6_SQ1.html</code>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SYSTEM INFO -->
+<!-- ============================================================ -->
+<div class="section" id="system-info">
+  <div class="section-title">System Information</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Server Details</h3>
+    <p>The <strong>System Information</strong> card displays static and dynamic information about the SAP server:</p>
+    <table>
+      <thead><tr><th>Field</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>Hostname</td><td>Server hostname: <code>sap-sql-ides</code>. Includes an <span class="badge badge-purple">RDP</span> button that auto-copies the Administrator password from the vault to your clipboard.</td></tr>
+        <tr><td>SAP System</td><td>SAP ECC 6.0 IDES</td></tr>
+        <tr><td>SID</td><td>System ID: <code>SQ1</code></td></tr>
+        <tr><td>Instance Nr</td><td>Dialog instance: <code>00</code>, ASCS instance: <code>01</code></td></tr>
+        <tr><td>Client</td><td>SAP client <code>800</code></td></tr>
+        <tr><td>Database</td><td>Microsoft SQL Server (instance <code>SAP-SQL-IDES\SQ1</code>)</td></tr>
+        <tr><td>OS</td><td>Windows Server 2022 Datacenter</td></tr>
+        <tr><td>Private IP</td><td><code>10.128.15.222</code> (GCP VPC internal)</td></tr>
+        <tr><td>Public IP</td><td><code>34.133.170.14</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Disk Space</h3>
+    <p>The Disk Space card shows all Windows drives with visual progress bars. Data is retrieved via the <code>/sap_skills/api/sq1_disk_space</code> endpoint which runs a WinRM PowerShell command to query disk info from the Windows VM.</p>
+    <table>
+      <thead><tr><th>Bar Color</th><th>Usage Level</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-green">Green</span></td><td>Below 70%</td><td>Normal &mdash; no action needed</td></tr>
+        <tr><td><span class="badge badge-yellow">Yellow</span></td><td>70% &ndash; 85%</td><td>Monitor &mdash; plan cleanup soon</td></tr>
+        <tr><td><span class="badge badge-red">Red</span></td><td>Above 85%</td><td>Critical &mdash; free space immediately</td></tr>
+      </tbody>
+    </table>
+    <p>Each drive row shows: drive letter, usage percentage bar, total size, and available space. Click <strong>Refresh</strong> to update the data.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- STATUS -->
+<!-- ============================================================ -->
+<div class="section" id="status">
+  <div class="section-title">Status Cards</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Understanding the Status Section</h3>
+    <p>The Status section contains two cards that show the real-time state of the system components. Click <strong>Check Status</strong> to query both at once. The status auto-refreshes every 5 minutes.</p>
+    <table>
+      <thead><tr><th>Card</th><th>What it monitors</th><th>Details</th></tr></thead>
+      <tbody>
+        <tr><td><strong>SAP Application Server</strong></td><td>SAP NetWeaver ABAP stack</td><td>SID <code>SQ1</code>, instances D00 and ASCS01. Controlled via sapcontrol SOAP API.</td></tr>
+        <tr><td><strong>SQL Server Database</strong></td><td>Microsoft SQL Server instance</td><td>Instance <code>SAP-SQL-IDES\SQ1</code>. Shows database state, last backup time, and backup running status.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--success)"></span> SAP Application Server Card</h3>
+    <p>The SAP card monitors the ABAP application server and displays:</p>
+    <ul style="margin: 8px 0 12px 24px;">
+      <li><strong>Status</strong> &mdash; Active (green) or Inactive (red), determined via the sapcontrol SOAP API on port 50013 (D00) and 50113 (ASCS01)</li>
+      <li><strong>Process Details</strong> &mdash; list of running SAP processes (msg_server, enserver, disp+work, igswd, gwrd, icman)</li>
+      <li><strong>Start / Stop</strong> buttons to control the application server</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> SQL Server Database Card</h3>
+    <p>The SQL Server card monitors the database instance and displays:</p>
+    <ul style="margin: 8px 0 12px 24px;">
+      <li><strong>Status</strong> &mdash; ONLINE (green) or OFFLINE (red), queried via <code>sqlcmd</code> against <code>sys.databases</code></li>
+      <li><strong>Last Backup</strong> &mdash; date and time of the last successful full backup, queried from <code>msdb.dbo.backupset</code></li>
+      <li><strong>Backup Running</strong> &mdash; real-time indicator showing whether a backup is currently in progress, with percent complete. Queried from <code>sys.dm_exec_requests</code> with <code>CROSS APPLY sys.dm_exec_sql_text</code></li>
+      <li><strong>Backup Location</strong> &mdash; <code>D:\Backup</code></li>
+      <li><strong>Backup Now</strong> button to trigger a manual full compressed backup</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--success)"></span> Status Indicators</h3>
+    <p>Each card displays a colored dot and status text:</p>
+    <table>
+      <thead><tr><th>Indicator</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-green">Green dot + Active / ONLINE</span></td><td>The service is running and responding to queries</td></tr>
+        <tr><td><span class="badge badge-red">Red dot + Inactive / OFFLINE</span></td><td>The service is down or unreachable</td></tr>
+        <tr><td><span class="badge badge-grey">Grey dot + Unknown</span></td><td>Status has not been checked yet (page just loaded, waiting for response)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- BACKUP -->
+<!-- ============================================================ -->
+<div class="section" id="backup">
+  <div class="section-title">Backup Operations</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary-dark)"></span> SQ1 Backup Architecture</h3>
+    <p>The SQ1 system uses <strong>SQL Server native backup</strong> with <code>COMPRESSION</code> for database backups. The backup is triggered remotely from <code>sapidesecc8</code> (Linux) via <strong>WinRM</strong> (Windows Remote Management) PowerShell commands to the Windows VM <code>sap-sql-ides</code>.</p>
+    <table>
+      <thead><tr><th>Component</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Backup Tooling</strong></td><td>SQL Server <code>BACKUP DATABASE</code> with <code>COMPRESSION</code></td></tr>
+        <tr><td><strong>Backup Location</strong></td><td><code>D:\Backup</code> on the Windows VM</td></tr>
+        <tr><td><strong>Remote Management</strong></td><td>WinRM (pywinrm) from sapidesecc8 to sap-sql-ides</td></tr>
+        <tr><td><strong>Backup Logs</strong></td><td>SQL Server <code>msdb.dbo.backupset</code> table</td></tr>
+        <tr><td><strong>Running Detection</strong></td><td><code>sys.dm_exec_requests</code> + <code>sys.dm_exec_sql_text</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Backup Command</h3>
+    <p>The backup command executed on the SQL Server instance is:</p>
+    <div class="info-box" style="font-family: monospace; font-size: 0.85rem; white-space: pre; overflow-x: auto;">BACKUP DATABASE [SQ1]
+TO DISK = N'D:\Backup\SQ1_full.bak'
+WITH COMPRESSION, INIT, STATS = 10</div>
+    <p>Key flags: <code>COMPRESSION</code> reduces backup size significantly, <code>INIT</code> overwrites the previous backup file, <code>STATS = 10</code> reports progress every 10%.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--warning)"></span> Manual Backup via Cockpit</h3>
+    <p>The SQL Server Database card includes a <span class="badge badge-purple">Backup Now</span> button to trigger an immediate full compressed backup.</p>
+
+    <h3 style="margin-top:20px;"><span class="dot" style="background: var(--primary)"></span> Manual Backup Workflow</h3>
+    <ol class="step-list">
+      <li>Click <strong>Backup Now</strong> on the SQL Server Database card.</li>
+      <li>A confirmation dialog appears. Click OK to proceed.</li>
+      <li>You will be prompted for the <strong>master password</strong> (required for all backup operations).</li>
+      <li>The button changes to <strong>"Running..."</strong> with a live timer counting elapsed time.</li>
+      <li>The backup runs in the background on the Windows server. The <strong>Backup Running</strong> indicator turns orange and shows the percent complete.</li>
+      <li>Click <strong>Check Status</strong> to check progress. When complete, the last backup date updates and the indicator returns to green <strong>"No Backup Running"</strong>.</li>
+    </ol>
+
+    <div class="info-box">
+      <strong>Backup Running Indicator:</strong> The cockpit queries <code>sys.dm_exec_requests</code> every time you click Check Status (and every 5 minutes automatically) to detect running <code>BACKUP DATABASE</code> operations and display the percent complete.
+    </div>
+
+    <div class="warn-box">
+      <strong>Online Backup:</strong> Unlike the ECC Oracle system (which uses offline_force), SQL Server backups are <strong>online</strong> &mdash; the database remains available during the backup. Users can continue working on the SAP system while the backup runs.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- START / STOP -->
+<!-- ============================================================ -->
+<div class="section" id="startstop">
+  <div class="section-title">Start / Stop Operations</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--success)"></span> Starting Services</h3>
+    <p>The SAP Application Server card has a green <span class="badge badge-green">Start SAP</span> button:</p>
+    <table>
+      <thead><tr><th>Button</th><th>What it does</th><th>Mechanism</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Start SAP</strong></td><td>Starts both instances D00 and ASCS01 via the sapcontrol SOAP API</td><td>HTTP POST to sapcontrol on ports 50013 (D00) and 50113 (ASCS01)</td></tr>
+      </tbody>
+    </table>
+    <p>A confirmation dialog asks you to confirm before starting. If the service is already running, you will see an informational message.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--danger)"></span> Stopping Services</h3>
+    <p>The SAP Application Server card has a red <span class="badge badge-red">Stop SAP</span> button. Stopping is a two-step authorization process:</p>
+    <ol class="step-list">
+      <li><strong>Warning dialog</strong> &mdash; a confirmation message explains the impact ("All connected users will be disconnected").</li>
+      <li><strong>Master password</strong> &mdash; you must enter the vault master password. If the password is wrong, the operation is rejected.</li>
+    </ol>
+
+    <table>
+      <thead><tr><th>Button</th><th>What it does</th><th>Mechanism</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Stop SAP</strong></td><td>Stops both instances D00 and ASCS01</td><td>HTTP POST to sapcontrol SOAP API with StopSystem command</td></tr>
+      </tbody>
+    </table>
+
+    <div class="info-box">
+      <strong>sapcontrol SOAP API:</strong> Unlike the ECC Oracle cockpit (which uses SSH to run OS-level commands), the SQ1 cockpit communicates with the SAP Application Server via the <strong>sapcontrol SOAP API</strong> over HTTP. This makes it possible to control the Windows-hosted SAP instance without PowerShell remoting for SAP operations.
+    </div>
+
+    <div class="danger-box">
+      <strong>Important:</strong> Stopping SAP disconnects all active users immediately. Plan stop operations during maintenance windows when no users are active on the system.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- DISK SPACE -->
+<!-- ============================================================ -->
+<div class="section" id="disk">
+  <div class="section-title">Disk Space Monitoring</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Filesystem Monitor</h3>
+    <p>The Disk Space card shows all Windows drives with visual progress bars. Data is fetched from the <code>/sap_skills/api/sq1_disk_space</code> endpoint which runs a WinRM PowerShell command (<code>Get-WmiObject Win32_LogicalDisk</code>) on the Windows VM.</p>
+
+    <h3 style="margin-top:20px;"><span class="dot" style="background: var(--warning)"></span> Key Drives to Watch</h3>
+    <table>
+      <thead><tr><th>Drive</th><th>Contains</th><th>Why it matters</th></tr></thead>
+      <tbody>
+        <tr><td><code>C:\</code></td><td>Windows OS, SAP binaries, SQL Server binaries</td><td>If full, Windows and SAP services may fail to start</td></tr>
+        <tr><td><code>D:\</code></td><td>SQL Server database files, backup destination (<code>D:\Backup</code>)</td><td>Backups fail if insufficient space; database cannot grow if data drive is full</td></tr>
+      </tbody>
+    </table>
+    <div class="warn-box">
+      <strong>Backup Disk:</strong> Since backups use <code>INIT</code> (overwrite), only one backup file exists at a time. However, the backup file size depends on the database size. Monitor available space on <code>D:\</code> to ensure there is room for both the database files and the backup.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LICENSE -->
+<!-- ============================================================ -->
+<div class="section" id="license">
+  <div class="section-title">SAP License Monitoring</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> License Card</h3>
+    <p>The SAP License card displays the validity of installed SAP licenses. License data is read from the <code>SAPLIKEY</code> table in the SQL Server database via WinRM <code>sqlcmd</code> queries.</p>
+    <table>
+      <thead><tr><th>Column</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>License Type</strong></td><td>NetWeaver or Maintenance license</td></tr>
+        <tr><td><strong>Valid From</strong></td><td>Start date of the license period</td></tr>
+        <tr><td><strong>Valid To</strong></td><td>Expiry date (or "Permanent" if 9999-12-31)</td></tr>
+        <tr><td><strong>Status</strong></td><td>Valid (green), Expiring Soon (orange, &lt; 30 days), or Expired (red)</td></tr>
+      </tbody>
+    </table>
+    <p>The license status auto-refreshes every 5 minutes along with the system status.</p>
+
+    <div class="info-box">
+      <strong>How it works:</strong> The <code>/sap_skills/api/sq1_license</code> endpoint calls <code>/usr/local/bin/sq1_license_query.py</code> on sapidesecc8, which connects via WinRM to <code>sap-sql-ides</code> and queries the <code>SAPLIKEY</code> table using <code>sqlcmd</code>. The <code>VALUE</code> field contains encoded dates in the format <code>0008YYYYMMDD</code> which are parsed to determine license validity.
+    </div>
+
+    <div class="warn-box">
+      <strong>Expired Licenses:</strong> If the SAP license has expired, the system may restrict logon to emergency users only. Use SAP transaction <code>SLICENSE</code> to install a new license key. Contact the SAP Specialist team for license renewal.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LINKS -->
+<!-- ============================================================ -->
+<div class="section" id="links">
+  <div class="section-title">Links &amp; Resources</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Available Links</h3>
+    <p>The Links section provides quick access to external tools and documentation:</p>
+    <table>
+      <thead><tr><th>Link</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>GCP VM Settings</strong></td><td>Google Cloud Compute Engine instance details for sap-sql-ides</td></tr>
+        <tr><td><strong>GCP DNS</strong></td><td>Google Cloud DNS zone for <code>fivetran-internal-sales.com</code></td></tr>
+        <tr><td><strong>Slab Technical Details</strong></td><td>Slab documentation for the SQ1 demo environment with detailed technical specifications</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- RDP ACCESS -->
+<!-- ============================================================ -->
+<div class="section" id="rdp">
+  <div class="section-title">RDP Access</div>
+  <div class="card">
+    <h3><span class="dot" style="background: #7c3aed"></span> Automatic Credential Retrieval</h3>
+    <p>The System Information card includes a <span class="badge badge-purple">RDP</span> button next to the OS field. Clicking this button:</p>
+    <ol class="step-list">
+      <li>Calls the <code>/sap_skills/api/sq1_rdp_credential</code> endpoint to retrieve the Administrator password from the encrypted vault.</li>
+      <li>Automatically copies the password to your clipboard.</li>
+      <li>Displays a confirmation message that the password has been copied.</li>
+    </ol>
+    <p>You can then open your RDP client and connect:</p>
+    <div class="info-box">
+      <strong>RDP Connection:</strong><br>
+      <code>Host: sap-sql-ides (or 34.133.170.14)</code><br>
+      <code>User: Administrator</code><br>
+      Paste the password from your clipboard when prompted.
+    </div>
+
+    <div class="info-box">
+      <strong>No master password required:</strong> The RDP credential endpoint retrieves the Administrator password from the vault automatically. Unlike stop operations, no master password prompt is needed for reading credentials.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECURITY -->
+<!-- ============================================================ -->
+<div class="section" id="security">
+  <div class="section-title">Security &amp; Credentials</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Credential Management</h3>
+    <p>The cockpit follows a strict no-hardcoded-passwords policy. All credentials are stored in the encrypted vault on sapidesecc8 and retrieved at runtime.</p>
+
+    <table>
+      <thead><tr><th>Credential</th><th>How it's used</th><th>Vault access</th></tr></thead>
+      <tbody>
+        <tr><td>Windows Administrator password</td><td>Copied to clipboard via RDP button</td><td>Auto-read (no master password needed)</td></tr>
+        <tr><td>WinRM credentials</td><td>Used internally by API endpoints to execute remote PowerShell commands on sap-sql-ides</td><td>Auto-read by server-side scripts</td></tr>
+        <tr><td>Master password</td><td>Required for <strong>stop</strong> operations and manual <strong>backup</strong> triggers</td><td>Validates against vault encryption key</td></tr>
+      </tbody>
+    </table>
+
+    <div class="warn-box">
+      <strong>Master Password:</strong> The master password is required for stopping SAP and triggering manual backups. Reading credentials and starting services do not require it. If you do not know the master password, contact the SAP Specialist team.
+    </div>
+
+    <div class="info-box">
+      <strong>WinRM:</strong> The cockpit communicates with the Windows VM via <strong>Windows Remote Management (WinRM)</strong> using the <code>pywinrm</code> Python library. WinRM allows executing PowerShell commands remotely &mdash; this is how disk space, database status, backups, and license queries are performed.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TROUBLESHOOTING -->
+<!-- ============================================================ -->
+<div class="section" id="troubleshooting">
+  <div class="section-title">Troubleshooting</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--warning)"></span> Common Issues</h3>
+    <table>
+      <thead><tr><th>Problem</th><th>Cause</th><th>Solution</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>All status cards show "Error"</td>
+          <td>WinRM connection to sap-sql-ides failed, or the Windows VM is stopped</td>
+          <td>Check if the <code>sap-sql-ides</code> VM is running in GCP. Verify WinRM service is started on the Windows VM. The API endpoints on sapidesecc8 connect via WinRM to the Windows server.</td>
+        </tr>
+        <tr>
+          <td>SAP shows Inactive</td>
+          <td>SAP processes are stopped on the Windows server</td>
+          <td>Click "Start SAP". If it fails, RDP into the server and check the SAP Management Console (SAP MMC).</td>
+        </tr>
+        <tr>
+          <td>SQL Server shows OFFLINE or Unknown</td>
+          <td>SQL Server instance is stopped or sqlcmd cannot connect</td>
+          <td>RDP into sap-sql-ides and check SQL Server Configuration Manager. Ensure the <code>SAP-SQL-IDES\SQ1</code> instance is running.</td>
+        </tr>
+        <tr>
+          <td>Backup Now returns "Error"</td>
+          <td>SQL Server instance is down, insufficient disk space on D:\, or WinRM timeout</td>
+          <td>Ensure SQL Server is ONLINE. Check D:\ disk space. If persistent, RDP and check SQL Server error log.</td>
+        </tr>
+        <tr>
+          <td>Backup Running stuck at a percentage</td>
+          <td>Backup is genuinely running (large database) or hung</td>
+          <td>SQL Server full backups can take time for large databases. If stuck for over an hour, RDP and check SQL Server Activity Monitor.</td>
+        </tr>
+        <tr>
+          <td>Stop button says "Wrong master password"</td>
+          <td>Incorrect master password entered</td>
+          <td>Retry with the correct master password. Contact SAP Specialist team if forgotten.</td>
+        </tr>
+        <tr>
+          <td>Disk Space shows "Error loading"</td>
+          <td>WinRM connection failed or PowerShell Get-WmiObject timed out</td>
+          <td>Try clicking "Refresh". Check if the Windows VM is accessible. WinRM may need to be restarted on the Windows server.</td>
+        </tr>
+        <tr>
+          <td>RDP button does not copy password</td>
+          <td>Vault read failed or clipboard API blocked by browser</td>
+          <td>Ensure you are on HTTPS (clipboard API requires secure context). Check browser console for errors.</td>
+        </tr>
+        <tr>
+          <td>License card shows "Error"</td>
+          <td>SAPLIKEY query via sqlcmd failed or WinRM timeout</td>
+          <td>Ensure SQL Server is ONLINE. The license query uses sqlcmd to read the SAPLIKEY table in the SQ1 database.</td>
+        </tr>
+        <tr>
+          <td>License shows Expired</td>
+          <td>SAP license has passed its validity date</td>
+          <td>Use SAP transaction <code>SLICENSE</code> to install a new license. Contact the SAP Specialist team for renewal.</td>
+        </tr>
+        <tr>
+          <td>Page returns 404</td>
+          <td>HTML file missing from server</td>
+          <td>Re-deploy: <code>scp SAP_ECC6_SQ1.html root@sapidesecc8:/usr/sap/sap_skills/docs/</code></td>
+        </tr>
+        <tr>
+          <td>sapcontrol Start/Stop fails</td>
+          <td>SOAP API unreachable on ports 50013/50113</td>
+          <td>RDP into the Windows VM and verify SAP services are registered. Check Windows Firewall rules for ports 50013 and 50113.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ARCHITECTURE -->
+<!-- ============================================================ -->
+<div class="section" id="architecture">
+  <div class="section-title">Architecture</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> System Architecture</h3>
+    <p>The cockpit page is a static HTML file served by the Python HTTPS server on <code>sapidesecc8</code> (port 443). All dynamic data comes from API endpoints running on <strong>sapidesecc8</strong>, which in turn communicate with the Windows VM <code>sap-sql-ides</code> via two channels:</p>
+    <ul style="margin: 8px 0 12px 24px;">
+      <li><strong>WinRM (pywinrm)</strong> &mdash; for PowerShell commands: disk space queries, SQL Server database status, backup triggers, license queries</li>
+      <li><strong>sapcontrol SOAP API</strong> &mdash; for SAP process control: start/stop SAP instances on ports 50013 (D00) and 50113 (ASCS01)</li>
+    </ul>
+
+    <h3 style="margin-top:20px;"><span class="dot" style="background: var(--primary)"></span> API Endpoints</h3>
+    <table>
+      <thead><tr><th>API Endpoint</th><th>Method</th><th>Purpose</th><th>Auth</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>/sap_skills/api/sq1_system_status</code></td>
+          <td>GET</td>
+          <td>SAP status (sapcontrol SOAP), SQL Server state (<code>sys.databases</code>), last backup (<code>msdb.dbo.backupset</code>), backup running (<code>sys.dm_exec_requests</code>)</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td><code>/sap_skills/api/sq1_disk_space</code></td>
+          <td>GET</td>
+          <td>Windows disk usage via WinRM PowerShell (<code>Get-WmiObject Win32_LogicalDisk</code>)</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td><code>/sap_skills/api/sq1_rdp_credential</code></td>
+          <td>GET</td>
+          <td>Windows Administrator password from encrypted vault</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td><code>/sap_skills/api/sq1_sap_control</code></td>
+          <td>POST</td>
+          <td>Start/stop SAP via sapcontrol SOAP API (ports 50013/50113)</td>
+          <td>Master password for stop</td>
+        </tr>
+        <tr>
+          <td><code>/sap_skills/api/sq1_trigger_backup</code></td>
+          <td>POST</td>
+          <td>Full compressed SQL Server backup to <code>D:\Backup</code> via WinRM</td>
+          <td>Master password</td>
+        </tr>
+        <tr>
+          <td><code>/sap_skills/api/sq1_license</code></td>
+          <td>GET</td>
+          <td>SAP license validity from SAPLIKEY table via WinRM sqlcmd</td>
+          <td>None</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:20px;"><span class="dot" style="background: var(--primary)"></span> Helper Scripts (on sapidesecc8)</h3>
+    <table>
+      <thead><tr><th>Script</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>/usr/local/bin/sq1_db_query.py</code></td><td>Queries SQL Server state, last backup, and backup running status via WinRM PowerShell</td></tr>
+        <tr><td><code>/usr/local/bin/sq1_trigger_backup.py</code></td><td>Triggers full compressed SQL Server backup via WinRM PowerShell</td></tr>
+        <tr><td><code>/usr/local/bin/sq1_license_query.py</code></td><td>Queries SAPLIKEY table via WinRM sqlcmd for license validity</td></tr>
+      </tbody>
+    </table>
+
+    <div class="info-box">
+      <strong>Cross-platform architecture:</strong> The web server runs on Linux (sapidesecc8), while the SAP system runs on Windows (sap-sql-ides). WinRM bridges the two platforms for database and OS-level operations. The sapcontrol SOAP API provides a platform-independent way to manage SAP processes directly over HTTP.
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
+</div>
+
+</body>
+</html>

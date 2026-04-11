@@ -39,6 +39,7 @@
     color: white;
     padding: 40px 0;
     text-align: center;
+    position: relative;
   }
   .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
   .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
@@ -335,12 +336,14 @@
     border-top: 1px solid var(--border);
     margin-top: 40px;
   }
-</style>
+  .back-link { position: absolute; top: 16px; right: 24px; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .back-link:hover { color: #fff; text-decoration: underline; }</style>
 </head>
 <body>
 
 <!-- HEADER -->
 <div class="header">
+  <a href="/sap_skills/" class="back-link">Go back to the main page</a>
   <h1>SAP CDS View Extraction Pipeline</h1>
   <div class="subtitle">8-Phase Metadata &amp; SQL Translation Pipeline</div>
   <span class="badge">SAP S/4HANA 2023</span>
@@ -364,7 +367,7 @@
     <a href="#sql-translation">SQL Translation</a>
     <a href="#name-layers">Name Layers</a>
     <a href="#ignore-assoc">ignore_association</a>
-    <a href="#bq-tables">BigQuery Tables</a>
+    <a href="#bq-tables">GCS Parquet Files</a>
     <a href="#timeouts">Timeouts</a>
     <a href="#troubleshooting">Troubleshooting</a>
   </div>
@@ -380,11 +383,11 @@
       <strong>SAP CDS View Extraction Pipeline</strong> is an 8-phase Java pipeline that runs on
       <code>sapidess4</code> via JCo RFC. It extracts CDS view dependencies, metadata, and SQL definitions
       from SAP S/4HANA, producing CSV files that flow through a Fivetran SDK connector into GCS Parquet
-      and ultimately BigQuery.
+      and ultimately Google Cloud Storage Buckets.
     </p>
     <div class="info-box" style="margin-top:14px;">
       <strong>End-to-end flow:</strong> Java phases produce CSV files &rarr; <code>connector.py</code>
-      reads them &rarr; Fivetran SDK pushes to GCS Parquet &rarr; BigQuery tables are created automatically.
+      reads them &rarr; Fivetran SDK pushes to GCS Parquet files in Google Cloud Storage Buckets.
     </div>
     <br>
     <div class="grid-2">
@@ -402,7 +405,7 @@
         <dl class="param-grid">
           <dt>Production Dir</dt><dd><code>/usr/sap/cds_sql_only/</code></dd>
           <dt>GCS Bucket</dt><dd><code>gs://sap_cds_dbt/sap_cds_views/</code></dd>
-          <dt>BigQuery Dataset</dt><dd><code>sap_cds_views</code></dd>
+          <dt>GCS Bucket</dt><dd><code>gs://sap_cds_dbt/sap_cds_views/</code></dd>
           <dt>GitHub</dt><dd>fivetran/CDS-metadata-retrieval-fr-custom-SDK</dd>
         </dl>
       </div>
@@ -414,7 +417,7 @@
           <dt>Runtime</dt><dd>Java (JCo RFC) on sapidess4</dd>
           <dt>Connector</dt><dd>Python connector.py (Fivetran SDK)</dd>
           <dt>Storage</dt><dd>GCS Parquet</dd>
-          <dt>Target</dt><dd>BigQuery</dd>
+          <dt>Target</dt><dd>Google Cloud Storage Buckets (Parquet)</dd>
         </dl>
       </div>
       <div>
@@ -520,7 +523,7 @@
       <div class="flow-step-v">
         <div class="flow-box output-bg">
           <span class="step-num">Output</span>
-          connector.py &rarr; Fivetran SDK &rarr; GCS &rarr; BigQuery
+          connector.py &rarr; Fivetran SDK &rarr; GCS Buckets (Parquet)
         </div>
       </div>
     </div>
@@ -655,7 +658,7 @@
         <dl class="param-grid">
           <dt>CSV File</dt><dd><code>OBJECT_DESCRIPTIONS.csv</code></dd>
           <dt>Columns</dt><dd>TABNAME, DDLANGUAGE, DDTEXT</dd>
-          <dt>BigQuery Table</dt><dd><code>all_descriptions</code></dd>
+          <dt>GCS Parquet File</dt><dd><code>all_descriptions</code></dd>
         </dl>
       </div>
     </div>
@@ -685,7 +688,7 @@
       <div>
         <h4>Output</h4>
         <dl class="param-grid">
-          <dt>BigQuery Tables</dt><dd><code>sql_only_resolution</code>, <code>sql_only_objects</code></dd>
+          <dt>GCS Parquet Files</dt><dd><code>sql_only_resolution</code>, <code>sql_only_objects</code></dd>
           <dt>Key Feature</dt><dd>BASEINFO parsing, ignore_association</dd>
         </dl>
       </div>
@@ -727,7 +730,7 @@
         <dl class="param-grid">
           <dt>CSV Files</dt><dd><code>{OBJECT_NAME}_METADATA.csv</code></dd>
           <dt>Columns</dt><dd>TABNAME, FIELDNAME, POSITION, DATATYPE, LENG, DECIMALS, DDTEXT</dd>
-          <dt>BigQuery Table</dt><dd><code>metadata_all</code></dd>
+          <dt>GCS Parquet File</dt><dd><code>metadata_all</code></dd>
         </dl>
       </div>
     </div>
@@ -746,7 +749,7 @@
     <p>
       Retrieves the actual HANA <code>CREATE VIEW</code> SQL statements for each CDS view using
       the custom <code>Z_VIEW_DDL</code> RFC. These are the native HANA SQL definitions that
-      can be translated to ANSI SQL for BigQuery/Snowflake/Databricks.
+      can be translated to ANSI SQL for various target platforms (Snowflake, Databricks, etc.).
     </p>
     <div class="grid-2" style="margin-top:16px;">
       <div>
@@ -760,7 +763,7 @@
       <div>
         <h4>Output</h4>
         <dl class="param-grid">
-          <dt>BigQuery Tables</dt><dd><code>{view}_sql_definition</code></dd>
+          <dt>GCS Parquet Files</dt><dd><code>{view}_sql_definition</code></dd>
           <dt>Content</dt><dd>Full HANA CREATE VIEW SQL text</dd>
         </dl>
       </div>
@@ -790,7 +793,7 @@
       <div>
         <h4>Output</h4>
         <dl class="param-grid">
-          <dt>BigQuery Tables</dt><dd><code>{view}_abap_sql_definition</code>, <code>{view}_hana_sql_definition</code></dd>
+          <dt>GCS Parquet Files</dt><dd><code>{view}_abap_sql_definition</code>, <code>{view}_hana_sql_definition</code></dd>
           <dt>Content</dt><dd>Dual SQL definitions (ABAP CDS + HANA native)</dd>
         </dl>
       </div>
@@ -821,7 +824,7 @@
       <div>
         <h4>Output</h4>
         <dl class="param-grid">
-          <dt>BigQuery Tables</dt><dd><code>dd02l_all</code>, <code>dd02t_all</code>, <code>dd26s_all</code>, <code>dd03l_all</code></dd>
+          <dt>GCS Parquet Files</dt><dd><code>dd02l_all</code>, <code>dd02t_all</code>, <code>dd26s_all</code>, <code>dd03l_all</code></dd>
           <dt>Content</dt><dd>Full DD metadata for all views</dd>
         </dl>
       </div>
@@ -891,7 +894,7 @@
   <div class="card">
     <p>
       SAP HANA SQL extracted from CDS views requires mechanical translation before it can run on
-      BigQuery, Snowflake, or Databricks. The translation falls into three categories:
+      target platforms like Snowflake or Databricks. The translation falls into three categories:
     </p>
     <div class="grid-2" style="margin-top:12px;">
       <div class="info-box">
@@ -916,14 +919,14 @@
       <tr><td><code>SESSION_CONTEXT('CDS_CLIENT')</code></td><td><code>'100'</code></td><td>Replace with hardcoded client value</td></tr>
       <tr><td><code>"alias"."field"</code></td><td><code>alias.field</code></td><td>Adjust quoting per target dialect</td></tr>
       <tr><td><code>IFNULL(x, y)</code></td><td><code>COALESCE(x, y)</code></td><td>Standard ANSI equivalent</td></tr>
-      <tr><td><code>TO_NVARCHAR(x)</code></td><td><code>CAST(x AS STRING)</code></td><td>BigQuery/Snowflake string cast</td></tr>
+      <tr><td><code>TO_NVARCHAR(x)</code></td><td><code>CAST(x AS STRING)</code></td><td>Standard string cast</td></tr>
     </table>
   </div>
 
   <div class="card">
     <h3>SAP Function Translation Table</h3>
     <table>
-      <tr><th>SAP HANA Function</th><th>BigQuery</th><th>Snowflake</th><th>Databricks</th></tr>
+      <tr><th>SAP HANA Function</th><th>Google Standard SQL</th><th>Snowflake</th><th>Databricks</th></tr>
       <tr><td><code>DATS_TIMS_TO_TSTMP</code></td><td><code>PARSE_TIMESTAMP</code></td><td><code>TO_TIMESTAMP_NTZ</code></td><td><code>TO_TIMESTAMP</code></td></tr>
       <tr><td><code>TSTMP_TO_DATS</code></td><td><code>FORMAT_TIMESTAMP</code></td><td><code>TO_VARCHAR</code></td><td><code>DATE_FORMAT</code></td></tr>
       <tr><td><code>FLTP_TO_DEC</code></td><td><code>CAST(x AS NUMERIC)</code></td><td><code>TO_DECIMAL</code></td><td><code>CAST(x AS DECIMAL)</code></td></tr>
@@ -936,7 +939,7 @@
   <div class="card">
     <h3>Target Dialect Differences</h3>
     <table>
-      <tr><th>Feature</th><th>BigQuery</th><th>Snowflake</th><th>Databricks</th></tr>
+      <tr><th>Feature</th><th>Google Standard SQL</th><th>Snowflake</th><th>Databricks</th></tr>
       <tr><td>Identifier Quoting</td><td>Backticks <code>`name`</code></td><td>Double quotes <code>"name"</code></td><td>Backticks <code>`name`</code></td></tr>
       <tr><td>Schema Prefix</td><td><code>dataset.table</code></td><td><code>schema.table</code></td><td><code>catalog.schema.table</code></td></tr>
       <tr><td>String Type</td><td><code>STRING</code></td><td><code>VARCHAR</code></td><td><code>STRING</code></td></tr>
@@ -1007,13 +1010,13 @@ BASEINFO: {
   </div>
 </div>
 
-<!-- BIGQUERY TABLES -->
+<!-- GCS PARQUET FILES -->
 <div class="section" id="bq-tables">
-  <h2 class="section-title">BigQuery Tables Reference</h2>
+  <h2 class="section-title">GCS Parquet Files Reference</h2>
   <div class="card">
-    <p>All tables are created in the <code>sap_cds_views</code> BigQuery dataset, pushed via the Fivetran SDK connector.</p>
+    <p>All Parquet files are stored in the <code>gs://sap_cds_dbt/sap_cds_views/</code> GCS Bucket, pushed via the Fivetran SDK connector.</p>
     <table>
-      <tr><th>BigQuery Table</th><th>Source Phase</th><th>Key Columns</th><th>Description</th></tr>
+      <tr><th>Parquet File</th><th>Source Phase</th><th>Key Columns</th><th>Description</th></tr>
       <tr><td><code>all_descriptions</code></td><td>Phase 3</td><td>TABNAME, DDLANGUAGE</td><td>DD02T descriptions for all objects</td></tr>
       <tr><td><code>metadata_all</code></td><td>Phase 4</td><td>TABNAME, FIELDNAME</td><td>Field-level metadata (DD03L + DD03VT)</td></tr>
       <tr><td><code>{view}_sql_definition</code></td><td>Phase 5</td><td>VIEW_NAME</td><td>HANA CREATE VIEW SQL per view</td></tr>
@@ -1064,12 +1067,12 @@ BASEINFO: {
         <td>Run <code>export PATH=$PATH:/usr/lib/jvm/java-17-openjdk/bin</code> or check <code>installation.sh</code></td>
       </tr>
       <tr>
-        <td><strong>Empty BigQuery dataset</strong></td>
+        <td><strong>Empty GCS Bucket</strong></td>
         <td>connector.py did not find CSV files</td>
         <td>Check CSV output in <code>/usr/sap/cds_sql_only/drivers/</code>; verify phases completed successfully</td>
       </tr>
       <tr>
-        <td><strong>Duplicate rows</strong> in BigQuery</td>
+        <td><strong>Duplicate rows</strong> in GCS Parquet</td>
         <td>Pipeline ran twice without clearing previous output</td>
         <td>Delete existing CSV files before re-running; use <code>WRITE_DISPOSITION = WRITE_TRUNCATE</code></td>
       </tr>

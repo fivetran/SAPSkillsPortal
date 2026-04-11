@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP ECC 6.0 EHP8 Management Cockpit — User Guide</title>
+<style>
+  :root {
+    --primary: #b35900;
+    --primary-light: #cc6600;
+    --primary-dark: #8a4400;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --warning: #f39c12;
+    --danger: #e74c3c;
+    --code-bg: #f1f3f5;
+    --accent-bg: #fef3e6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #b35900 0%, #8a4400 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+    position: relative;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary-dark);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: var(--accent-bg); }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--primary-dark);
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  p { margin-bottom: 12px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 12px 0;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: var(--accent-bg);
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  tr:hover td { background: #fef9f2; }
+
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: #8a4400;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: white;
+  }
+  .badge-green { background: var(--success); }
+  .badge-red { background: var(--danger); }
+  .badge-yellow { background: var(--warning); }
+  .badge-orange { background: var(--primary); }
+  .badge-grey { background: var(--text-light); }
+
+  .info-box {
+    background: var(--accent-bg);
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+  .warn-box {
+    background: #fef3cd;
+    border-left: 4px solid var(--warning);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+  .danger-box {
+    background: #f8d7da;
+    border-left: 4px solid var(--danger);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+
+  .step-list { counter-reset: step; list-style: none; padding: 0; }
+  .step-list li {
+    counter-increment: step;
+    padding: 10px 0 10px 48px;
+    position: relative;
+    border-bottom: 1px solid var(--border);
+  }
+  .step-list li:last-child { border-bottom: none; }
+  .step-list li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 32px;
+    height: 32px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.88rem;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  .back-link { position: absolute; top: 16px; right: 24px; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .back-link:hover { color: #fff; text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <a href="/sap_skills/" class="back-link">Go back to the main page</a>
+  <h1>SAP ECC 6.0 EHP8 &mdash; User Guide</h1>
+  <div class="subtitle">How to use the Management Cockpit for SAP ECC on Oracle</div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#system-info">System Info</a>
+    <a href="#status">Status</a>
+    <a href="#backup">Backup</a>
+    <a href="#startstop">Start / Stop</a>
+    <a href="#disk">Disk Space</a>
+    <a href="#links">Links</a>
+    <a href="#ssh">SSH Access</a>
+    <a href="#security">Security</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+    <a href="#architecture">Architecture</a>
+    <a href="SAP_ECC6_EHP8.html">Back to Cockpit</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- OVERVIEW -->
+<!-- ============================================================ -->
+<div class="section" id="overview">
+  <div class="section-title">Overview</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> What is the ECC 6.0 EHP8 Cockpit?</h3>
+    <p>The SAP ECC 6.0 EHP8 Management Cockpit is a web-based dashboard for monitoring and operating the SAP ECC IDES demonstration environment hosted on <code>sapidesecc8.fivetran-internal-sales.com</code>. This system runs on an Oracle 19c database, unlike the S/4HANA environment which uses HANA.</p>
+    <p>From a single page you can:</p>
+    <ul style="margin: 8px 0 12px 24px;">
+      <li>View server details, Oracle database version, OPatch and MOPatch versions</li>
+      <li>Monitor disk space with visual progress bars</li>
+      <li>Check the live status of the SAP Application Server and Oracle Database</li>
+      <li>Trigger on-demand Oracle backups via brbackup to disk and Google Cloud Storage</li>
+      <li>Start and stop SAP and Oracle services with safety controls</li>
+      <li>Access links to GCP console, DNS settings, and technical documentation</li>
+      <li>Retrieve SSH credentials automatically from the encrypted vault</li>
+    </ul>
+    <div class="info-box">
+      <strong>URL:</strong> <code>https://sapidesecc8.fivetran-internal-sales.com/sap_skills/docs/SAP_ECC6_EHP8.html</code>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SYSTEM INFO -->
+<!-- ============================================================ -->
+<div class="section" id="system-info">
+  <div class="section-title">System Information</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Server Details</h3>
+    <p>The <strong>Server Details</strong> card displays static and dynamic information about the SAP server:</p>
+    <table>
+      <thead><tr><th>Field</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>Hostname</td><td>Server hostname: <code>sapidesecc8.fivetran-internal-sales.com</code>. Includes an <span class="badge badge-orange">SSH</span> button that auto-copies the root password from the vault to your clipboard.</td></tr>
+        <tr><td>SAP System</td><td>SAP ECC 6.0 EHP8 IDES</td></tr>
+        <tr><td>SID</td><td>System ID: <code>ABA</code></td></tr>
+        <tr><td>Instance Nr</td><td>Instance number: <code>00</code></td></tr>
+        <tr><td>Client</td><td>SAP client <code>800</code> (used for all operations)</td></tr>
+        <tr><td>DB SID</td><td>Oracle database SID: <code>ABA</code></td></tr>
+        <tr><td>Database</td><td>Oracle 19c (19.0.0.0.0), retrieved live from the server</td></tr>
+        <tr><td>OPatch Version</td><td>Oracle OPatch utility version, retrieved live via the hardware info API</td></tr>
+        <tr><td>MOPatch Version</td><td>SAP MOPatch utility version, retrieved live via the hardware info API</td></tr>
+        <tr><td>OS</td><td>SUSE Linux Enterprise Server 15 SP5</td></tr>
+        <tr><td>Private IP</td><td><code>10.128.15.241</code> (GCP VPC internal)</td></tr>
+        <tr><td>Public IP</td><td><code>35.226.121.169</code></td></tr>
+        <tr><td>CPUs</td><td>4 vCPUs, retrieved live via <code>nproc</code></td></tr>
+        <tr><td>Memory</td><td>23 GB RAM, retrieved live via <code>free -g</code></td></tr>
+      </tbody>
+    </table>
+    <p>Click the <strong>Refresh</strong> button at the top right of the section to re-query the database version, OPatch/MOPatch versions, CPUs, and memory from the live server.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Disk Space</h3>
+    <p>The Disk Space card appears alongside Server Details and shows all mounted filesystems with visual progress bars. Data is retrieved via the <code>/sap_skills/api/ecc_disk_space</code> endpoint which runs <code>df -h</code> on the server.</p>
+    <table>
+      <thead><tr><th>Bar Color</th><th>Usage Level</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-green">Green</span></td><td>Below 70%</td><td>Normal &mdash; no action needed</td></tr>
+        <tr><td><span class="badge badge-yellow">Yellow</span></td><td>70% &ndash; 85%</td><td>Monitor &mdash; plan cleanup soon</td></tr>
+        <tr><td><span class="badge badge-red">Red</span></td><td>Above 85%</td><td>Critical &mdash; free space immediately</td></tr>
+      </tbody>
+    </table>
+    <p>Each filesystem row shows: mount point, usage percentage bar, total size, and available space. Click <strong>Refresh</strong> to update the data.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- STATUS -->
+<!-- ============================================================ -->
+<div class="section" id="status">
+  <div class="section-title">Status Cards</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Understanding the Status Section</h3>
+    <p>The Status section contains two cards that show the real-time state of the system components. Click <strong>Check Status</strong> to query both at once.</p>
+    <table>
+      <thead><tr><th>Card</th><th>What it monitors</th><th>Details</th></tr></thead>
+      <tbody>
+        <tr><td><strong>SAP Application Server</strong></td><td>SAP NetWeaver ABAP stack</td><td>SID <code>ABA</code>, instance <code>00</code>, user <code>abaadm</code>. Shows process count and kernel version.</td></tr>
+        <tr><td><strong>Oracle Database</strong></td><td>Oracle 19c database instance</td><td>DB SID <code>ABA</code>, user <code>oraaba</code>. Shows last backup time, next scheduled backup, and live countdown.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--success)"></span> SAP Application Server Card</h3>
+    <p>The SAP card monitors the ABAP application server and displays:</p>
+    <ul style="margin: 8px 0 12px 24px;">
+      <li><strong>Status</strong> &mdash; Active (green) or Inactive (red), determined via <code>sapcontrol -nr 00</code></li>
+      <li><strong>Process Count</strong> &mdash; number of running SAP processes</li>
+      <li><strong>Kernel Version</strong> &mdash; SAP kernel version retrieved via <code>disp+work -v</code></li>
+      <li><strong>Start / Stop</strong> buttons to control the application server</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Oracle Database Card</h3>
+    <p>The Oracle card monitors the database instance and displays:</p>
+    <ul style="margin: 8px 0 12px 24px;">
+      <li><strong>Status</strong> &mdash; Active (green) or Inactive (red), determined via <code>sqlplus</code> connectivity check</li>
+      <li><strong>Last Backup</strong> &mdash; date and time of the last successful brbackup, shown in both AMS (Amsterdam) and LA (Los Angeles) timezones. Parsed from <code>/oracle/ABA/sapbackup/backABA.log</code>.</li>
+      <li><strong>Next Backup</strong> &mdash; next scheduled backup time (Sunday 07:00), also shown in both AMS and LA timezones</li>
+      <li><strong>Countdown</strong> &mdash; a live countdown timer to the next scheduled backup</li>
+      <li><strong>Start / Stop / Backup</strong> buttons to control the database and trigger manual backups</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--success)"></span> Status Indicators</h3>
+    <p>Each card displays a colored dot and status text:</p>
+    <table>
+      <thead><tr><th>Indicator</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><span class="badge badge-green">Green dot + Active</span></td><td>The service is running and responding to queries</td></tr>
+        <tr><td><span class="badge badge-red">Red dot + Inactive</span></td><td>The service is down or unreachable</td></tr>
+        <tr><td><span class="badge badge-grey">Grey dot + Unknown</span></td><td>Status has not been checked yet (page just loaded, waiting for response)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- BACKUP -->
+<!-- ============================================================ -->
+<div class="section" id="backup">
+  <div class="section-title">Backup Operations</div>
+
+  <!-- ECC Backup Architecture -->
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary-dark)"></span> ECC Backup Architecture</h3>
+    <p>The ECC system uses <strong>SAP BR*Tools</strong> (<code>brbackup</code> / <code>brarchive</code>) for Oracle database backups &mdash; <strong>NOT</strong> HANA Backint. The process is two-phase: local disk backup first, then copy to Google Cloud Storage.</p>
+    <table>
+      <thead><tr><th>Component</th><th>Detail</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Backup Tooling</strong></td><td>SAP BR*Tools (brbackup, brarchive)</td></tr>
+        <tr><td><strong>GCS Bucket</strong></td><td><code>gs://sap-hana-backint/SAP_ON_ORACLE_BACKUP/</code></td></tr>
+        <tr><td><strong>Bucket Console</strong></td><td><a href="https://console.cloud.google.com/storage/browser/sap-hana-backint" target="_blank">https://console.cloud.google.com/storage/browser/sap-hana-backint</a></td></tr>
+        <tr><td><strong>Local Backup Dir</strong></td><td><code>/media/oraclebackup</code></td></tr>
+        <tr><td><strong>Backup Logs</strong></td><td><code>/oracle/ABA/sapbackup/backABA.log</code></td></tr>
+        <tr><td><strong>Local Retention</strong></td><td>Last 6 backups (<code>-n 6</code> flag)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Crontab Schedule -->
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Crontab Schedule (sapidesecc8)</h3>
+    <p>Three scheduled jobs run automatically via cron on <code>sapidesecc8</code>:</p>
+    <table>
+      <thead><tr><th>Job</th><th>Schedule</th><th>Script</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Archive Log Backup</strong></td><td>Sundays 06:00</td><td><code>/usr/local/bin/brarchive_aba.sh</code></td><td>Archives Oracle redo logs to disk</td></tr>
+        <tr><td><strong>Full Database Backup</strong></td><td>Sundays 07:00</td><td><code>/usr/local/bin/brbackup_aba.sh</code></td><td>Offline force full backup to disk, then GCS copy</td></tr>
+        <tr><td><strong>Web Portal Backup</strong></td><td>Mon&ndash;Fri 23:00</td><td><code>/usr/local/bin/backup_webserver.sh</code></td><td>Backs up the web portal configuration and files</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      <strong>Crontab entries:</strong><br>
+      <code>0 6 * * 0&nbsp;&nbsp;/usr/local/bin/brarchive_aba.sh</code><br>
+      <code>0 7 * * 0&nbsp;&nbsp;/usr/local/bin/brbackup_aba.sh</code><br>
+      <code>0 23 * * 1-5&nbsp;&nbsp;/usr/local/bin/backup_webserver.sh</code>
+    </div>
+  </div>
+
+  <!-- Backup Scripts -->
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Backup Scripts</h3>
+
+    <h4 style="margin-top:10px; margin-bottom:8px; color: var(--primary-dark);">brbackup_aba.sh</h4>
+    <p>Performs an offline force backup locally, then copies the output to the GCS bucket:</p>
+    <div class="info-box" style="font-family: monospace; font-size: 0.85rem; white-space: pre; overflow-x: auto;">#!/bin/bash
+# Offline force backup locally, then copy to GCS bucket
+su - abaadm -c 'brbackup -u / -p /oracle/ABA/sapprof/initABA.sap -d disk -t offline_force -c -m all -n 6'
+RC=$?
+if [ $RC -eq 0 ]; then
+  LATEST=$(ls -td /media/oraclebackup/b* 2>/dev/null | head -1)
+  if [ -n "$LATEST" ]; then
+    gsutil -m cp -r "$LATEST" gs://sap-hana-backint/SAP_ON_ORACLE_BACKUP/
+    gsutil -m cp -r /media/oraclebackup/ABA gs://sap-hana-backint/SAP_ON_ORACLE_BACKUP/
+  fi
+fi</div>
+    <p>Key flags: <code>-t offline_force</code> forces an offline backup (SAP is stopped), <code>-d disk</code> backs up to local disk, <code>-m all</code> includes all datafiles, <code>-n 6</code> keeps 6 backup generations.</p>
+
+    <h4 style="margin-top:20px; margin-bottom:8px; color: var(--primary-dark);">brarchive_aba.sh</h4>
+    <p>Archives Oracle redo logs to disk using the archive log profile:</p>
+    <div class="info-box" style="font-family: monospace; font-size: 0.85rem; white-space: pre; overflow-x: auto;">#!/bin/bash
+su - abaadm -c 'brarchive -u / -p /oracle/ABA/sapprof/initABA_archlog.sap -d disk -c'</div>
+  </div>
+
+  <!-- Backup Process Flow -->
+  <div class="card">
+    <h3><span class="dot" style="background: var(--success)"></span> Backup Process Flow</h3>
+    <ol class="step-list">
+      <li><strong>Sunday 06:00</strong> &mdash; <code>brarchive</code> runs: archives Oracle redo logs to disk using profile <code>initABA_archlog.sap</code>.</li>
+      <li><strong>Sunday 07:00</strong> &mdash; <code>brbackup</code> runs: offline_force full backup to <code>/media/oraclebackup</code>, then <code>gsutil</code> copies output to <code>gs://sap-hana-backint/SAP_ON_ORACLE_BACKUP/</code>.</li>
+      <li><strong>SAP ECC is STOPPED</strong> during the offline_force backup (typically 60&ndash;90 minutes).</li>
+      <li>Backup logs are written to <code>/oracle/ABA/sapbackup/backABA.log</code>.</li>
+      <li>Local backup files are stored in <code>/media/oraclebackup</code>.</li>
+      <li>The <code>-n 6</code> flag ensures only the last 6 backups are kept locally.</li>
+    </ol>
+  </div>
+
+  <!-- GCS Bucket Structure -->
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> GCS Bucket Structure</h3>
+    <table>
+      <thead><tr><th>Path</th><th>Contents</th></tr></thead>
+      <tbody>
+        <tr><td><code>gs://sap-hana-backint/SAP_ON_ORACLE_BACKUP/ABA/</code></td><td>Oracle datafile copies</td></tr>
+        <tr><td><code>gs://sap-hana-backint/SAP_ON_ORACLE_BACKUP/b*/</code></td><td>Individual backup run directories</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      <strong>Cron logs on GCS mount:</strong><br>
+      <code>/mnt/sap-hana-backint/SAP_ON_ORACLE_BACKUP/brbackup_cron.log</code><br>
+      <code>/mnt/sap-hana-backint/SAP_ON_ORACLE_BACKUP/brarchive_cron.log</code>
+    </div>
+  </div>
+
+  <!-- Manual Backup -->
+  <div class="card">
+    <h3><span class="dot" style="background: var(--warning)"></span> Manual Backup via Cockpit</h3>
+    <p>The Oracle Database card includes a <span class="badge badge-orange">Backup Now</span> button to trigger an immediate backup.</p>
+
+    <h3 style="margin-top:20px;"><span class="dot" style="background: var(--primary)"></span> Manual Backup Workflow</h3>
+    <ol class="step-list">
+      <li>Click <strong>Backup Now</strong> on the Oracle Database card.</li>
+      <li>A confirmation dialog appears. Click OK to proceed.</li>
+      <li>You will be prompted for the <strong>master password</strong> (required for all manual backup operations).</li>
+      <li>The button changes to <strong>"Running..."</strong> and a live timer starts counting.</li>
+      <li>The backup runs in the background on the server. You can navigate away &mdash; the timer is purely local.</li>
+      <li>Click <strong>Refresh</strong> to check progress. When the backup completes, the last backup date updates.</li>
+    </ol>
+
+    <p>The brbackup command executed on the server is the same as the cron script:</p>
+    <div class="info-box">
+      <code>brbackup -u / -p /oracle/ABA/sapprof/initABA.sap -d disk -t offline_force -c -m all -n 6</code>
+    </div>
+
+    <div class="danger-box">
+      <strong>6-Hour Safety Block:</strong> Manual backups are blocked if the next scheduled backup is less than 6 hours away. This prevents overlapping backup operations that could cause data corruption or excessive disk usage. If the button is disabled, wait for the scheduled backup to complete.
+    </div>
+
+    <div class="warn-box">
+      <strong>Offline Backup Warning:</strong> The <code>offline_force</code> mode means the Oracle database will be temporarily shut down during the backup (typically 60&ndash;90 minutes). SAP ECC is unusable during this time. Plan manual backups during maintenance windows when users are not active on the system.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- START / STOP -->
+<!-- ============================================================ -->
+<div class="section" id="startstop">
+  <div class="section-title">Start / Stop Operations</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--success)"></span> Starting Services</h3>
+    <p>Each status card has a green <span class="badge badge-green">Start</span> button:</p>
+    <table>
+      <thead><tr><th>Button</th><th>What it does</th><th>OS user</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Start SAP</strong></td><td>Runs <code>startsap R3</code> &mdash; starts the ABAP application server (ASCS + dialog instance)</td><td><code>abaadm</code></td></tr>
+        <tr><td><strong>Start DB</strong></td><td>Runs <code>sqlplus / as sysdba</code> then <code>STARTUP</code> &mdash; starts the Oracle database</td><td><code>oraaba</code></td></tr>
+      </tbody>
+    </table>
+    <p>A confirmation dialog asks you to confirm before starting. If the service is already running, you will see an informational message instead of starting it again.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--danger)"></span> Stopping Services</h3>
+    <p>Each status card has a red <span class="badge badge-red">Stop</span> button. Stopping is a two-step authorization process:</p>
+    <ol class="step-list">
+      <li><strong>Warning dialog</strong> &mdash; a confirmation message explains the impact (e.g., "All connected users will be disconnected" or "Stop SAP before stopping the database").</li>
+      <li><strong>Master password</strong> &mdash; you must enter the vault master password. If the password is wrong, the operation is rejected.</li>
+    </ol>
+
+    <table>
+      <thead><tr><th>Button</th><th>What it does</th><th>OS user</th><th>Pre-check</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Stop SAP</strong></td><td>Runs <code>stopsap R3</code></td><td><code>abaadm</code></td><td>If SAP is already down, returns info message</td></tr>
+        <tr><td><strong>Stop DB</strong></td><td>Runs <code>sqlplus / as sysdba</code> then <code>SHUTDOWN IMMEDIATE</code></td><td><code>oraaba</code></td><td>If Oracle is already down, returns info message</td></tr>
+      </tbody>
+    </table>
+
+    <div class="danger-box">
+      <strong>Important &mdash; Shutdown Order:</strong> Always stop the SAP Application Server <em>before</em> stopping the Oracle Database. Stopping the database while SAP is running can cause data corruption and leave SAP processes in an undefined state. The cockpit warns you about this.
+    </div>
+
+    <div class="info-box">
+      <strong>Startup Order:</strong> When bringing the system back up, start Oracle Database first, then the SAP Application Server. SAP requires the database to be running before it can start successfully.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Recommended Shutdown Sequence</h3>
+    <ol class="step-list">
+      <li><strong>Stop SAP</strong> &mdash; Click "Stop SAP", confirm the warning, enter the master password.</li>
+      <li><strong>Check Status</strong> &mdash; Click "Check Status" and wait until SAP shows <span class="badge badge-red">Inactive</span>.</li>
+      <li><strong>Stop Oracle</strong> &mdash; Click "Stop DB" on the Oracle Database card, confirm, enter master password.</li>
+    </ol>
+
+    <h3 style="margin-top:20px;"><span class="dot" style="background: var(--primary)"></span> Recommended Startup Sequence</h3>
+    <ol class="step-list">
+      <li><strong>Start Oracle</strong> &mdash; Click "Start DB" on the Oracle Database card. Wait until status shows <span class="badge badge-green">Active</span>.</li>
+      <li><strong>Start SAP</strong> &mdash; Click "Start SAP". The ABAP stack requires the Oracle database to be running first.</li>
+    </ol>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- DISK SPACE -->
+<!-- ============================================================ -->
+<div class="section" id="disk">
+  <div class="section-title">Disk Space Monitoring</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Filesystem Monitor</h3>
+    <p>The Disk Space card shows all mounted filesystems with visual progress bars. Data is fetched from the <code>/sap_skills/api/ecc_disk_space</code> endpoint which runs <code>df -h</code> on the server.</p>
+
+    <h3 style="margin-top:20px;"><span class="dot" style="background: var(--warning)"></span> Key Filesystems to Watch</h3>
+    <table>
+      <thead><tr><th>Mount</th><th>Contains</th><th>Why it matters</th></tr></thead>
+      <tbody>
+        <tr><td><code>/oracle/ABA</code></td><td>Oracle database files (datafiles, control files, redo logs)</td><td>If full, Oracle stops accepting writes and the database may crash</td></tr>
+        <tr><td><code>/oracle/ABA/sapbackup</code></td><td>Backup logs and metadata</td><td>Backup operations fail if insufficient space for logs</td></tr>
+        <tr><td><code>/media/oraclebackup</code></td><td>Local backup destination (brbackup output)</td><td>Backups fail if this filesystem is full</td></tr>
+        <tr><td><code>/usr/sap</code></td><td>SAP binaries, profiles, and work files</td><td>SAP cannot start or function properly if this is full</td></tr>
+        <tr><td><code>/oracle/ABA/oraarch</code></td><td>Oracle archive logs</td><td>If full, Oracle halts all transactions until space is freed</td></tr>
+      </tbody>
+    </table>
+    <div class="warn-box">
+      <strong>Archive Logs:</strong> Oracle archive logs grow continuously between brarchive runs (Sundays at 06:00). If the archive log filesystem approaches capacity mid-week, manual intervention with <code>brarchive</code> may be needed.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LINKS -->
+<!-- ============================================================ -->
+<div class="section" id="links">
+  <div class="section-title">Links &amp; Resources</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Available Links</h3>
+    <p>The Links section provides quick access to external tools and documentation:</p>
+    <table>
+      <thead><tr><th>Link</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>GCP VM Settings</strong></td><td>Google Cloud Compute Engine instance details for sapidesecc8</td></tr>
+        <tr><td><strong>GCP DNS</strong></td><td>Google Cloud DNS zone for <code>fivetran-internal-sales.com</code></td></tr>
+        <tr><td><strong>Slab Technical Details</strong></td><td>Slab documentation for the ECC demo environment with detailed technical specifications</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SSH ACCESS -->
+<!-- ============================================================ -->
+<div class="section" id="ssh">
+  <div class="section-title">SSH Access</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Automatic Credential Retrieval</h3>
+    <p>The Server Details card includes an <span class="badge badge-orange">SSH</span> button next to the hostname. Clicking this button:</p>
+    <ol class="step-list">
+      <li>Calls the <code>/sap_skills/api/ecc_ssh_credential</code> endpoint to retrieve the root password from the encrypted vault.</li>
+      <li>Automatically copies the password to your clipboard.</li>
+      <li>Displays a confirmation message that the password has been copied.</li>
+    </ol>
+    <p>You can then open your terminal and connect:</p>
+    <div class="info-box">
+      <code>ssh root@sapidesecc8.fivetran-internal-sales.com</code><br>
+      Paste the password from your clipboard when prompted.
+    </div>
+
+    <div class="info-box">
+      <strong>No master password required:</strong> The SSH credential endpoint retrieves the root password from the vault automatically. Unlike stop operations, no master password prompt is needed for reading credentials.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECURITY -->
+<!-- ============================================================ -->
+<div class="section" id="security">
+  <div class="section-title">Security &amp; Credentials</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Credential Management</h3>
+    <p>The cockpit follows a strict no-hardcoded-passwords policy. All credentials are stored in the encrypted vault on the server and retrieved at runtime.</p>
+
+    <table>
+      <thead><tr><th>Credential</th><th>How it's used</th><th>Vault access</th></tr></thead>
+      <tbody>
+        <tr><td>SSH root password</td><td>Copied to clipboard via SSH button</td><td>Auto-read (no master password needed)</td></tr>
+        <tr><td>SAP OS user (<code>abaadm</code>)</td><td>Start/stop SAP via <code>startsap R3</code> / <code>stopsap R3</code></td><td>Auto-read for start; master password required for stop</td></tr>
+        <tr><td>Oracle OS user (<code>oraaba</code>)</td><td>Start/stop Oracle via <code>sqlplus</code> STARTUP / SHUTDOWN</td><td>Auto-read for start; master password required for stop</td></tr>
+        <tr><td>Master password</td><td>Required for all <strong>stop</strong> operations and manual <strong>backup</strong> triggers</td><td>Validates against vault encryption key</td></tr>
+      </tbody>
+    </table>
+
+    <div class="warn-box">
+      <strong>Master Password:</strong> The master password is required for all destructive operations: stopping SAP, stopping Oracle, and triggering manual backups (since offline_force shuts down the database). Reading credentials and starting services do not require it. If you do not know the master password, contact the SAP Specialist team.
+    </div>
+
+    <div class="info-box">
+      <strong>Vault Integration:</strong> The vault is file-based and encrypted on the server. API endpoints decrypt credentials on-the-fly. No passwords are stored in the HTML cockpit page or transmitted in URLs.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TROUBLESHOOTING -->
+<!-- ============================================================ -->
+<div class="section" id="troubleshooting">
+  <div class="section-title">Troubleshooting</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--warning)"></span> Common Issues</h3>
+    <table>
+      <thead><tr><th>Problem</th><th>Cause</th><th>Solution</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>All status cards show "Error"</td>
+          <td>API endpoints unreachable or web server down</td>
+          <td>Check if the <code>sapidesecc8</code> VM is running in GCP. All API endpoints run locally on this server.</td>
+        </tr>
+        <tr>
+          <td>SAP shows Inactive but Oracle is Active</td>
+          <td>SAP application server is stopped while the database is still running</td>
+          <td>Click "Start SAP" to start the ABAP stack. The database must be running first.</td>
+        </tr>
+        <tr>
+          <td>Oracle shows Inactive</td>
+          <td>Oracle database has been shut down or crashed</td>
+          <td>Click "Start DB" on the Oracle card. Check <code>/oracle/ABA/saptrace/</code> for Oracle alert logs if it crashed.</td>
+        </tr>
+        <tr>
+          <td>Backup Now button is disabled</td>
+          <td>Next scheduled backup is less than 6 hours away</td>
+          <td>This is the 6-hour safety block. Wait for the scheduled backup to complete, then retry.</td>
+        </tr>
+        <tr>
+          <td>Backup Now returns "Error"</td>
+          <td>Oracle instance is down, or brbackup configuration issue</td>
+          <td>Ensure Oracle is Active first. Check <code>/oracle/ABA/sapbackup/backABA.log</code> for error details. Verify <code>initABA.sap</code> exists at <code>/oracle/ABA/sapprof/</code>.</td>
+        </tr>
+        <tr>
+          <td>Stop button says "Wrong master password"</td>
+          <td>Incorrect master password entered</td>
+          <td>Retry with the correct master password. Contact SAP Specialist team if forgotten.</td>
+        </tr>
+        <tr>
+          <td>Start/Stop says "Already running" or "Already stopped"</td>
+          <td>The service is already in the requested state</td>
+          <td>This is informational &mdash; no action needed. Click "Check Status" to confirm current state.</td>
+        </tr>
+        <tr>
+          <td>Disk Space shows "Error loading"</td>
+          <td>API endpoint unreachable or server restart needed</td>
+          <td>Try clicking "Refresh". If persistent, the sap_skills service on sapidesecc8 may need a restart.</td>
+        </tr>
+        <tr>
+          <td>SSH button does not copy password</td>
+          <td>Vault read failed or clipboard API blocked by browser</td>
+          <td>Ensure you are on HTTPS (clipboard API requires secure context). Check browser console for errors.</td>
+        </tr>
+        <tr>
+          <td>Last backup date is very old</td>
+          <td>Scheduled backup cron may have stopped or failed</td>
+          <td>Check <code>crontab -l</code> on sapidesecc8 and review <code>/oracle/ABA/sapbackup/backABA.log</code> for errors.</td>
+        </tr>
+        <tr>
+          <td>Archive log filesystem full</td>
+          <td>brarchive has not run or archive logs growing faster than expected</td>
+          <td>Run <code>brarchive</code> manually as <code>oraaba</code> to clear old archive logs. Check cron schedule (Sundays at 06:00).</td>
+        </tr>
+        <tr>
+          <td>Page returns 404</td>
+          <td>HTML file missing from server</td>
+          <td>Re-deploy: <code>scp SAP_ECC6_EHP8.html root@sapidesecc8:/usr/sap/sap_skills/docs/</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ARCHITECTURE -->
+<!-- ============================================================ -->
+<div class="section" id="architecture">
+  <div class="section-title">Architecture</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> System Architecture</h3>
+    <p>The cockpit page is a static HTML file served by the Python HTTPS server on <code>sapidesecc8</code> (port 443). All dynamic data comes from API endpoints running <strong>locally on the same server</strong>. Unlike the S/4HANA cockpit, there is no SSH hop to a remote server &mdash; all commands (sapcontrol, sqlplus, brbackup) execute directly on sapidesecc8.</p>
+
+    <h3 style="margin-top:20px;"><span class="dot" style="background: var(--primary)"></span> API Endpoints</h3>
+    <table>
+      <thead><tr><th>API Endpoint</th><th>Method</th><th>Purpose</th><th>Auth</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>/sap_skills/api/ecc_system_status</code></td>
+          <td>GET</td>
+          <td>SAP status (<code>sapcontrol -nr 00</code>), Oracle status (<code>sqlplus</code>), kernel version (<code>disp+work -v</code>), last backup (<code>backABA.log</code>), next backup (cron Sunday 07:00)</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td><code>/sap_skills/api/ecc_hardware_info</code></td>
+          <td>GET</td>
+          <td>CPU count (<code>nproc</code>), total memory (<code>free -g</code>), OPatch version, MOPatch version</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td><code>/sap_skills/api/ecc_disk_space</code></td>
+          <td>GET</td>
+          <td>Disk usage for all mounted filesystems (<code>df -h</code>)</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td><code>/sap_skills/api/ecc_ssh_credential</code></td>
+          <td>GET</td>
+          <td>Root password from encrypted vault (auto-decrypt, no master password)</td>
+          <td>None</td>
+        </tr>
+        <tr>
+          <td><code>/sap_skills/api/ecc_sap_control</code></td>
+          <td>POST</td>
+          <td>Start/stop SAP application server (<code>abaadm</code>: <code>startsap R3</code> / <code>stopsap R3</code>)</td>
+          <td>Master password for stop</td>
+        </tr>
+        <tr>
+          <td><code>/sap_skills/api/ecc_db_control</code></td>
+          <td>POST</td>
+          <td>Start/stop Oracle database (<code>oraaba</code>: <code>sqlplus STARTUP</code> / <code>SHUTDOWN IMMEDIATE</code>)</td>
+          <td>Master password for stop</td>
+        </tr>
+        <tr>
+          <td><code>/sap_skills/api/ecc_trigger_backup</code></td>
+          <td>POST</td>
+          <td>Manual brbackup (<code>offline_force</code>). Blocked if next scheduled backup &lt; 6 hours away.</td>
+          <td>Master password</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="info-box">
+      <strong>Local execution:</strong> All API endpoints execute commands directly on sapidesecc8 &mdash; no SSH connections to remote servers are involved. The web server and SAP/Oracle all run on the same machine.
+    </div>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
+</div>
+
+</body>
+</html>

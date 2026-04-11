@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ECC 6.0 EHP8 — SAP Management Cockpit</title>
+<style>
+  :root {
+    --primary: #b35900;
+    --primary-light: #d4770a;
+    --primary-dark: #8a4400;
+    --accent: #b35900;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #b35900 0%, #8a4400 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+    position: relative;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+
+  /* Navigation */
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary-dark);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #fef3e6; }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: #fef3e6;
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  tr:hover td { background: #fffaf5; }
+
+  /* Code */
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    margin: 12px 0;
+  }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: #c0392b;
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+
+  /* Copy button */
+  .pre-wrap { position: relative; }
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255,255,255,0.12);
+    color: #cdd6f4;
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 3px 12px;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    z-index: 2;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.22); }
+  .copy-btn.copied { background: #27ae60; color: white; border-color: #27ae60; }
+
+  /* Info boxes */
+  .info-box {
+    background: #fef3e6;
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+
+  /* Link list */
+  .link-list {
+    list-style: none;
+    padding: 0;
+  }
+  .link-list li {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .link-list li:last-child { border-bottom: none; }
+  .link-list a {
+    color: var(--primary-dark);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .link-list a:hover { text-decoration: underline; }
+  .link-list .link-desc {
+    color: var(--text-light);
+    font-size: 0.85rem;
+  }
+
+  /* Disk bar */
+  .disk-bar-bg {
+    background: #e9ecef;
+    border-radius: 4px;
+    height: 8px;
+    width: 100%;
+    overflow: hidden;
+  }
+  .disk-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s;
+  }
+  .disk-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.84rem;
+  }
+  .disk-row:last-child { border-bottom: none; }
+  .disk-mount { font-weight: 600; color: var(--text); min-width: 100px; }
+  .disk-info { color: var(--text-light); font-size: 0.78rem; white-space: nowrap; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  .back-link { position: absolute; top: 16px; right: 24px; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .back-link:hover { color: #fff; text-decoration: underline; }</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <a href="/sap_skills/" class="back-link">Go back to the main page</a>
+  <h1>ECC 6.0 EHP8</h1>
+  <div class="subtitle">SAP ECC IDES Application Server on Oracle 19c</div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#system">System Info</a>
+    <a href="#status">Status</a>
+    <a href="#links">Links</a>
+    <a href="SAP_ECC6_EHP8_Guide.html">Documentation</a>
+    <a href="SAP_Management_Cockpit.html">Back to Cockpit</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- SYSTEM INFO -->
+<!-- ============================================================ -->
+<div class="section" id="system">
+  <div class="section-title" style="display:flex; align-items:center; justify-content:space-between;">
+    System Information
+    <button onclick="refreshInfo()" id="refresh-btn" style="font-size:0.8rem; padding:6px 14px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Refresh</button>
+  </div>
+
+  <div style="display:flex; gap:20px; flex-wrap:wrap;">
+    <div class="card" style="flex:2; min-width:480px;">
+      <h3><span class="dot" style="background: var(--primary)"></span> Server Details</h3>
+      <table>
+        <thead>
+          <tr><th>Property</th><th>Value</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Hostname</td><td><code>sapidesecc8</code> &mdash; <code>sapidesecc8.fivetran-internal-sales.com</code></td></tr>
+          <tr><td>SAP System</td><td>SAP ECC 6.0 EHP8 &mdash; IDES</td></tr>
+          <tr><td>SID</td><td><code>ABA</code></td></tr>
+          <tr><td>Instance Nr</td><td><code>00</code></td></tr>
+          <tr><td>Client</td><td><code>800</code></td></tr>
+          <tr><td>DB SID</td><td><code>ABA</code></td></tr>
+          <tr><td>Database</td><td id="db-version">Oracle 19c (19.0.0.0.0)</td></tr>
+          <tr><td>OPatch</td><td id="opatch-version">12.2.0.1.48</td></tr>
+          <tr><td>MOPatch</td><td id="mopatch-version">2.13</td></tr>
+          <tr><td>OS</td><td><span id="os-version">SUSE Linux Enterprise Server 15 SP5</span> <button onclick="sshConnect()" id="ssh-btn" style="display:inline-block; margin-left:12px; padding:3px 12px; background:#0284C7; color:white; border:none; border-radius:5px; font-size:0.78rem; font-weight:600; cursor:pointer;">SSH</button></td></tr>
+          <tr><td>IP Addresses</td><td>Private <code>10.128.15.241</code> &mdash; Public <code>35.226.121.169</code></td></tr>
+          <tr><td>CPUs</td><td id="hw-cpus">4 vCPUs</td></tr>
+          <tr><td>Memory</td><td id="hw-memory">23 GB RAM</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card" style="flex:1; min-width:260px;">
+      <h3 style="display:flex; align-items:center; justify-content:space-between;">
+        <span><span class="dot" style="background: var(--primary)"></span> Disk Space</span>
+        <button onclick="loadDiskSpace()" id="disk-refresh-btn" style="font-size:0.72rem; padding:4px 10px; background:var(--primary); color:white; border:none; border-radius:5px; cursor:pointer; font-weight:600;">Refresh</button>
+      </h3>
+      <div id="disk-space-content" style="font-size:0.88rem; color:var(--text-light);">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- STATUS -->
+<!-- ============================================================ -->
+<div class="section" id="status">
+  <div class="section-title" style="display:flex; align-items:center; justify-content:space-between;">
+    Status
+    <button onclick="refreshStatus()" id="status-btn" style="font-size:0.8rem; padding:6px 14px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Check Status</button>
+  </div>
+
+  <div style="display:flex; gap:20px; flex-wrap:wrap;">
+    <div class="card" style="flex:1; min-width:250px; text-align:center;">
+      <h3 style="justify-content:center;"><span id="sap-dot" class="dot" style="background: #6c757d"></span> SAP Application Server</h3>
+      <div id="sap-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
+      <div id="sap-status-detail" style="font-size:0.85rem; color:var(--text-light);">Click "Check Status" to verify</div>
+      <div id="sap-kernel" style="font-size:0.82rem; color:var(--text-light); margin-top:6px;"></div>
+      <div style="margin-top:10px; display:flex; gap:8px; justify-content:center;">
+        <button id="sap-start-btn" onclick="sapControl('start')" style="font-size:0.78rem; padding:5px 14px; background:#27ae60; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Start SAP</button>
+        <button id="sap-stop-btn" onclick="sapControl('stop')" style="font-size:0.78rem; padding:5px 14px; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Stop SAP</button>
+      </div>
+    </div>
+    <div class="card" style="flex:1; min-width:250px; text-align:center;">
+      <h3 style="justify-content:center;"><span id="db-dot" class="dot" style="background: #6c757d"></span> Oracle Database</h3>
+      <div id="db-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
+      <div id="db-status-detail" style="font-size:0.85rem; color:var(--text-light);">Click "Check Status" to verify</div>
+      <div id="db-last-backup" style="font-size:0.82rem; color:var(--text-light); margin-top:6px;"></div>
+      <div id="db-next-backup" style="font-size:0.82rem; color:var(--text-light); margin-top:2px;"></div>
+      <div id="db-next-countdown" style="font-size:0.82rem; color:var(--primary); font-weight:600; margin-top:2px;"></div>
+      <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+        <button id="db-start-btn" onclick="dbControl('start')" style="font-size:0.78rem; padding:5px 14px; background:#27ae60; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Start DB</button>
+        <button id="db-stop-btn" onclick="dbControl('stop')" style="font-size:0.78rem; padding:5px 14px; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Stop DB</button>
+        <button id="db-backup-btn" onclick="triggerBackup()" style="font-size:0.78rem; padding:5px 14px; background:#7c3aed; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Backup Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ============================================================ -->
+<!-- SAP LICENSE -->
+<!-- ============================================================ -->
+<div class="section" id="license-section">
+  <div class="section-title">SAP License</div>
+  <div class="card" style="text-align:center;">
+    <div id="license-content" style="color:var(--text-light); font-size:0.9rem;">Loading license info...</div>
+  </div>
+</div>
+
+<!-- LINKS -->
+<!-- ============================================================ -->
+<div class="section" id="links">
+  <div class="section-title">Links</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Resources</h3>
+    <ul class="link-list">
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-central1-a/instances/antonio-carbone-sap-idesecc8-oracle-2024-10-02?project=internal-sales" target="_blank" style="flex-shrink:0;">
+            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-central1-a/instances/antonio-carbone-sap-idesecc8-oracle-2024-10-02?project=internal-sales" target="_blank">VM Settings</a>
+            <div class="link-desc">Google Cloud Compute Engine</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://console.cloud.google.com/net-services/dns/zones/fivetran-internal-sales-com/details?project=internal-sales" target="_blank" style="flex-shrink:0;">
+            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://console.cloud.google.com/net-services/dns/zones/fivetran-internal-sales-com/details?project=internal-sales" target="_blank">DNS Registration</a>
+            <div class="link-desc">Google Cloud DNS</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://fivetran.slab.com/posts/new-ecc-on-oracle-demo-environment-technical-details-zvb6tpdb" target="_blank" style="flex-shrink:0;">
+            <img src="slab_icon.svg" alt="Slab" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://fivetran.slab.com/posts/new-ecc-on-oracle-demo-environment-technical-details-zvb6tpdb" target="_blank">Technical Details</a>
+            <div class="link-desc">SAP Demo Environment &mdash; Technical Details</div>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- PASSWORD MODAL -->
+<div id="pwd-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+  <div style="background:white; border-radius:12px; padding:28px; max-width:360px; width:90%; box-shadow:0 8px 30px rgba(0,0,0,0.3);">
+    <div id="pwd-title" style="font-size:1rem; font-weight:700; color:var(--text); margin-bottom:14px;">Enter master password</div>
+    <input id="pwd-input" type="password" placeholder="Master password" style="width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:6px; font-size:0.95rem; outline:none; box-sizing:border-box;" onkeydown="if(event.key==='Enter')document.getElementById('pwd-ok').click();">
+    <div style="display:flex; gap:10px; margin-top:16px; justify-content:flex-end;">
+      <button onclick="closePwdModal(null)" style="padding:7px 18px; background:#e9ecef; color:var(--text); border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85rem;">Cancel</button>
+      <button id="pwd-ok" onclick="closePwdModal(document.getElementById('pwd-input').value)" style="padding:7px 18px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85rem;">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
+</div>
+
+<!-- SCRIPTS -->
+<script>
+function copyCode(btn) {
+  var pre = btn.closest('.pre-wrap').querySelector('pre');
+  navigator.clipboard.writeText(pre.textContent).then(function() {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+var _pwdResolve = null;
+function askPassword(title) {
+  return new Promise(function(resolve) {
+    _pwdResolve = resolve;
+    document.getElementById('pwd-title').textContent = title || 'Enter master password';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-overlay').style.display = 'flex';
+    document.getElementById('pwd-input').focus();
+  });
+}
+function closePwdModal(val) {
+  document.getElementById('pwd-overlay').style.display = 'none';
+  if (_pwdResolve) { _pwdResolve(val); _pwdResolve = null; }
+}
+
+function refreshStatus() {
+  var btn = document.getElementById('status-btn');
+  btn.textContent = 'Checking...';
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  fetch('/sap_skills/api/ecc_system_status')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        // SAP
+        document.getElementById('sap-status').textContent = data.sap.active ? 'Active' : 'Inactive';
+        document.getElementById('sap-status').style.color = data.sap.active ? '#166534' : '#991b1b';
+        document.getElementById('sap-dot').style.background = data.sap.active ? '#27ae60' : '#e74c3c';
+        document.getElementById('sap-status-detail').textContent = data.sap.detail || '';
+        if (data.sap.kernel) document.getElementById('sap-kernel').textContent = 'Kernel ' + data.sap.kernel;
+        // Oracle
+        document.getElementById('db-status').textContent = data.oracle.active ? 'Active' : 'Inactive';
+        document.getElementById('db-status').style.color = data.oracle.active ? '#166534' : '#991b1b';
+        document.getElementById('db-dot').style.background = data.oracle.active ? '#27ae60' : '#e74c3c';
+        document.getElementById('db-status-detail').textContent = data.oracle.detail || '';
+        if (data.oracle.last_backup_utc) {
+          var lb = new Date(data.oracle.last_backup_utc);
+          var lbAms = lb.toLocaleString('en-GB', {timeZone:'Europe/Amsterdam', month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit'});
+          var lbLA = lb.toLocaleString('en-US', {timeZone:'America/Los_Angeles', month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit'});
+          document.getElementById('db-last-backup').innerHTML = 'Last backup: ' + lbAms + ' (AMS) / ' + lbLA + ' (LA)';
+        }
+        if (data.oracle.next_backup_utc) {
+          var nb = new Date(data.oracle.next_backup_utc);
+          window._nextBackupTime = nb;
+          var nbAms = nb.toLocaleString('en-GB', {timeZone:'Europe/Amsterdam', month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit'});
+          var nbLA = nb.toLocaleString('en-US', {timeZone:'America/Los_Angeles', month:'short', day:'numeric', year:'numeric', hour:'2-digit', minute:'2-digit'});
+          document.getElementById('db-next-backup').innerHTML = 'Next backup: ' + nbAms + ' (AMS) / ' + nbLA + ' (LA)';
+          startCountdown();
+        }
+        btn.textContent = 'Checked!';
+        btn.style.background = '#27ae60';
+      } else {
+        document.getElementById('sap-status').textContent = 'Error';
+        document.getElementById('db-status').textContent = 'Error';
+        btn.textContent = 'Error';
+        btn.style.background = '#e74c3c';
+      }
+      setTimeout(function() { btn.textContent = 'Check Status'; btn.style.background = 'var(--primary)'; btn.style.opacity = '1'; btn.disabled = false; }, 3000);
+    })
+    .catch(function() {
+      document.getElementById('sap-status').textContent = 'Error';
+      document.getElementById('db-status').textContent = 'Error';
+      btn.textContent = 'Error';
+      btn.style.background = '#e74c3c';
+      setTimeout(function() { btn.textContent = 'Check Status'; btn.style.background = 'var(--primary)'; btn.style.opacity = '1'; btn.disabled = false; }, 3000);
+    });
+}
+
+function refreshInfo() {
+  var btn = document.getElementById('refresh-btn');
+  btn.textContent = 'Refreshing...';
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  fetch('/sap_skills/api/ecc_hardware_info')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        if (data.cpus) document.getElementById('hw-cpus').textContent = data.cpus + ' vCPUs';
+        if (data.memory_gb) document.getElementById('hw-memory').textContent = data.memory_gb + ' GB RAM';
+        if (data.os) document.getElementById('os-version').textContent = data.os;
+        if (data.oracle_version) document.getElementById('db-version').textContent = data.oracle_version;
+        if (data.opatch_version) document.getElementById('opatch-version').textContent = data.opatch_version;
+        if (data.mopatch_version) document.getElementById('mopatch-version').textContent = data.mopatch_version;
+        btn.textContent = 'Updated!';
+        btn.style.background = '#27ae60';
+      } else {
+        btn.textContent = 'Error';
+        btn.style.background = '#e74c3c';
+      }
+      setTimeout(function() { btn.textContent = 'Refresh'; btn.style.background = 'var(--primary)'; btn.style.opacity = '1'; btn.disabled = false; }, 2000);
+    })
+    .catch(function() {
+      btn.textContent = 'Error';
+      btn.style.background = '#e74c3c';
+      setTimeout(function() { btn.textContent = 'Refresh'; btn.style.background = 'var(--primary)'; btn.style.opacity = '1'; btn.disabled = false; }, 3000);
+    });
+}
+
+function loadDiskSpace() {
+  var container = document.getElementById('disk-space-content');
+  var btn = document.getElementById('disk-refresh-btn');
+  btn.textContent = 'Loading...';
+  btn.disabled = true;
+  fetch('/sap_skills/api/ecc_disk_space')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      var html = '';
+      data.filesystems.forEach(function(fs) {
+        var pct = parseInt(fs.used_pct) || 0;
+        var color = pct >= 85 ? '#e74c3c' : pct >= 70 ? '#f39c12' : '#27ae60';
+        html += '<div class="disk-row">' +
+          '<div class="disk-mount">' + fs.mount + '</div>' +
+          '<div style="flex:1;">' +
+            '<div class="disk-bar-bg"><div class="disk-bar-fill" style="width:' + pct + '%; background:' + color + ';"></div></div>' +
+          '</div>' +
+          '<div class="disk-info">' + pct + '% &mdash; ' + fs.size + ' &mdash; ' + fs.avail + ' free</div>' +
+        '</div>';
+      });
+      container.innerHTML = html;
+    }
+    btn.textContent = 'Refresh';
+    btn.disabled = false;
+  })
+  .catch(function() {
+    container.textContent = 'Error loading disk space';
+    btn.textContent = 'Refresh';
+    btn.disabled = false;
+  });
+}
+
+function sapControl(action) {
+  var btn = document.getElementById('sap-' + action + '-btn');
+  var payload = {action: action, target: 'ecc'};
+
+  function doFetch() {
+    btn.textContent = action === 'stop' ? 'Stopping...' : 'Starting...';
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+
+    fetch('/sap_skills/api/ecc_sap_control', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        btn.textContent = action === 'stop' ? 'Stop issued' : 'Start issued';
+        btn.style.background = '#b35900';
+      } else if (data.status === 'info') {
+        btn.textContent = data.message;
+        btn.style.background = '#0284C7';
+      } else {
+        btn.textContent = data.message || 'Error';
+        btn.style.background = '#e74c3c';
+      }
+      setTimeout(function() {
+        btn.textContent = action === 'stop' ? 'Stop SAP' : 'Start SAP';
+        btn.style.background = action === 'stop' ? '#e74c3c' : '#27ae60';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }, 4000);
+    })
+    .catch(function() {
+      btn.textContent = 'Error';
+      setTimeout(function() {
+        btn.textContent = action === 'stop' ? 'Stop SAP' : 'Start SAP';
+        btn.style.background = action === 'stop' ? '#e74c3c' : '#27ae60';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }, 3000);
+    });
+  }
+
+  if (action === 'stop') {
+    if (!confirm('WARNING: Stopping SAP ECC Application Server.\n\nAll connected users will be disconnected.')) return;
+    askPassword('Enter master password to authorize Stop SAP').then(function(pwd) {
+      if (!pwd) return;
+      payload.master_password = pwd;
+      doFetch();
+    });
+  } else {
+    if (!confirm('Start SAP ECC Application Server?')) return;
+    doFetch();
+  }
+}
+
+function dbControl(action) {
+  var btn = document.getElementById('db-' + action + '-btn');
+  var payload = {action: action, target: 'ecc_oracle'};
+
+  function doFetch() {
+    btn.textContent = action === 'stop' ? 'Stopping...' : 'Starting...';
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+
+    fetch('/sap_skills/api/ecc_db_control', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        btn.textContent = action === 'stop' ? 'Stop issued' : 'Start issued';
+        btn.style.background = '#b35900';
+      } else if (data.status === 'info') {
+        btn.textContent = data.message;
+        btn.style.background = '#0284C7';
+      } else {
+        btn.textContent = data.message || 'Error';
+        btn.style.background = '#e74c3c';
+      }
+      setTimeout(function() {
+        btn.textContent = action === 'stop' ? 'Stop DB' : 'Start DB';
+        btn.style.background = action === 'stop' ? '#e74c3c' : '#27ae60';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }, 4000);
+    })
+    .catch(function() {
+      btn.textContent = 'Error';
+      setTimeout(function() {
+        btn.textContent = action === 'stop' ? 'Stop DB' : 'Start DB';
+        btn.style.background = action === 'stop' ? '#e74c3c' : '#27ae60';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }, 3000);
+    });
+  }
+
+  if (action === 'stop') {
+    if (!confirm('WARNING: Stopping Oracle Database (ABA).\n\nSAP ECC must be stopped first to avoid data corruption.')) return;
+    askPassword('Enter master password to authorize Stop DB').then(function(pwd) {
+      if (!pwd) return;
+      payload.master_password = pwd;
+      doFetch();
+    });
+  } else {
+    if (!confirm('Start Oracle Database (ABA)?')) return;
+    doFetch();
+  }
+}
+
+function sshConnect() {
+  var btn = document.getElementById('ssh-btn');
+  btn.textContent = 'Connecting...';
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  fetch('/sap_skills/api/ecc_ssh_credential')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      navigator.clipboard.writeText(data.password).then(function() {
+        btn.textContent = 'Password copied!';
+        btn.style.background = '#27ae60';
+        window.open('ssh://root@sapidesecc8', '_self');
+      });
+    } else {
+      btn.textContent = 'Error';
+      btn.style.background = '#e74c3c';
+    }
+    setTimeout(function() {
+      btn.textContent = 'SSH';
+      btn.style.background = '#0284C7';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }, 3000);
+  })
+  .catch(function() {
+    btn.textContent = 'Error';
+    btn.style.background = '#e74c3c';
+    setTimeout(function() {
+      btn.textContent = 'SSH';
+      btn.style.background = '#0284C7';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }, 3000);
+  });
+}
+
+function triggerBackup() {
+  var btn = document.getElementById('db-backup-btn');
+  // Block if next scheduled backup is less than 6 hours away
+  if (window._nextBackupTime) {
+    var hoursLeft = (window._nextBackupTime.getTime() - Date.now()) / 3600000;
+    if (hoursLeft < 6 && hoursLeft > 0) {
+      var h = Math.floor(hoursLeft);
+      var m = Math.floor((hoursLeft - h) * 60);
+      alert('Manual backup not allowed.\n\nThe next scheduled backup is in ' + h + 'h ' + m + 'm.\nManual backups are blocked when the next run is less than 6 hours away.');
+      return;
+    }
+  }
+  if (!confirm('WARNING: This will run an OFFLINE FORCE backup.\n\nSAP ECC will be STOPPED during the entire backup and will be UNUSABLE until it completes (typically 60-90 minutes).\n\nAll connected users will be disconnected.\n\nDo you want to proceed?')) return;
+  askPassword('Enter master password to authorize manual backup').then(function(pwd) {
+    if (!pwd) return;
+    btn.textContent = 'Starting...';
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    fetch('/sap_skills/api/ecc_trigger_backup', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({master_password: pwd})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        btn.textContent = 'Backup started';
+        btn.style.background = '#b35900';
+      } else {
+        btn.textContent = data.message || 'Error';
+        btn.style.background = '#e74c3c';
+      }
+      setTimeout(function() {
+        btn.textContent = 'Backup Now';
+        btn.style.background = '#7c3aed';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }, 5000);
+    })
+    .catch(function() {
+      btn.textContent = 'Error';
+      btn.style.background = '#e74c3c';
+      setTimeout(function() {
+        btn.textContent = 'Backup Now';
+        btn.style.background = '#7c3aed';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }, 3000);
+    });
+  });
+}
+
+var _countdownInterval = null;
+function startCountdown() {
+  if (_countdownInterval) clearInterval(_countdownInterval);
+  function tick() {
+    var el = document.getElementById('db-next-countdown');
+    if (!window._nextBackupTime) { el.textContent = ''; return; }
+    var diff = window._nextBackupTime.getTime() - Date.now();
+    if (diff <= 0) { el.textContent = 'Backup should be running now'; return; }
+    var h = Math.floor(diff / 3600000);
+    var m = Math.floor((diff % 3600000) / 60000);
+    var s = Math.floor((diff % 60000) / 1000);
+    el.textContent = 'Starts in ' + h + 'h ' + (m < 10 ? '0' : '') + m + 'm ' + (s < 10 ? '0' : '') + s + 's';
+  }
+  tick();
+  _countdownInterval = setInterval(tick, 1000);
+}
+
+function loadLicense() {
+  var el = document.getElementById('license-content');
+  fetch('/sap_skills/api/ecc_license')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok' && data.licenses) {
+        var html = '<table style="width:100%; border-collapse:collapse; font-size:0.85rem;">';
+        html += '<tr style="border-bottom:1px solid rgba(0,0,0,0.1);">';
+        html += '<th style="text-align:left; padding:6px 10px; font-weight:600;">License Type</th>';
+        html += '<th style="text-align:center; padding:6px 10px; font-weight:600;">Valid From</th>';
+        html += '<th style="text-align:center; padding:6px 10px; font-weight:600;">Valid To</th>';
+        html += '<th style="text-align:center; padding:6px 10px; font-weight:600;">Status</th>';
+        html += '</tr>';
+        data.licenses.forEach(function(lic) {
+          if (!lic.valid_from && !lic.valid_to) return;
+          var statusColor, statusText, statusIcon;
+          if (lic.status === 'expired') {
+            statusColor = '#991b1b'; statusText = 'Expired'; statusIcon = '&#10060;';
+          } else if (lic.status === 'expiring_soon') {
+            statusColor = '#b35900'; statusText = 'Expiring Soon'; statusIcon = '&#9888;';
+          } else if (lic.status === 'valid') {
+            statusColor = '#166534'; statusText = 'Valid'; statusIcon = '&#9989;';
+          } else {
+            statusColor = '#6c757d'; statusText = 'Unknown'; statusIcon = '&#8212;';
+          }
+          html += '<tr style="border-bottom:1px solid rgba(0,0,0,0.05);">';
+          html += '<td style="text-align:left; padding:6px 10px;">' + lic.type + '</td>';
+          html += '<td style="text-align:center; padding:6px 10px;">' + (lic.valid_from || '\u2014') + '</td>';
+          html += '<td style="text-align:center; padding:6px 10px;">' + (lic.valid_to || '\u2014') + '</td>';
+          html += '<td style="text-align:center; padding:6px 10px; font-weight:700; color:' + statusColor + ';">' + statusIcon + ' ' + statusText + '</td>';
+          html += '</tr>';
+        });
+        html += '</table>';
+        el.innerHTML = html;
+      } else {
+        el.textContent = 'Could not load license info';
+      }
+    })
+    .catch(function() {
+      el.textContent = 'Error loading license info';
+    });
+}
+
+// Auto-load on page open
+document.addEventListener('DOMContentLoaded', function() {
+  refreshStatus();
+  loadLicense();
+  loadDiskSpace();
+  setInterval(function() { refreshStatus(); loadLicense(); }, 300000);
+});
+</script>
+
+</body>
+</html>
