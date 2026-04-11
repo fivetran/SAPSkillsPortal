@@ -270,14 +270,39 @@
 
   <div style="display:flex; gap:20px; flex-wrap:wrap;">
     <div class="card" style="flex:1; min-width:200px; text-align:center;">
-      <h3 style="justify-content:center;"><span class="dot" style="background: var(--primary)"></span> SAP Application Server</h3>
+      <h3 style="justify-content:center;"><span id="sap-dot" class="dot" style="background: #6c757d"></span> SAP Application Server</h3>
       <div id="sap-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
       <div id="sap-status-detail" style="font-size:0.85rem; color:var(--text-light);">Click "Check Status" to verify</div>
     </div>
     <div class="card" style="flex:1; min-width:200px; text-align:center;">
-      <h3 style="justify-content:center;"><span class="dot" style="background: var(--primary)"></span> SAP HANA Database</h3>
+      <h3 style="justify-content:center;"><span id="hana-dot" class="dot" style="background: #6c757d"></span> SAP HANA Database</h3>
       <div id="hana-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
-      <div id="hana-status-detail" style="font-size:0.85rem; color:var(--text-light);">Click "Check Status" to verify</div>
+      <div id="hana-tenant-display" style="font-size:0.85rem; color:var(--text-light); margin-bottom:4px; display:none;">Tenant: <span id="hana-tenant-name" style="font-weight:600; color:var(--text);"></span></div>
+      <div id="hana-backup-display" style="font-size:0.85rem; color:var(--text-light); display:none;">Last Backup: <span id="hana-backup-date" style="font-weight:600; color:var(--text);"></span></div>
+      <div id="hana-backup-running" style="font-size:0.85rem; color:#b35900; font-weight:600; margin-top:8px; display:none;">Backup running: <span id="hana-backup-timer">00:00</span></div>
+      <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+        <button id="hana-backup-btn" onclick="triggerBackup('fiv')" style="font-size:0.78rem; padding:5px 14px; background:#0284C7; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Backup Now</button>
+        <button id="hana-refresh-btn" onclick="checkBackupRunning('fiv')" style="font-size:0.78rem; padding:5px 14px; background:#6c757d; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Refresh</button>
+      </div>
+      <div style="margin-top:8px; display:flex; gap:8px; justify-content:center;">
+        <button id="hana-start-btn" onclick="hanaControl('fiv','start')" style="font-size:0.78rem; padding:5px 14px; background:#27ae60; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Start DB</button>
+        <button id="hana-stop-btn" onclick="hanaControl('fiv','stop')" style="font-size:0.78rem; padding:5px 14px; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Stop DB</button>
+      </div>
+    </div>
+    <div class="card" style="flex:1; min-width:200px; text-align:center;">
+      <h3 style="justify-content:center;"><span id="pit-dot" class="dot" style="background: #6c757d"></span> HANA Cockpit Database</h3>
+      <div id="pit-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
+      <div id="pit-tenant-display" style="font-size:0.85rem; color:var(--text-light); margin-bottom:4px; display:none;">Tenant: <span id="pit-tenant-name" style="font-weight:600; color:var(--text);"></span></div>
+      <div id="pit-backup-display" style="font-size:0.85rem; color:var(--text-light); display:none;">Last Backup: <span id="pit-backup-date" style="font-weight:600; color:var(--text);"></span></div>
+      <div id="pit-backup-running" style="font-size:0.85rem; color:#b35900; font-weight:600; margin-top:8px; display:none;">Backup running: <span id="pit-backup-timer">00:00</span></div>
+      <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+        <button id="pit-backup-btn" onclick="triggerBackup('pit')" style="font-size:0.78rem; padding:5px 14px; background:#0284C7; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Backup Now</button>
+        <button id="pit-refresh-btn" onclick="checkBackupRunning('pit')" style="font-size:0.78rem; padding:5px 14px; background:#6c757d; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Refresh</button>
+      </div>
+      <div style="margin-top:8px; display:flex; gap:8px; justify-content:center;">
+        <button id="pit-start-btn" onclick="hanaControl('pit','start')" style="font-size:0.78rem; padding:5px 14px; background:#27ae60; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Start DB</button>
+        <button id="pit-stop-btn" onclick="hanaControl('pit','stop')" style="font-size:0.78rem; padding:5px 14px; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Stop DB</button>
+      </div>
     </div>
   </div>
 </div>
@@ -287,9 +312,6 @@
 <!-- ============================================================ -->
 <div class="section" id="links">
   <div class="section-title">Links</div>
-  <div class="info-box">
-    Add links to this page as needed &mdash; documentation, dashboards, monitoring tools, or any resource related to the S/4HANA 2023 system.
-  </div>
 
   <div class="card">
     <h3><span class="dot" style="background: var(--primary)"></span> Resources</h3>
@@ -428,27 +450,59 @@ function refreshStatus() {
   var sapDetail = document.getElementById('sap-status-detail');
   var hanaStatus = document.getElementById('hana-status');
   var hanaDetail = document.getElementById('hana-status-detail');
+  var pitStatus = document.getElementById('pit-status');
+  var pitDetail = document.getElementById('pit-status-detail');
   sapStatus.textContent = '...';
   sapStatus.style.color = '#6c757d';
   hanaStatus.textContent = '...';
   hanaStatus.style.color = '#6c757d';
+  pitStatus.textContent = '...';
+  pitStatus.style.color = '#6c757d';
   fetch('/sap_skills/api/system_status')
     .then(function(r) { return r.json(); })
     .then(function(data) {
       if (data.status === 'ok') {
+        // SAP Application Server
         sapStatus.textContent = data.sap.active ? 'Active' : 'Inactive';
         sapStatus.style.color = data.sap.active ? '#166534' : '#991b1b';
+        document.getElementById('sap-dot').style.background = data.sap.active ? '#27ae60' : '#e74c3c';
         sapDetail.textContent = data.sap.detail;
+        // HANA Database
         hanaStatus.textContent = data.hana.active ? 'Active' : 'Inactive';
         hanaStatus.style.color = data.hana.active ? '#166534' : '#991b1b';
-        hanaDetail.textContent = data.hana.detail;
+        document.getElementById('hana-dot').style.background = data.hana.active ? '#27ae60' : '#e74c3c';
+        if (data.hana.tenant) {
+          document.getElementById('hana-tenant-name').textContent = data.hana.tenant;
+          document.getElementById('hana-tenant-display').style.display = '';
+        }
+        if (data.hana.last_backup) {
+          document.getElementById('hana-backup-date').textContent = data.hana.last_backup;
+          document.getElementById('hana-backup-display').style.display = '';
+        }
+        // HANA Cockpit Database
+        pitStatus.textContent = data.pit.active ? 'Active' : 'Inactive';
+        pitStatus.style.color = data.pit.active ? '#166534' : '#991b1b';
+        document.getElementById('pit-dot').style.background = data.pit.active ? '#27ae60' : '#e74c3c';
+        if (data.pit.tenant) {
+          document.getElementById('pit-tenant-name').textContent = data.pit.tenant;
+          document.getElementById('pit-tenant-display').style.display = '';
+        }
+        if (data.pit.last_backup) {
+          document.getElementById('pit-backup-date').textContent = data.pit.last_backup;
+          document.getElementById('pit-backup-display').style.display = '';
+        }
         btn.textContent = 'Checked!';
         btn.style.background = '#27ae60';
       } else {
         sapStatus.textContent = 'Error';
         sapStatus.style.color = '#991b1b';
+        document.getElementById('sap-dot').style.background = '#e74c3c';
         hanaStatus.textContent = 'Error';
         hanaStatus.style.color = '#991b1b';
+        document.getElementById('hana-dot').style.background = '#e74c3c';
+        pitStatus.textContent = 'Error';
+        pitStatus.style.color = '#991b1b';
+        document.getElementById('pit-dot').style.background = '#e74c3c';
         btn.textContent = 'Error';
         btn.style.background = '#e74c3c';
       }
@@ -457,8 +511,13 @@ function refreshStatus() {
     .catch(function() {
       sapStatus.textContent = 'Error';
       sapStatus.style.color = '#991b1b';
+      document.getElementById('sap-dot').style.background = '#e74c3c';
       hanaStatus.textContent = 'Error';
       hanaStatus.style.color = '#991b1b';
+      document.getElementById('hana-dot').style.background = '#e74c3c';
+      pitStatus.textContent = 'Error';
+      pitStatus.style.color = '#991b1b';
+      document.getElementById('pit-dot').style.background = '#e74c3c';
       btn.textContent = 'Error';
       btn.style.background = '#e74c3c';
       setTimeout(function() { btn.textContent = 'Check Status'; btn.style.background = 'var(--primary)'; btn.style.opacity = '1'; btn.disabled = false; btn.style.cursor = 'pointer'; }, 3000);
@@ -494,9 +553,170 @@ function refreshVersion() {
     });
 }
 
+// --- HANA Start/Stop ---
+function hanaControl(target, action) {
+  var label = target === 'fiv' ? 'SAP HANA Database (fivadm)' : 'HANA Cockpit Database (pitadm)';
+  var prefix = target === 'fiv' ? 'hana' : 'pit';
+  var btn = document.getElementById(prefix + '-' + action + '-btn');
+
+  if (action === 'stop') {
+    if (target === 'fiv') {
+      if (!confirm('WARNING: Be sure to shut SAP (S/4HANA) down first!\n\nStopping the database while SAP is running can cause data corruption.')) return;
+    }
+    if (!confirm('Are you sure you want to STOP ' + label + '?\n\nThis will shut down the entire HANA instance.')) return;
+  } else {
+    if (!confirm('Start ' + label + '?')) return;
+  }
+
+  btn.textContent = action === 'stop' ? 'Stopping...' : 'Starting...';
+  btn.disabled = true;
+  btn.style.opacity = '0.5';
+
+  fetch('/sap_skills/api/hana_control', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({target: target, action: action})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      btn.textContent = action === 'stop' ? 'Stop issued' : 'Start issued';
+      btn.style.background = '#b35900';
+      setTimeout(function() {
+        btn.textContent = action === 'stop' ? 'Stop DB' : 'Start DB';
+        btn.style.background = action === 'stop' ? '#e74c3c' : '#27ae60';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }, 5000);
+    } else {
+      btn.textContent = 'Error';
+      setTimeout(function() {
+        btn.textContent = action === 'stop' ? 'Stop DB' : 'Start DB';
+        btn.style.background = action === 'stop' ? '#e74c3c' : '#27ae60';
+        btn.disabled = false;
+        btn.style.opacity = '1';
+      }, 3000);
+    }
+  })
+  .catch(function() {
+    btn.textContent = 'Error';
+    setTimeout(function() {
+      btn.textContent = action === 'stop' ? 'Stop DB' : 'Start DB';
+      btn.style.background = action === 'stop' ? '#e74c3c' : '#27ae60';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+    }, 3000);
+  });
+}
+
+// --- Backup functions ---
+var backupTimers = {};
+
+function formatElapsed(sec) {
+  var m = Math.floor(sec / 60);
+  var s = sec % 60;
+  return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+}
+
+function startLocalTimer(target, initialSec) {
+  if (backupTimers[target]) clearInterval(backupTimers[target]);
+  var elapsed = initialSec || 0;
+  var timerEl = document.getElementById(target === 'fiv' ? 'hana-backup-timer' : 'pit-backup-timer');
+  var runningEl = document.getElementById(target === 'fiv' ? 'hana-backup-running' : 'pit-backup-running');
+  var btn = document.getElementById(target === 'fiv' ? 'hana-backup-btn' : 'pit-backup-btn');
+  timerEl.textContent = formatElapsed(elapsed);
+  runningEl.style.display = '';
+  btn.disabled = true;
+  btn.style.opacity = '0.5';
+  btn.style.cursor = 'not-allowed';
+  backupTimers[target] = setInterval(function() {
+    elapsed++;
+    timerEl.textContent = formatElapsed(elapsed);
+  }, 1000);
+}
+
+function stopLocalTimer(target) {
+  if (backupTimers[target]) { clearInterval(backupTimers[target]); backupTimers[target] = null; }
+  var runningEl = document.getElementById(target === 'fiv' ? 'hana-backup-running' : 'pit-backup-running');
+  var btn = document.getElementById(target === 'fiv' ? 'hana-backup-btn' : 'pit-backup-btn');
+  runningEl.style.display = 'none';
+  btn.disabled = false;
+  btn.style.opacity = '1';
+  btn.style.cursor = 'pointer';
+}
+
+function triggerBackup(target) {
+  var label = target === 'fiv' ? 'FIV' : 'SYSTEMDB (Cockpit)';
+  if (!confirm('Start an immediate BACKINT backup for tenant ' + label + '?')) return;
+  var btn = document.getElementById(target === 'fiv' ? 'hana-backup-btn' : 'pit-backup-btn');
+  btn.textContent = 'Starting...';
+  fetch('/sap_skills/api/trigger_backup', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({target: target})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      btn.textContent = 'Running...';
+      startLocalTimer(target, 0);
+    } else {
+      btn.textContent = 'Error';
+      btn.style.background = '#e74c3c';
+      setTimeout(function() { btn.textContent = 'Backup Now'; btn.style.background = '#0284C7'; }, 3000);
+    }
+  })
+  .catch(function() {
+    btn.textContent = 'Error';
+    btn.style.background = '#e74c3c';
+    setTimeout(function() { btn.textContent = 'Backup Now'; btn.style.background = '#0284C7'; }, 3000);
+  });
+}
+
+function checkBackupRunning(target) {
+  var refreshBtn = document.getElementById(target === 'fiv' ? 'hana-refresh-btn' : 'pit-refresh-btn');
+  var backupBtn = document.getElementById(target === 'fiv' ? 'hana-backup-btn' : 'pit-backup-btn');
+  refreshBtn.textContent = 'Checking...';
+  refreshBtn.disabled = true;
+  fetch('/sap_skills/api/backup_running')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      var info = data.data[target];
+      if (info.running) {
+        startLocalTimer(target, info.elapsed);
+        backupBtn.textContent = 'Running...';
+      } else {
+        stopLocalTimer(target);
+        backupBtn.textContent = 'Backup Now';
+        backupBtn.style.background = '#0284C7';
+        // Refresh the main status to get updated last backup date
+        refreshStatus();
+      }
+    }
+    refreshBtn.textContent = 'Refresh';
+    refreshBtn.disabled = false;
+  })
+  .catch(function() {
+    refreshBtn.textContent = 'Refresh';
+    refreshBtn.disabled = false;
+  });
+}
+
 // Auto-refresh status on page load
 document.addEventListener('DOMContentLoaded', function() {
   refreshStatus();
+  // Also check if any backup is currently running
+  setTimeout(function() {
+    fetch('/sap_skills/api/backup_running')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        if (data.data.fiv && data.data.fiv.running) startLocalTimer('fiv', data.data.fiv.elapsed);
+        if (data.data.pit && data.data.pit.running) startLocalTimer('pit', data.data.pit.elapsed);
+      }
+    }).catch(function() {});
+  }, 2000);
 });
 </script>
 

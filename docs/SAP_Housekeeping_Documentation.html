@@ -762,6 +762,45 @@
   </table>
 </div>
 
+<!-- ============================================================ -->
+<!-- HANA DELTA MERGE -->
+<!-- ============================================================ -->
+<div class="section" id="delta-merge">
+  <h2 class="section-title">HANA Delta Merge</h2>
+  <div class="card">
+    <h3>Weekly Automated Delta Merge</h3>
+    <p>HANA column-store tables use a delta store for fast writes. Over time, unmerged delta rows degrade read
+    performance, especially for catalog queries used by the HANA Web IDE and ABAP dictionary lookups.</p>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Server</td><td><code>sapidess4</code></td></tr>
+        <tr><td>Schedule</td><td>Every Sunday at 02:00</td></tr>
+        <tr><td>Script</td><td><code>/usr/local/bin/hana_delta_merge.sh</code></td></tr>
+        <tr><td>Log</td><td><code>/var/log/hana_delta_merge.log</code></td></tr>
+        <tr><td>Mechanism</td><td>cron (root)</td></tr>
+        <tr><td>Credentials</td><td>hdbuserstore key <code>DELTAMERGE</code> (fivadm)</td></tr>
+        <tr><td>Tenant</td><td>FIV (port 30015)</td></tr>
+        <tr><td>Threshold</td><td>Tables with &gt; 10,000 rows in delta store</td></tr>
+      </tbody>
+    </table>
+    <h3 style="margin-top:18px;">How It Works</h3>
+    <ol style="margin:10px 0 10px 20px; font-size:0.92rem; line-height:1.8;">
+      <li>Queries <code>SYS.M_CS_TABLES</code> for all tables with <code>RAW_RECORD_COUNT_IN_DELTA &gt; 10000</code></li>
+      <li>Runs <code>MERGE DELTA OF "SCHEMA"."TABLE"</code> for each table (quoted names handle <code>/</code> characters)</li>
+      <li>Logs before/after counts and any errors</li>
+    </ol>
+    <h3 style="margin-top:18px;">Manual Execution</h3>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>ssh root@sapidess4 "/usr/local/bin/hana_delta_merge.sh"
+ssh root@sapidess4 "cat /var/log/hana_delta_merge.log"</code></pre></div>
+    <h3 style="margin-top:18px;">Why This Is Needed</h3>
+    <p style="font-size:0.92rem;">HANA auto-merge uses conservative thresholds and can fall behind on IDES systems
+    where bulk loads (data generators, imports) create large delta stores. In April 2026, tables like
+    <code>STERM_HEAD</code> had 1.6M unmerged rows (last merge: June 2025), causing HANA Web IDE catalog
+    queries to take 16-17 seconds. After forced merge, performance returned to normal.</p>
+  </div>
+</div>
+
 </div><!-- /container -->
 
 <!-- Footer -->
