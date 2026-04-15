@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>404 — Page Not Found</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .container {
+    text-align: center;
+    padding: 40px 20px;
+    max-width: 600px;
+  }
+  .subtitle {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+  }
+  h1 {
+    font-size: clamp(4rem, 12vw, 8rem);
+    font-weight: 900;
+    color: #1a1a2e;
+    line-height: 1;
+    margin-bottom: 20px;
+  }
+  .duck-scene {
+    margin: 30px auto;
+    width: 300px;
+    height: 340px;
+    position: relative;
+  }
+  .duck-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    animation: bobble 3s ease-in-out infinite;
+    filter: drop-shadow(0 20px 30px rgba(0,0,0,0.15));
+  }
+  @keyframes bobble {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-8px) rotate(1.5deg); }
+    75% { transform: translateY(-4px) rotate(-1.5deg); }
+  }
+  .message {
+    font-size: 1.1rem;
+    color: #4b5563;
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+  .go-home {
+    display: inline-block;
+    padding: 14px 36px;
+    background: #1a3a5c;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.2s, transform 0.15s;
+    box-shadow: 0 4px 14px rgba(26,58,92,0.3);
+  }
+  .go-home:hover {
+    background: #0f2940;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(26,58,92,0.4);
+  }
+  .go-home:active { transform: translateY(0); }
+  .sparkles {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    top: 0; left: 0;
+  }
+  .sparkle {
+    position: absolute;
+    width: 4px; height: 4px;
+    background: #FFD700;
+    border-radius: 50%;
+    opacity: 0;
+    animation: sparkle-float 4s ease-in-out infinite;
+  }
+  @keyframes sparkle-float {
+    0% { opacity: 0; transform: translateY(0) scale(0); }
+    20% { opacity: 0.8; transform: translateY(-20px) scale(1); }
+    100% { opacity: 0; transform: translateY(-100px) scale(0); }
+  }
+</style>
+</head>
+<body>
+
+<div class="sparkles">
+  <div class="sparkle" style="left:15%; top:70%; animation-delay:0s;"></div>
+  <div class="sparkle" style="left:25%; top:80%; animation-delay:0.8s;"></div>
+  <div class="sparkle" style="left:70%; top:75%; animation-delay:1.6s;"></div>
+  <div class="sparkle" style="left:80%; top:65%; animation-delay:2.4s;"></div>
+  <div class="sparkle" style="left:45%; top:85%; animation-delay:3.2s;"></div>
+</div>
+
+<div class="container">
+  <div class="subtitle">Sorry, we couldn't find that</div>
+  <h1>Error 404</h1>
+
+  <div class="duck-scene">
+    <img class="duck-img" src="/sap_skills/docs/duck_404.png" alt="404 Duck">
+  </div>
+
+  <p class="message">
+    This page doesn't exist or may have been moved.<br>
+    Let's get you back to the SAP Skills Portal.
+  </p>
+
+  <a href="/sap_skills/" class="go-home">Go to Portal</a>
+</div>
+
+</body>
+</html>

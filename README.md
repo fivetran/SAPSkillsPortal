@@ -14,7 +14,7 @@ Hosted on sapidesecc8 as a web portal linking to documentation, GitHub repos, an
 | Hostname | `sapidesecc8.fivetran-internal-sales.com` |
 | OS | SUSE Linux Enterprise Server 15 SP5 |
 | SSH | `ssh root@sapidesecc8` (password: `(see vault)`) |
-| Python | `/root/miniconda/bin/python3` (3.13.9) |
+| Python | `/usr/sap/miniconda/bin/python3` (3.13.9) |
 | Web port | 443 (HTTPS, production) / 8443 (HTTPS, dev) |
 
 ## Business Process Skills

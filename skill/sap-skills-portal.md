@@ -20,7 +20,7 @@ managing the web server, backups, SSL certificates, or coordinating across busin
 | OS | SUSE Linux Enterprise Server 15 SP5 |
 | SSH | `ssh root@sapidesecc8` |
 | SSH Password | `(see vault)` |
-| Python | `/root/miniconda/bin/python3` (3.13.9) |
+| Python | `/usr/sap/miniconda/bin/python3` (3.13.9) |
 | Web port | 443 (HTTPS, production) / 8443 (HTTPS, dev) |
 
 ### How to SSH
@@ -536,7 +536,7 @@ as simple, clean files saved to `/usr/sap/sap_skills/docs/` (and locally to `~/S
 
 ## Important Notes
 
-- **Python path**: Always use `/root/miniconda/bin/python3`, NOT `/usr/bin/python3`
+- **Python path**: Always use `/usr/sap/miniconda/bin/python3`, NOT `/usr/bin/python3`
 - **SAP Skills Portal**: Static files only — no server restart needed after updating HTML/docs
 - **Server.py updates**: After replacing `gcs_explorer_server.py`, run `systemctl restart gcs-explorer`
 - **The `/sap_skills/` route** is inside `gcs_explorer_server.py` in `_do_GET()`. If server.py is replaced with a version missing this route, the portal returns 404.

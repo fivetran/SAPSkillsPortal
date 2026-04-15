@@ -438,7 +438,7 @@ python gcs_explorer.py</pre>
         <dl class="param-grid">
           <dt>Hostname</dt><dd>sapidesecc8.fivetran-internal-sales.com</dd>
           <dt>OS</dt><dd>SUSE Linux Enterprise Server 15 SP5</dd>
-          <dt>Python</dt><dd><code>/root/miniconda/bin/python3</code> (3.13.9)</dd>
+          <dt>Python</dt><dd><code>/usr/sap/miniconda/bin/python3</code> (3.13.9)</dd>
           <dt>Port</dt><dd>443 (HTTPS)</dd>
         </dl>
       </div>
@@ -453,7 +453,7 @@ python gcs_explorer.py</pre>
     </div>
     <div class="warn-box" style="margin-top:14px;">
       <strong>Important:</strong> <code>sudo</code> on sapidesecc8 uses <code>/usr/bin/python3</code> which does NOT have
-      duckdb/pyarrow. Always use <code>/root/miniconda/bin/python3</code> in service files and direct execution.
+      duckdb/pyarrow. Always use <code>/usr/sap/miniconda/bin/python3</code> in service files and direct execution.
     </div>
   </div>
 
@@ -483,7 +483,7 @@ After=network.target
 Type=simple
 WorkingDirectory=/usr/sap
 EnvironmentFile=-/usr/sap/gcs_explorer.env
-ExecStart=/root/miniconda/bin/python3 -u /usr/sap/gcs_explorer_server.py
+ExecStart=/usr/sap/miniconda/bin/python3 -u /usr/sap/gcs_explorer_server.py
 Restart=always
 RestartSec=5
 StandardOutput=append:/var/log/gcs_explorer.log
@@ -844,7 +844,7 @@ journalctl -u gcs-explorer -f           <span class="comment"># Follow logs</spa
       <tr>
         <td>SUSE Python path issues</td>
         <td><code>sudo</code> uses <code>/usr/bin/python3</code> without duckdb/pyarrow</td>
-        <td>Always use <code>/root/miniconda/bin/python3</code> in service files and direct execution. Never rely on system Python.</td>
+        <td>Always use <code>/usr/sap/miniconda/bin/python3</code> in service files and direct execution. Never rely on system Python.</td>
       </tr>
       <tr>
         <td>Azure SSL errors on SUSE</td>

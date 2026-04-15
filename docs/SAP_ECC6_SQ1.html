@@ -276,6 +276,7 @@
       <button onclick="loadDiskSpace()" id="disk-refresh-btn" style="font-size:0.72rem; padding:4px 10px; background:var(--primary); color:white; border:none; border-radius:5px; cursor:pointer; font-weight:600;">Refresh</button>
     </h3>
     <div id="disk-space-content" style="font-size:0.88rem; color:var(--text-light);">Loading...</div>
+    <img src="/sap_skills/images/microsoft_logo.svg" alt="Microsoft" style="display:block; margin:96px auto 0; width:80%; max-width:220px;">
   </div>
   </div>
 </div>
@@ -291,6 +292,7 @@
 
   <div style="display:flex; gap:20px; flex-wrap:wrap;">
     <div class="card" style="flex:1; min-width:300px; text-align:center;">
+      <img src="/sap_skills/images/sap_logo.png" alt="SAP" width="72" height="72" style="border-radius:10px; display:block; margin:0 auto 10px;">
       <h3 style="justify-content:center;"><span id="sap-dot" class="dot" style="background: #6c757d"></span> SAP Application Server</h3>
       <div id="sap-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
       <div id="sap-status-detail" style="font-size:0.85rem; color:var(--text-light);">Click "Check Status" to verify</div>
@@ -300,6 +302,7 @@
       </div>
     </div>
     <div class="card" style="flex:1; min-width:300px; text-align:center;">
+      <img src="/sap_skills/images/sqlserver_logo.svg" alt="SQL Server" width="118" height="118" style="border-radius:10px; display:block; margin:0 auto 10px;">
       <h3 style="justify-content:center;"><span id="db-dot" class="dot" style="background: #6c757d"></span> SQL Server Database</h3>
       <div id="db-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
       <div id="db-status-detail" style="font-size:0.85rem; color:var(--text-light);"></div>
@@ -331,6 +334,7 @@
 
   <!-- Agent Status Card -->
   <div class="card">
+    <img src="/sap_skills/images/hvr_logo.jpg" alt="HVR" width="160" height="160" style="border-radius:10px; display:block; margin:0 auto 12px;">
     <h3><span class="dot" id="hva-dot" style="background: var(--text-light)"></span> Agent Status
       <button onclick="loadHvaAgent()" id="hva-refresh-btn" style="float:right; padding:4px 14px; background:var(--primary); color:white; border:none; border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer;">Refresh</button>
     </h3>
@@ -418,6 +422,7 @@
   <div class="section-title">SQL Server Console</div>
 
   <div class="card">
+    <img src="/sap_skills/images/sqlserver_logo.svg" alt="SQL Server" width="118" height="118" style="border-radius:10px; display:block; margin:0 auto 12px;">
     <h3><span class="dot" style="background: #1a5c8a"></span> Interactive Query</h3>
 
     <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px; align-items:flex-end;">
@@ -477,7 +482,7 @@
       <li>
         <div style="display:flex; align-items:center; gap:12px;">
           <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-central1-a/instances/sap-sql?project=internal-sales" target="_blank" style="flex-shrink:0;">
-            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+            <img src="/sap_skills/images/google_logo.png" alt="GCP" width="48" height="48" style="border-radius:8px; display:block;">
           </a>
           <div>
             <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-central1-a/instances/sap-sql?project=internal-sales" target="_blank">VM Settings</a>
@@ -488,7 +493,7 @@
       <li>
         <div style="display:flex; align-items:center; gap:12px;">
           <a href="https://ssh.cloud.google.com/v2/ssh/projects/internal-sales/zones/us-east1-b/instances/ts-sap-hana-s4-ssh-tunnel?authuser=0&amp;hl=en_US&amp;projectNumber=354793711235&amp;useAdminProxy=true" target="_blank" style="flex-shrink:0;">
-            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+            <img src="/sap_skills/images/google_logo.png" alt="GCP" width="48" height="48" style="border-radius:8px; display:block;">
           </a>
           <div>
             <a href="https://ssh.cloud.google.com/v2/ssh/projects/internal-sales/zones/us-east1-b/instances/ts-sap-hana-s4-ssh-tunnel?authuser=0&amp;hl=en_US&amp;projectNumber=354793711235&amp;useAdminProxy=true" target="_blank">SSH Server for Fivetran Connectors</a>
@@ -499,7 +504,7 @@
       <li>
         <div style="display:flex; align-items:center; gap:12px;">
           <a href="https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/details/antonio-carbone-home-ip2?project=internal-sales" target="_blank" style="flex-shrink:0;">
-            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+            <img src="/sap_skills/images/google_logo.png" alt="GCP" width="48" height="48" style="border-radius:8px; display:block;">
           </a>
           <div>
             <a href="https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/details/antonio-carbone-home-ip2?project=internal-sales" target="_blank">Set GCP Firewall</a>

@@ -403,6 +403,7 @@
     <h3><span class="dot" style="background:var(--step0);"></span> Z_MM_PERIOD_OPEN_1710</h3>
     <table>
       <tr><th style="width:160px;">Property</th><th>Value</th></tr>
+      <tr><td>Status</td><td><span style="color:var(--accent);">&#9200;</span> <strong>S</strong> &mdash; Scheduled (periodic, waiting for next run on 1st of month)</td></tr>
       <tr><td>ABAP Program</td><td><code>RMMMPERI</code> (MM Period Shift)</td></tr>
       <tr><td>Variant</td><td><code>Z_AUTO_1710</code></td></tr>
       <tr><td>Schedule</td><td>Monthly — 1st of each month at 00:30</td></tr>
@@ -532,7 +533,7 @@
       <tr><th>Check</th><th>Condition</th><th>Error if Failed</th></tr>
       <tr><td>Period is current</td><td><code>LFGJA/LFMON >= current year/month</code></td><td><code>M7 059</code> — posting period not open</td></tr>
     </table>
-    <p style="margin-top:10px;"><strong>Automated:</strong> Job <code>Z_MM_PERIOD_OPEN_1710</code> runs RMMMPERI monthly.</p>
+    <p style="margin-top:10px;"><span style="color:var(--accent);">&#9200;</span> <strong>Automated:</strong> Job <code>Z_MM_PERIOD_OPEN_1710</code> runs RMMMPERI monthly.</p>
   </div>
 
   <div class="card">
@@ -556,6 +557,11 @@
       <strong>No standard ABAP program</strong> exists for ML period extension.
       The <code>extend-ml</code> command generates a Python/hdbcli script that inserts
       rows directly via HANA SQL. Run annually before the new year begins.
+    </div>
+    <div style="margin-top:12px; padding:12px 16px; background:#fff3cd; border-left:4px solid #b35900; border-radius:6px;">
+      <strong style="color:#b35900;">When to run:</strong> Execute during <strong>November or December</strong> of each year to create periods for the following year.
+      A daily email reminder is sent automatically from <strong>December 15</strong> until the task is completed (or January 31).
+      The reminder escalates to <strong>URGENT</strong> when &le; 5 days remain before January 1.
     </div>
   </div>
 
@@ -709,7 +715,8 @@
       <div class="calendar-freq">Quarterly</div>
       <div class="calendar-desc">
         <strong>Number Range Check</strong>
-        <small>Run <code>./jobsched.sh status</code> to verify all ranges are below 75% utilization.</small>
+        <small>Run <code>./jobsched.sh status</code> to verify all ranges are below 75% utilization.
+        A daily email reminder is sent automatically during the first 7 days of each quarter (Jan, Apr, Jul, Oct).</small>
       </div>
     </div>
     <div class="calendar-item">
@@ -723,7 +730,8 @@
       <div class="calendar-freq">After Restart</div>
       <div class="calendar-desc">
         <strong>Verify Scheduled Jobs</strong>
-        <small>Run <code>./jobsched.sh list</code> to confirm periodic jobs are still active after SAP system restarts.</small>
+        <small>Run <code>./jobsched.sh list</code> to confirm periodic jobs are still active after SAP system restarts.
+        This reminder is automatically appended to any SAP service &ldquo;came UP&rdquo; alert email.</small>
       </div>
     </div>
   </div>

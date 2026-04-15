@@ -314,7 +314,7 @@
         <tr><th>Property</th><th>Value</th></tr>
         <tr><td>Hostname</td><td><code>sapidesecc8.fivetran-internal-sales.com</code></td></tr>
         <tr><td>Operating System</td><td>SUSE Linux Enterprise Server 15 SP5</td></tr>
-        <tr><td>Python</td><td><code>/root/miniconda/bin/python3</code> (3.13.9)</td></tr>
+        <tr><td>Python</td><td><code>/usr/sap/miniconda/bin/python3</code> (3.13.9)</td></tr>
         <tr><td>Web Port (Production)</td><td>443 (HTTPS)</td></tr>
         <tr><td>Web Port (Dev)</td><td>8443 (HTTPS)</td></tr>
         <tr><td>Server Process</td><td><code>gcs_explorer_server.py</code></td></tr>
@@ -324,7 +324,7 @@
     </div>
 
     <div class="info-box">
-      <strong>Important:</strong> Always use <code>/root/miniconda/bin/python3</code>, NOT <code>/usr/bin/python3</code> (the system Python lacks duckdb/pyarrow).
+      <strong>Important:</strong> Always use <code>/usr/sap/miniconda/bin/python3</code>, NOT <code>/usr/bin/python3</code> (the system Python lacks duckdb/pyarrow).
     </div>
   </div>
 
@@ -336,11 +336,11 @@
       <h3><span class="dot" style="background: var(--primary)"></span>Common SSH Commands</h3>
       <table class="cmd-table">
         <tr><th>Action</th><th>Command</th><th style="width:60px;"></th></tr>
-        <tr><td>Check server status</td><td><code>ssh root@sapidesecc8 "systemctl status gcs-explorer --no-pager"</code></td><td><button class="copy-cmd" onclick="copyCmd(this)">Copy</button></td></tr>
+        <tr><td>Check server status</td><td><code>ssh root@sapidesecc8 "systemctl status gcs-explorer --no-pager"</code></td><td><button class="run-btn" onclick="runAdminCmd('server_status','Server Status')">Run</button></td></tr>
         <tr><td>Restart production</td><td><code>ssh root@sapidesecc8 "systemctl restart gcs-explorer"</code></td><td><button class="restart-btn" onclick="confirmRestart()">Restart</button></td></tr>
-        <tr><td>Restart dev</td><td><code>ssh root@sapidesecc8 "systemctl restart gcs-explorer-dev"</code></td><td><button class="copy-cmd" onclick="copyCmd(this)">Copy</button></td></tr>
+        <tr><td>Restart dev</td><td><code>ssh root@sapidesecc8 "systemctl restart gcs-explorer-dev"</code></td><td><button class="restart-btn" onclick="confirmRestartDev()">Restart</button></td></tr>
         <tr><td>View logs</td><td><code>ssh root@sapidesecc8 "tail -40 /var/log/gcs_explorer.log"</code></td><td><button class="run-btn" onclick="runAdminCmd('view_logs','Server Logs')">Run</button></td></tr>
-        <tr><td>List portal files</td><td><code>ssh root@sapidesecc8 "ls -la /usr/sap/sap_skills/"</code></td><td><button class="copy-cmd" onclick="copyCmd(this)">Copy</button></td></tr>
+        <tr><td>List portal files</td><td><code>ssh root@sapidesecc8 "ls -la /usr/sap/sap_skills/"</code></td><td><button class="run-btn" onclick="runAdminCmd('list_portal_files','Portal Files')">Run</button></td></tr>
         <tr><td>Check disk space</td><td><code>ssh root@sapidesecc8 "df -h /"</code></td><td><button class="run-btn" onclick="runAdminCmd('disk_space','Disk Space')">Run</button></td></tr>
         <tr><td>Check cron jobs</td><td><code>ssh root@sapidesecc8 "crontab -l"</code></td><td><button class="run-btn" onclick="runAdminCmd('cron_jobs','Cron Jobs')">Run</button></td></tr>
       </table>
@@ -703,7 +703,9 @@ git add -A &amp;&amp; git commit -m "Update portal" &amp;&amp; git push</pre>
         <tr><td>Backup not running</td><td><code>ssh root@sapidesecc8 "crontab -l"</code> &mdash; verify cron entry exists</td></tr>
         <tr><td>Watchdog not restarting</td><td><code>ssh root@sapidesecc8 "systemctl status gcs-explorer-watchdog.timer --no-pager"</code></td></tr>
         <tr><td>Changes not visible</td><td>Files served from disk &mdash; no cache. Hard-refresh browser (<kbd>Cmd</kbd>+<kbd>Shift</kbd>+<kbd>R</kbd>).</td></tr>
-        <tr><td>Python import errors</td><td>Use <code>/root/miniconda/bin/python3</code>, not <code>/usr/bin/python3</code></td></tr>
+        <tr><td>Python import errors</td><td>Use <code>/usr/sap/miniconda/bin/python3</code>, not <code>/usr/bin/python3</code></td></tr>
+        <tr><td>SSL certificate warning</td><td>Expected &mdash; self-signed cert at <code>/usr/sap/gcs_explorer_cert.pem</code></td></tr>
+        <tr><td>Service won't start</td><td>Check syntax: <code>python3 -c "compile(open('/usr/sap/gcs_explorer_server.py').read(), 's', 'exec')"</code></td></tr>
         <tr><td>Backup cron missing after restore</td><td>Re-add: <code>(crontab -l; echo "0 23 * * 1-5 /usr/local/bin/backup_webserver.sh") | crontab -</code></td></tr>
       </table>
     </div>
@@ -858,8 +860,11 @@ function copyCmd(btn) {
 }
 
 function confirmRestart() {
+  _restartTarget = 'production';
   document.getElementById('restart-master').value = '';
   document.getElementById('restart-status').textContent = '';
+  document.getElementById('restart-confirm-btn').textContent = 'Restart Now';
+  document.getElementById('restart-confirm-btn').onclick = executeRestart;
   var m = document.getElementById('restart-modal-overlay');
   m.style.display = 'flex';
   setTimeout(function() { document.getElementById('restart-master').focus(); }, 100);
@@ -910,8 +915,52 @@ document.getElementById('restart-modal-overlay').addEventListener('click', funct
   if (e.target === this) closeRestartModal();
 });
 document.getElementById('restart-master').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') executeRestart();
+  if (e.key === 'Enter') { if (_restartTarget === 'dev') executeRestartDev(); else executeRestart(); }
 });
+
+var _restartTarget = 'production';
+
+function confirmRestartDev() {
+  _restartTarget = 'dev';
+  document.getElementById('restart-master').value = '';
+  document.getElementById('restart-status').textContent = '';
+  document.getElementById('restart-confirm-btn').textContent = 'Restart Dev';
+  document.getElementById('restart-confirm-btn').onclick = executeRestartDev;
+  var m = document.getElementById('restart-modal-overlay');
+  m.style.display = 'flex';
+  setTimeout(function() { document.getElementById('restart-master').focus(); }, 100);
+}
+
+function executeRestartDev() {
+  var master = document.getElementById('restart-master').value;
+  if (!master) {
+    var s = document.getElementById('restart-status');
+    s.textContent = 'Please enter the master password.'; s.style.color = '#dc2626';
+    return;
+  }
+  var btn = document.getElementById('restart-confirm-btn');
+  btn.textContent = 'Restarting...'; btn.disabled = true;
+  var s = document.getElementById('restart-status');
+  fetch('/sap_skills/api/admin/restart_dev', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({master_password: master})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.textContent = 'Restart Dev'; btn.disabled = false;
+    if (data.status === 'error') {
+      s.textContent = data.message; s.style.color = '#dc2626';
+      return;
+    }
+    s.textContent = 'Dev server restarted successfully.'; s.style.color = '#059669';
+    setTimeout(function() { closeRestartModal(); }, 2000);
+  })
+  .catch(function(err) {
+    btn.textContent = 'Restart Dev'; btn.disabled = false;
+    s.textContent = 'Error: ' + err; s.style.color = '#dc2626';
+  });
+}
 
 // --- Run admin commands with auth + output popup ---
 var _runPending = {action: '', title: ''};

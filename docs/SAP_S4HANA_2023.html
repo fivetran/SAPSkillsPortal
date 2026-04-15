@@ -299,6 +299,7 @@
         <button onclick="loadDiskSpace()" id="disk-refresh-btn" style="font-size:0.72rem; padding:4px 10px; background:var(--primary); color:white; border:none; border-radius:5px; cursor:pointer; font-weight:600;">Refresh</button>
       </h3>
       <div id="disk-space-content" style="font-size:0.88rem; color:var(--text-light);">Loading...</div>
+      <img src="/sap_skills/images/suse_logo.png" alt="SUSE" style="display:block; margin:144px auto 0; width:80%; max-width:220px;">
     </div>
   </div>
 </div>
@@ -313,8 +314,9 @@
   </div>
 
   <div style="display:flex; gap:20px; flex-wrap:wrap;">
-    <div class="card" style="flex:1; min-width:200px; text-align:center;">
-      <h3 style="justify-content:center;"><span id="sap-dot" class="dot" style="background: #6c757d"></span> SAP Application Server</h3>
+    <div class="card" style="flex:1; min-width:340px; text-align:center;">
+      <img src="/sap_skills/images/saps4hana_logo.png" alt="SAP S/4HANA" style="display:block; margin:0 auto 10px; width:216px;">
+      <span id="sap-dot" style="display:none;"></span>
       <div id="sap-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
       <div id="sap-status-detail" style="font-size:0.85rem; color:var(--text-light);">Click "Check Status" to verify</div>
       <div id="sap-kernel" style="font-size:0.82rem; color:var(--text-light); margin-top:6px;"></div>
@@ -323,12 +325,13 @@
         <button id="sap-stop-btn" onclick="sapControl('stop')" style="font-size:0.78rem; padding:5px 14px; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Stop SAP</button>
       </div>
     </div>
-    <div class="card" style="flex:1; min-width:200px; text-align:center;">
-      <h3 style="justify-content:center;"><span id="hana-dot" class="dot" style="background: #6c757d"></span> SAP HANA Database</h3>
+    <div class="card" style="flex:1; min-width:340px; text-align:center;">
+      <img src="/sap_skills/images/saphana_logo.png" alt="SAP HANA" style="display:block; margin:0 auto 10px; width:144px;">
+      <span id="hana-dot" style="display:none;"></span>
       <div id="hana-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
       <div id="hana-tenant-display" style="font-size:0.85rem; color:var(--text-light); margin-bottom:4px; display:none;">Tenant: <span id="hana-tenant-name" style="font-weight:600; color:var(--text);"></span></div>
-      <div id="hana-backup-display" style="font-size:0.82rem; color:var(--text-light); display:none;"><span id="hana-backup-date"></span></div>
-      <div id="hana-next-backup" style="font-size:0.82rem; color:var(--text-light); margin-top:2px;"></div>
+      <div id="hana-backup-display" style="font-size:0.82rem; color:var(--text-light); display:none; white-space:nowrap;"><span id="hana-backup-date"></span></div>
+      <div id="hana-next-backup" style="font-size:0.82rem; color:var(--text-light); margin-top:2px; white-space:nowrap;"></div>
       <div id="hana-next-countdown" style="font-size:0.82rem; color:var(--primary); font-weight:600; margin-top:2px;"></div>
       <div id="hana-backup-running" style="font-size:0.85rem; color:#b35900; font-weight:600; margin-top:8px; display:none;">Backup running: <span id="hana-backup-timer">00:00</span></div>
       <div style="margin-top:10px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
@@ -340,7 +343,10 @@
         <button id="hana-stop-btn" onclick="hanaControl('fiv','stop')" style="font-size:0.78rem; padding:5px 14px; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Stop DB</button>
       </div>
     </div>
-    <div class="card" style="flex:1; min-width:200px; text-align:center;">
+  </div>
+  <div style="display:flex; gap:20px; flex-wrap:wrap; margin-top:20px;">
+    <div class="card" style="flex:1; max-width:400px; text-align:center;">
+      <img src="/sap_skills/images/saphana_logo.png" alt="SAP HANA" style="display:block; margin:0 auto 10px; width:144px;">
       <h3 style="justify-content:center;"><span id="pit-dot" class="dot" style="background: #6c757d"></span> HANA Cockpit Database</h3>
       <div id="pit-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
       <div id="pit-tenant-display" style="font-size:0.85rem; color:var(--text-light); margin-bottom:4px; display:none;">Tenant: <span id="pit-tenant-name" style="font-weight:600; color:var(--text);"></span></div>
@@ -446,7 +452,7 @@
       <li>
         <div style="display:flex; align-items:center; gap:12px;">
           <a href="https://fivetran.okta.com/home/sapnetweaversaml/0oa1sojot83IxLiyy1d8/59625" target="_blank" style="flex-shrink:0;">
-            <img src="sap_icon.svg" alt="SAP" width="42" height="42" style="border-radius:8px; display:block;">
+            <img src="/sap_skills/images/sap_logo.png" alt="SAP" width="48" height="48" style="border-radius:8px; display:block;">
           </a>
           <div>
             <a href="https://fivetran.okta.com/home/sapnetweaversaml/0oa1sojot83IxLiyy1d8/59625" target="_blank">SSO S/4HANA</a>
@@ -457,7 +463,7 @@
       <li>
         <div style="display:flex; align-items:center; gap:12px;">
           <a href="https://sapidess4.fivetran-internal-sales.com:51024/cockpit#Shell-home" target="_blank" style="flex-shrink:0;">
-            <img src="hana_icon.svg" alt="HANA" width="42" height="42" style="border-radius:8px; display:block;">
+            <img src="hana_icon.svg" alt="HANA" width="48" height="48" style="border-radius:8px; display:block;">
           </a>
           <div>
             <a href="https://sapidess4.fivetran-internal-sales.com:51024/cockpit#Shell-home" target="_blank">HANA Cockpit</a>
@@ -468,7 +474,7 @@
       <li>
         <div style="display:flex; align-items:center; gap:12px;">
           <a href="http://sapidess4:8000/sap/hana/ide/editor/" target="_blank" style="flex-shrink:0;">
-            <img src="hana_icon.svg" alt="HANA" width="42" height="42" style="border-radius:8px; display:block;">
+            <img src="hana_icon.svg" alt="HANA" width="48" height="48" style="border-radius:8px; display:block;">
           </a>
           <div>
             <a href="http://sapidess4:8000/sap/hana/ide/editor/" target="_blank">Web IDE Development Platform</a>
@@ -479,7 +485,7 @@
       <li>
         <div style="display:flex; align-items:center; gap:12px;">
           <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-central1-c/instances/antonio-carbone-ldp-sap-s4hana-2024-10-01?invt=AbtinQ&amp;project=internal-sales" target="_blank" style="flex-shrink:0;">
-            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+            <img src="/sap_skills/images/google_logo.png" alt="GCP" width="48" height="48" style="border-radius:8px; display:block;">
           </a>
           <div>
             <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-central1-c/instances/antonio-carbone-ldp-sap-s4hana-2024-10-01?invt=AbtinQ&amp;project=internal-sales" target="_blank">VM Settings</a>
@@ -490,7 +496,7 @@
       <li>
         <div style="display:flex; align-items:center; gap:12px;">
           <a href="https://console.cloud.google.com/net-services/dns/zones/fivetran-internal-sales-com/details?invt=AbthYA&amp;project=internal-sales" target="_blank" style="flex-shrink:0;">
-            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+            <img src="/sap_skills/images/google_logo.png" alt="GCP" width="48" height="48" style="border-radius:8px; display:block;">
           </a>
           <div>
             <a href="https://console.cloud.google.com/net-services/dns/zones/fivetran-internal-sales-com/details?invt=AbthYA&amp;project=internal-sales" target="_blank">DNS Registration</a>
@@ -501,7 +507,7 @@
       <li>
         <div style="display:flex; align-items:center; gap:12px;">
           <a href="https://console.cloud.google.com/storage/browser/sap-hana-backint/FIV/usr/sap/FIV/SYS/global/hdb/backint/DB_FIV?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&amp;invt=AbtinQ&amp;project=internal-sales" target="_blank" style="flex-shrink:0;">
-            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+            <img src="/sap_skills/images/google_logo.png" alt="GCP" width="48" height="48" style="border-radius:8px; display:block;">
           </a>
           <div>
             <a href="https://console.cloud.google.com/storage/browser/sap-hana-backint/FIV/usr/sap/FIV/SYS/global/hdb/backint/DB_FIV?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&amp;invt=AbtinQ&amp;project=internal-sales" target="_blank">Backint Backup Destination</a>
@@ -512,7 +518,7 @@
       <li>
         <div style="display:flex; align-items:center; gap:12px;">
           <a href="https://ssh.cloud.google.com/v2/ssh/projects/internal-sales/zones/us-east1-b/instances/ts-sap-hana-s4-ssh-tunnel?authuser=0&amp;hl=en_US&amp;projectNumber=354793711235&amp;useAdminProxy=true" target="_blank" style="flex-shrink:0;">
-            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+            <img src="/sap_skills/images/google_logo.png" alt="GCP" width="48" height="48" style="border-radius:8px; display:block;">
           </a>
           <div>
             <a href="https://ssh.cloud.google.com/v2/ssh/projects/internal-sales/zones/us-east1-b/instances/ts-sap-hana-s4-ssh-tunnel?authuser=0&amp;hl=en_US&amp;projectNumber=354793711235&amp;useAdminProxy=true" target="_blank">SSH Server for Fivetran Connectors</a>
@@ -523,7 +529,7 @@
       <li>
         <div style="display:flex; align-items:center; gap:12px;">
           <a href="https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/details/antonio-carbone-home-ip2?project=internal-sales" target="_blank" style="flex-shrink:0;">
-            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+            <img src="/sap_skills/images/google_logo.png" alt="GCP" width="48" height="48" style="border-radius:8px; display:block;">
           </a>
           <div>
             <a href="https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/details/antonio-carbone-home-ip2?project=internal-sales" target="_blank">Set GCP Firewall</a>
@@ -534,7 +540,7 @@
       <li>
         <div style="display:flex; align-items:center; gap:12px;">
           <a href="https://fivetran.slab.com/posts/new-s-4-hana-demo-environment-technical-details-tq8b04ls" target="_blank" style="flex-shrink:0;">
-            <img src="slab_icon.svg" alt="Slab" width="42" height="42" style="border-radius:8px; display:block;">
+            <img src="slab_icon.svg" alt="Slab" width="48" height="48" style="border-radius:8px; display:block;">
           </a>
           <div>
             <a href="https://fivetran.slab.com/posts/new-s-4-hana-demo-environment-technical-details-tq8b04ls" target="_blank">Technical Details</a>

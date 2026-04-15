@@ -394,6 +394,38 @@ for r in recipients:
     </table>
     <p>Certificate checks run once per hour (rate-limited). When &le; 5 days remaining, an alert email is sent to SAPSpecialists.</p>
   </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: #b35900"></span> Scheduled Reminders</h3>
+    <p>The health alert agent includes date-based reminders for critical annual tasks:</p>
+    <table>
+      <thead><tr><th>Reminder</th><th>Active Period</th><th>Frequency</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Number Range Check</strong></td>
+          <td>Jan 1&ndash;7, Apr 1&ndash;7, Jul 1&ndash;7, Oct 1&ndash;7</td>
+          <td>Once per day</td>
+          <td>Run <code>./jobsched.sh status</code> to verify all ranges are below 75% utilization</td>
+        </tr>
+        <tr>
+          <td><strong>Material Ledger 2027</strong></td>
+          <td>Dec 15, 2026 &mdash; Jan 31, 2027</td>
+          <td>Once per day</td>
+          <td>Run <code>./jobsched.sh extend-ml</code> to create CKMLPP/CKMLCR rows for 2027</td>
+        </tr>
+        <tr>
+          <td><strong>Verify Scheduled Jobs</strong></td>
+          <td>After any SAP restart (automatic)</td>
+          <td>With &ldquo;came UP&rdquo; email</td>
+          <td>Run <code>./jobsched.sh list</code> to confirm Z_* jobs are still active</td>
+        </tr>
+      </tbody>
+    </table>
+    <p style="margin-top:10px;">Reminders escalate from <strong>REMINDER</strong> to <strong>URGENT</strong> when &le; 5 days remain. Emails include a direct link to the
+      <a href="SAP_Housekeeping_Documentation.html" style="color:var(--primary);">Housekeeping Documentation</a> page.
+      Marker files prevent duplicate emails: <code>ml_period_reminder.marker</code> (24h) and <code>nrcheck_reminder.marker</code> (24h) in <code>/var/run/sap_planned/</code>.
+      The &ldquo;Verify Scheduled Jobs&rdquo; reminder is appended automatically to any SAP service &ldquo;came UP&rdquo; alert email.</p>
+  </div>
 </div>
 
 <!-- TROUBLESHOOTING -->

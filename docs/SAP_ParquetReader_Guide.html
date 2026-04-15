@@ -128,7 +128,7 @@
         <tr><td>Port</td><td>443 (HTTPS)</td></tr>
         <tr><td>Service</td><td><code>gcs-explorer.service</code> (systemd)</td></tr>
         <tr><td>Server Script</td><td><code>/usr/sap/gcs_explorer_server.py</code></td></tr>
-        <tr><td>Python</td><td><code>/root/miniconda/bin/python3</code> (3.13.9)</td></tr>
+        <tr><td>Python</td><td><code>/usr/sap/miniconda/bin/python3</code> (3.13.9)</td></tr>
         <tr><td>SSL Certificate</td><td><code>/usr/sap/gcs_explorer_cert.pem</code> (ZeroSSL, expires Jun 25 2026)</td></tr>
         <tr><td>Authentication</td><td>Email + password, session cookies</td></tr>
       </tbody>
@@ -186,13 +186,13 @@
     <table>
       <thead><tr><th>Component</th><th>Version</th><th>Install Path</th></tr></thead>
       <tbody>
-        <tr><td>DuckDB</td><td>1.5.1</td><td><code>/root/miniconda/lib/python3.13/site-packages/duckdb/</code></td></tr>
-        <tr><td>PyArrow</td><td>23.0.1</td><td><code>/root/miniconda/lib/python3.13/site-packages/pyarrow/</code></td></tr>
-        <tr><td>Python</td><td>3.13.9</td><td><code>/root/miniconda/bin/python3</code></td></tr>
+        <tr><td>DuckDB</td><td>1.5.1</td><td><code>/usr/sap/miniconda/lib/python3.13/site-packages/duckdb/</code></td></tr>
+        <tr><td>PyArrow</td><td>23.0.1</td><td><code>/usr/sap/miniconda/lib/python3.13/site-packages/pyarrow/</code></td></tr>
+        <tr><td>Python</td><td>3.13.9</td><td><code>/usr/sap/miniconda/bin/python3</code></td></tr>
       </tbody>
     </table>
     <p><strong>Upgrade command:</strong></p>
-    <pre>/root/miniconda/bin/pip install --upgrade duckdb pyarrow
+    <pre>/usr/sap/miniconda/bin/pip install --upgrade duckdb pyarrow
 systemctl restart gcs-explorer</pre>
     <p>Or use the <strong>Upgrade DuckDB</strong> button on the <a href="SAP_ParquetReader.html" style="color:var(--primary-dark);">cockpit page</a>.</p>
   </div>
@@ -269,7 +269,7 @@ systemctl restart gcs-explorer</pre>
       <thead><tr><th>Property</th><th>Value</th></tr></thead>
       <tbody>
         <tr><td>Current Version</td><td><strong>23.0.1</strong></td></tr>
-        <tr><td>Install Path</td><td><code>/root/miniconda/lib/python3.13/site-packages/pyarrow/</code></td></tr>
+        <tr><td>Install Path</td><td><code>/usr/sap/miniconda/lib/python3.13/site-packages/pyarrow/</code></td></tr>
         <tr><td>Documentation</td><td><a href="https://arrow.apache.org/docs/python/" target="_blank" style="color:var(--primary-dark);">arrow.apache.org/docs/python</a></td></tr>
         <tr><td>PyPI</td><td><a href="https://pypi.org/project/pyarrow/" target="_blank" style="color:var(--primary-dark);">pypi.org/project/pyarrow</a></td></tr>
         <tr><td>GitHub</td><td><a href="https://github.com/apache/arrow" target="_blank" style="color:var(--primary-dark);">github.com/apache/arrow</a></td></tr>
@@ -425,13 +425,13 @@ tail -50 /var/log/gcs_explorer.log</pre>
   <div class="card">
     <h3><span class="dot" style="background: var(--primary)"></span> Upgrade</h3>
     <pre># Upgrade DuckDB + PyArrow
-/root/miniconda/bin/pip install --upgrade duckdb pyarrow
+/usr/sap/miniconda/bin/pip install --upgrade duckdb pyarrow
 
 # Restart to load new versions
 systemctl restart gcs-explorer
 
 # Verify
-/root/miniconda/bin/python3 -c "import duckdb; print(duckdb.__version__)"</pre>
+/usr/sap/miniconda/bin/python3 -c "import duckdb; print(duckdb.__version__)"</pre>
     <p>Or use the <strong>Upgrade DuckDB</strong> button on the cockpit page.</p>
   </div>
 

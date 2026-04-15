@@ -242,35 +242,38 @@
     <button onclick="refreshDisk()" id="refresh-btn" style="font-size:0.8rem; padding:6px 14px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Refresh</button>
   </div>
 
-  <div class="card">
-    <h3><span class="dot" style="background: var(--primary)"></span> Server Details</h3>
-    <table>
-      <thead>
-        <tr><th>Property</th><th>Value</th></tr>
-      </thead>
-      <tbody>
-        <tr><td>Hostname</td><td><code>saphvrhub</code></td></tr>
-        <tr><td>Role</td><td>HVR Hub Server &mdash; Real-Time Data Replication</td></tr>
-        <tr><td>OS</td><td><span id="os-version" style="color:var(--text-light);">Loading...</span> <button onclick="sshConnect()" id="ssh-btn" style="display:inline-block; margin-left:12px; padding:3px 12px; background:#0284C7; color:white; border:none; border-radius:5px; font-size:0.78rem; font-weight:600; cursor:pointer;">SSH</button></td></tr>
-        <tr><td>CPUs</td><td id="hw-cpus" style="color:var(--text-light);">Loading...</td></tr>
-        <tr><td>Memory</td><td id="hw-memory" style="color:var(--text-light);">Loading...</td></tr>
-        <tr><td>HVR Release</td><td id="hvr-version" style="color:var(--text-light);">Loading...</td></tr>
-        <tr><td>IP Addresses</td><td>Private <code>10.128.15.240</code> &mdash; Public <code>35.209.174.110</code></td></tr>
-        <tr><td>GCP Zone</td><td>us-central1-a</td></tr>
-        <tr><td>GCP Instance</td><td><code>antonio-carbone-hvr-hub</code></td></tr>
-        <tr><td>HVR Home</td><td><code>/usr/hvr/hvr_home</code></td></tr>
-        <tr><td>HVR Config</td><td><code>/usr/hvr/hvr_config</code></td></tr>
-      </tbody>
-    </table>
+  <div style="display:flex; gap:20px; flex-wrap:wrap;">
+    <div class="card" style="flex:2; min-width:480px;">
+      <h3><span class="dot" style="background: var(--primary)"></span> Server Details</h3>
+      <table>
+        <thead>
+          <tr><th>Property</th><th>Value</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Hostname</td><td><code>saphvrhub</code></td></tr>
+          <tr><td>Role</td><td>HVR Hub Server &mdash; Real-Time Data Replication</td></tr>
+          <tr><td>OS</td><td><span id="os-version" style="color:var(--text-light);">Loading...</span> <button onclick="sshConnect()" id="ssh-btn" style="display:inline-block; margin-left:12px; padding:3px 12px; background:#0284C7; color:white; border:none; border-radius:5px; font-size:0.78rem; font-weight:600; cursor:pointer;">SSH</button></td></tr>
+          <tr><td>CPUs</td><td id="hw-cpus" style="color:var(--text-light);">Loading...</td></tr>
+          <tr><td>Memory</td><td id="hw-memory" style="color:var(--text-light);">Loading...</td></tr>
+          <tr><td>HVR Release</td><td id="hvr-version" style="color:var(--text-light);">Loading...</td></tr>
+          <tr><td>IP Addresses</td><td>Private <code>10.128.15.240</code> &mdash; Public <code>35.209.174.110</code></td></tr>
+          <tr><td>GCP Zone</td><td>us-central1-a</td></tr>
+          <tr><td>GCP Instance</td><td><code>antonio-carbone-hvr-hub</code></td></tr>
+          <tr><td>HVR Home</td><td><code>/usr/hvr/hvr_home</code></td></tr>
+          <tr><td>HVR Config</td><td><code>/usr/hvr/hvr_config</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card" style="flex:1; min-width:260px;">
+      <h3 style="display:flex; align-items:center; justify-content:space-between;">
+        <span><span class="dot" style="background: var(--primary)"></span> Disk Space</span>
+        <button onclick="refreshDisk()" id="disk-refresh-btn" style="font-size:0.72rem; padding:4px 10px; background:var(--primary); color:white; border:none; border-radius:5px; cursor:pointer; font-weight:600;">Refresh</button>
+      </h3>
+      <div id="disk-space-content" style="font-size:0.88rem; color:var(--text-light);">Loading...</div>
+      <img src="/sap_skills/images/rocky_logo.png" alt="Rocky Linux" style="display:block; margin:144px auto 0; width:80%; max-width:220px;">
+    </div>
   </div>
 
-  <div class="card">
-    <h3 style="display:flex; align-items:center; justify-content:space-between;">
-      <span><span class="dot" style="background: var(--primary)"></span> File Systems</span>
-      <button onclick="refreshDisk()" id="disk-refresh-btn" style="font-size:0.72rem; padding:4px 10px; background:var(--primary); color:white; border:none; border-radius:5px; cursor:pointer; font-weight:600;">Refresh</button>
-    </h3>
-    <div id="disk-space-content" style="font-size:0.88rem; color:var(--text-light);">Loading...</div>
-  </div>
 </div>
 
 <!-- ============================================================ -->
@@ -284,7 +287,8 @@
 
   <div style="display:flex; gap:20px; flex-wrap:wrap;">
     <div class="card" style="flex:1; min-width:300px; text-align:center;">
-      <h3 style="justify-content:center;"><span id="hvr-dot" class="dot" style="background: #6c757d"></span> HVR Hub Service</h3>
+      <img src="/sap_skills/images/hvr_logo.jpg" alt="HVR" width="109" height="109" style="border-radius:10px; display:block; margin:0 auto 10px;">
+      <span id="hvr-dot" style="display:none;"></span>
       <div id="hvr-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
       <div id="hvr-detail" style="font-size:0.85rem; color:var(--text-light);">Click "Check Status" to verify</div>
       <div id="hvr-uptime" style="font-size:0.82rem; color:var(--text-light); margin-top:6px;"></div>
@@ -298,7 +302,8 @@
     </div>
 
     <div class="card" style="flex:1; min-width:300px; text-align:center;">
-      <h3 style="justify-content:center;"><span id="pg-dot" class="dot" style="background: #6c757d"></span> PostgreSQL 14 Repository</h3>
+      <img src="/sap_skills/images/postgres_logo.png" alt="PostgreSQL" style="display:block; margin:0 auto 10px; width:200px;">
+      <span id="pg-dot" style="display:none;"></span>
       <div id="pg-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
       <div id="pg-detail" style="font-size:0.85rem; color:var(--text-light);">Metadata repository for HVR Hub</div>
       <div id="pg-version" style="font-size:0.82rem; color:var(--text-light); margin-top:6px;"></div>
@@ -407,7 +412,9 @@
     <div style="display:flex; gap:8px; flex-wrap:wrap;">
       <button id="pg-upd-check-btn" onclick="checkPgUpdates()" style="padding:8px 18px; background:var(--primary); color:white; border:none; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">Check for Updates</button>
       <button id="pg-upd-apply-btn" onclick="applyPgUpdate()" disabled style="padding:8px 18px; background:#6c757d; color:white; border:none; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:not-allowed;">Download &amp; Apply Update</button>
+      <button id="pg-upd-rollback-btn" onclick="rollbackPg()" style="padding:8px 18px; background:#e67e22; color:white; border:none; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">Rollback</button>
     </div>
+    <div id="pg-upd-rollback-info" style="margin-top:10px; font-size:0.82rem; color:var(--text-light);"></div>
   </div>
 
   <div class="card" id="log-viewer-card" style="display:none;">
@@ -467,7 +474,7 @@
       <li>
         <div style="display:flex; align-items:center; gap:12px;">
           <a href="#" onclick="openHvrWebUI(); return false;" style="flex-shrink:0;">
-            <img src="hvr_icon.svg" alt="HVR" width="42" height="42" style="border-radius:8px; display:block;">
+            <img src="/sap_skills/images/hvr_logo.jpg" alt="HVR" width="60" height="60" style="border-radius:8px; display:block;">
           </a>
           <div>
             <a href="#" onclick="openHvrWebUI(); return false;">HVR Web UI</a>
@@ -478,7 +485,7 @@
       <li>
         <div style="display:flex; align-items:center; gap:12px;">
           <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-central1-a/instances/antonio-carbone-hvr-hub?invt=AbtinQ&project=internal-sales" target="_blank" style="flex-shrink:0;">
-            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+            <img src="/sap_skills/images/google_logo.png" alt="GCP" width="48" height="48" style="border-radius:8px; display:block;">
           </a>
           <div>
             <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-central1-a/instances/antonio-carbone-hvr-hub?invt=AbtinQ&project=internal-sales" target="_blank">VM Settings</a>
@@ -489,7 +496,7 @@
       <li>
         <div style="display:flex; align-items:center; gap:12px;">
           <a href="https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/details/antonio-carbone-home-ip2?project=internal-sales" target="_blank" style="flex-shrink:0;">
-            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+            <img src="/sap_skills/images/google_logo.png" alt="GCP" width="48" height="48" style="border-radius:8px; display:block;">
           </a>
           <div>
             <a href="https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/details/antonio-carbone-home-ip2?project=internal-sales" target="_blank">Set GCP Firewall</a>
@@ -1354,6 +1361,61 @@ function colorizeLog(text) {
     .replace(/\[PG_UPDATE\][^\n]*/g, '<span style="color:#c586c0; font-weight:bold;">$&</span>')
     .replace(/(error|Error|ERROR|failed|Failed)/g, '<span style="color:#f44747; font-weight:bold;">$&</span>');
 }
+
+// --- PostgreSQL Rollback ---
+function rollbackPg() {
+  var warning = 'ROLLBACK POSTGRESQL\n\n'
+    + 'This will restore the database from the latest backup dump.\n\n'
+    + 'Steps:\n'
+    + '  1. Stop HVR Hub Server\n'
+    + '  2. Stop PostgreSQL 14\n'
+    + '  3. Downgrade packages via yum history undo\n'
+    + '  4. Start PostgreSQL 14\n'
+    + '  5. Restore database from latest backup\n'
+    + '  6. Start HVR Hub Server\n\n'
+    + 'Master password is required.';
+  if (!confirm(warning)) return;
+  askPassword('Enter master password to authorize PostgreSQL rollback:').then(function(pwd) {
+    if (!pwd) return;
+    var btn = document.getElementById('pg-upd-rollback-btn');
+    btn.textContent = 'Rolling back...'; btn.disabled = true;
+    fetch('/sap_skills/api/hvrhub_pg_rollback', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({master_password: pwd})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        btn.textContent = 'Rollback in progress...';
+        startLogTail();
+      } else {
+        alert('Error: ' + (data.message || 'Unknown'));
+        btn.textContent = 'Rollback'; btn.disabled = false;
+      }
+    })
+    .catch(function(err) {
+      alert('Connection error: ' + err);
+      btn.textContent = 'Rollback'; btn.disabled = false;
+    });
+  });
+}
+
+// Check for available rollback on page load
+function checkPgRollback() {
+  fetch('/sap_skills/api/hvrhub_pg_rollback_info', {method:'POST', headers:{'Content-Type':'application/json'}, body:'{}'})
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var info = document.getElementById('pg-upd-rollback-info');
+    if (data.status === 'ok' && data.backup_file) {
+      info.innerHTML = 'Latest backup: <strong>' + data.backup_file + '</strong> (' + data.backup_date + ')';
+    } else {
+      info.textContent = 'No backup available for rollback';
+    }
+  })
+  .catch(function() {});
+}
+checkPgRollback();
 
 // --- Latest Release Check ---
 function checkLatestRelease() {
