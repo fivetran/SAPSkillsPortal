@@ -327,7 +327,7 @@
 
 <!-- ═══════════════════════════ HEADER ═══════════════════════════ -->
 <div class="header">
-  <a href="/sap_skills/" class="back-link">Go back to the main page</a>
+  <a href="javascript:window.close()" class="back-link" onclick="window.close(); return false;">Close this Page</a>
   <h1>SAP Order-to-Cash Workflow</h1>
   <div class="subtitle">S/4HANA IDES &mdash; Automated OTC Data Generator via JCo RFC</div>
   <span class="badge">All 5 Steps Operational</span>
@@ -893,99 +893,106 @@
 <!-- ═══════════════════════════ CDS VIEWS ═══════════════════════════ -->
 <div class="section" id="cds">
   <h2 class="section-title">CDS Views Reference</h2>
+  <p style="margin:0 0 16px 0; color:#64748b; font-size:13px;">Verified against DDDDLSRC on S/4HANA IDES (SID: S4H, Release: 758) — 2026-04-14. Views marked <span style="color:#dc2626;">&#10007;</span> do not exist on this IDES instance.</p>
 
   <div class="card">
     <h3>Sales Order CDS Views</h3>
     <table>
-      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
-      <tr><td><code>I_SalesOrder</code></td><td>Sales order header</td><td>VBAK</td></tr>
-      <tr><td><code>I_SalesOrderAPI01</code></td><td>Sales order header (API)</td><td>VBAK</td></tr>
-      <tr><td><code>I_SalesOrderItem</code></td><td>Sales order item</td><td>VBAP</td></tr>
-      <tr><td><code>I_SalesOrderItemAPI01</code></td><td>Sales order item (API)</td><td>VBAP</td></tr>
-      <tr><td><code>I_SalesOrderScheduleLine</code></td><td>Schedule line</td><td>VBEP</td></tr>
-      <tr><td><code>I_SalesOrderPartner</code></td><td>Partner functions</td><td>VBPA</td></tr>
-      <tr><td><code>I_SalesOrderPricingElement</code></td><td>Pricing conditions</td><td>PRCD_ELEMENTS</td></tr>
-      <tr><td><code>I_SalesOrderBillingPlanItem</code></td><td>Billing plan items</td><td>FPLT</td></tr>
-      <tr><td><code>I_SalesOrderText</code></td><td>Sales order texts</td><td>STXL</td></tr>
-      <tr><td><code>C_SalesOrder</code></td><td>Consumption: Manage Sales Orders</td><td>VBAK</td></tr>
-      <tr><td><code>C_SalesOrderItem</code></td><td>Consumption: Sales Order Items</td><td>VBAP</td></tr>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_SalesOrder</code></td><td>Sales order header</td><td>VBAK</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_SalesOrderItem</code></td><td>Sales order item</td><td>VBAP</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_SalesOrderScheduleLine</code></td><td>Schedule line</td><td>VBEP</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_SalesOrderPartner</code></td><td>Partner functions</td><td>VBPA</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_SalesOrderPricingElement</code></td><td>Pricing conditions</td><td>PRCD_ELEMENTS</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_SalesOrderBillingPlanItem</code></td><td>Billing plan items</td><td>FPLT</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_SalesOrderAPI01</code></td><td>Sales order header (API)</td><td>VBAK</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_SalesOrderItemAPI01</code></td><td>Sales order item (API)</td><td>VBAP</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_SalesOrderText</code></td><td>Sales order texts</td><td>STXL</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>C_SalesOrder</code></td><td>Consumption: Manage Sales Orders</td><td>VBAK</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>C_SalesOrderItem</code></td><td>Consumption: Sales Order Items</td><td>VBAP</td><td style="color:#dc2626;">&#10007;</td></tr>
     </table>
   </div>
 
   <div class="card">
     <h3>Delivery CDS Views</h3>
     <table>
-      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
-      <tr><td><code>I_DeliveryDocument</code></td><td>Delivery header</td><td>LIKP</td></tr>
-      <tr><td><code>I_DeliveryDocumentItem</code></td><td>Delivery item</td><td>LIPS</td></tr>
-      <tr><td><code>I_DeliveryDocumentPartner</code></td><td>Delivery partner</td><td>VBPA</td></tr>
-      <tr><td><code>C_OutboundDelivery</code></td><td>Consumption: Outbound Deliveries</td><td>LIKP</td></tr>
-      <tr><td><code>C_OutbDeliveryItem</code></td><td>Consumption: Delivery Items</td><td>LIPS</td></tr>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_DeliveryDocument</code></td><td>Delivery header</td><td>LIKP</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_DeliveryDocumentItem</code></td><td>Delivery item</td><td>LIPS</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_DeliveryDocumentPartner</code></td><td>Delivery partner</td><td>VBPA</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>C_OutboundDelivery</code></td><td>Consumption: Outbound Deliveries</td><td>LIKP</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>C_OutbDeliveryItem</code></td><td>Consumption: Delivery Items</td><td>LIPS</td><td style="color:#dc2626;">&#10007;</td></tr>
     </table>
   </div>
 
   <div class="card">
     <h3>Billing Document CDS Views</h3>
     <table>
-      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
-      <tr><td><code>I_BillingDocument</code></td><td>Billing header</td><td>VBRK</td></tr>
-      <tr><td><code>I_BillingDocumentItem</code></td><td>Billing item</td><td>VBRP</td></tr>
-      <tr><td><code>I_BillingDocumentPartner</code></td><td>Billing partner</td><td>VBPA</td></tr>
-      <tr><td><code>I_BillingDocumentPricingElement</code></td><td>Billing pricing conditions</td><td>PRCD_ELEMENTS</td></tr>
-      <tr><td><code>C_BillingDocument</code></td><td>Consumption: Manage Billing Documents</td><td>VBRK</td></tr>
-      <tr><td><code>C_BillingDocumentItem</code></td><td>Consumption: Billing Items</td><td>VBRP</td></tr>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_BillingDocument</code></td><td>Billing header</td><td>VBRK</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_BillingDocumentItem</code></td><td>Billing item</td><td>VBRP</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_BillingDocumentPartner</code></td><td>Billing partner</td><td>VBPA</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_BillingDocumentPricingElement</code></td><td>Billing pricing conditions</td><td>PRCD_ELEMENTS</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>C_BillingDocument</code></td><td>Consumption: Manage Billing Documents</td><td>VBRK</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>C_BillingDocumentItem</code></td><td>Consumption: Billing Items</td><td>VBRP</td><td style="color:#dc2626;">&#10007;</td></tr>
     </table>
   </div>
 
   <div class="card">
     <h3>Material Document / Goods Issue CDS Views</h3>
     <table>
-      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
-      <tr><td><code>I_MaterialDocumentHeader_2</code></td><td>Material doc header</td><td>MATDOC</td></tr>
-      <tr><td><code>I_MaterialDocumentItem_2</code></td><td>Material doc item</td><td>MATDOC</td></tr>
-      <tr><td><code>I_GoodsMovementItem</code></td><td>Goods movement item</td><td>MATDOC</td></tr>
-      <tr><td><code>I_MaterialStock</code></td><td>Material stock overview</td><td>MARD</td></tr>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_MaterialDocumentHeader</code></td><td>Material doc header</td><td>MKPF</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_MaterialDocumentItem</code></td><td>Material doc item</td><td>MSEG</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_MaterialDocumentHeader_2</code></td><td>Material doc header (S/4HANA)</td><td>MATDOC</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_MaterialDocumentItem_2</code></td><td>Material doc item (S/4HANA)</td><td>MATDOC</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_MaterialStock</code></td><td>Material stock overview</td><td>MARD</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_GoodsMovementItem</code></td><td>Goods movement item</td><td>MATDOC</td><td style="color:#dc2626;">&#10007;</td></tr>
     </table>
   </div>
 
   <div class="card">
     <h3>Document Flow CDS Views</h3>
     <table>
-      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
-      <tr><td><code>I_SalesDocumentFlow</code></td><td>Sales document flow</td><td>VBFA</td></tr>
-      <tr><td><code>I_SDDocumentPredecessor</code></td><td>Predecessor document</td><td>VBFA</td></tr>
-      <tr><td><code>I_SDDocumentSuccessor</code></td><td>Successor document</td><td>VBFA</td></tr>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_SDDocumentProcessFlow</code></td><td>SD document process flow</td><td>VBFA</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_SDDocumentMultiLevelProcFlow</code></td><td>Multi-level process flow</td><td>VBFA</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_SalesDocumentSubsqntProcFlow</code></td><td>Subsequent document flow</td><td>VBFA</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_SalesDocumentFlow</code></td><td>Sales document flow</td><td>VBFA</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_SDDocumentPredecessor</code></td><td>Predecessor document</td><td>VBFA</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_SDDocumentSuccessor</code></td><td>Successor document</td><td>VBFA</td><td style="color:#dc2626;">&#10007;</td></tr>
     </table>
   </div>
 
   <div class="card">
     <h3>Accounting / Payment CDS Views</h3>
     <table>
-      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
-      <tr><td><code>I_JournalEntry</code></td><td>Accounting doc header</td><td>ACDOCA, BKPF</td></tr>
-      <tr><td><code>I_JournalEntryItem</code></td><td>Accounting line item</td><td>ACDOCA</td></tr>
-      <tr><td><code>I_OperationalAcctgDocItem</code></td><td>Operational accounting</td><td>ACDOCA</td></tr>
-      <tr><td><code>I_CustomerLineItem</code></td><td>Customer line items</td><td>ACDOCA</td></tr>
-      <tr><td><code>I_CustomerOpenItem</code></td><td>Customer open items (AR)</td><td>ACDOCA</td></tr>
-      <tr><td><code>I_CustomerClearedItem</code></td><td>Customer cleared items (AR)</td><td>ACDOCA</td></tr>
-      <tr><td><code>I_ARAccountBalance</code></td><td>Accounts receivable balance</td><td>ACDOCA</td></tr>
-      <tr><td><code>C_AROpenItems</code></td><td>Consumption: AR open items</td><td>ACDOCA</td></tr>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_JournalEntry</code></td><td>Accounting doc header</td><td>ACDOCA, BKPF</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_JournalEntryItem</code></td><td>Accounting line item</td><td>ACDOCA</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_OperationalAcctgDocItem</code></td><td>Operational accounting</td><td>ACDOCA</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_CustomerLineItem</code></td><td>Customer line items</td><td>ACDOCA</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_CustomerOpenItem</code></td><td>Customer open items (AR)</td><td>ACDOCA</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_CustomerClearedItem</code></td><td>Customer cleared items (AR)</td><td>ACDOCA</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_ARAccountBalance</code></td><td>Accounts receivable balance</td><td>ACDOCA</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>C_AROpenItems</code></td><td>Consumption: AR open items</td><td>ACDOCA</td><td style="color:#dc2626;">&#10007;</td></tr>
     </table>
   </div>
 
   <div class="card">
     <h3>Master Data CDS Views</h3>
     <table>
-      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
-      <tr><td><code>I_Customer</code></td><td>Customer general data</td><td>KNA1, BUT000</td></tr>
-      <tr><td><code>I_CustomerCompany</code></td><td>Customer company code data</td><td>KNB1</td></tr>
-      <tr><td><code>I_CustomerSalesArea</code></td><td>Customer sales area data</td><td>KNVV</td></tr>
-      <tr><td><code>I_CreditManagement</code></td><td>Credit management</td><td>KNKK</td></tr>
-      <tr><td><code>I_BusinessPartner</code></td><td>Business Partner general</td><td>BUT000</td></tr>
-      <tr><td><code>I_Product</code></td><td>Product/material general</td><td>MARA</td></tr>
-      <tr><td><code>I_ProductPlantBasic</code></td><td>Product plant data</td><td>MARC</td></tr>
-      <tr><td><code>I_ProductValuation</code></td><td>Product valuation</td><td>MBEW</td></tr>
-      <tr><td><code>I_ProductSalesDelivery</code></td><td>Product sales/delivery data</td><td>MVKE</td></tr>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_Customer</code></td><td>Customer general data</td><td>KNA1, BUT000</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_CustomerCompany</code></td><td>Customer company code data</td><td>KNB1</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_CustomerSalesArea</code></td><td>Customer sales area data</td><td>KNVV</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_BusinessPartner</code></td><td>Business Partner general</td><td>BUT000</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_Product</code></td><td>Product/material general</td><td>MARA</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductPlantBasic</code></td><td>Product plant data</td><td>MARC</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductValuation</code></td><td>Product valuation</td><td>MBEW</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductSalesDelivery</code></td><td>Product sales/delivery data</td><td>MVKE</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_SalesOrganization</code></td><td>Sales organization</td><td>TVKO</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_CreditManagement</code></td><td>Credit management</td><td>KNKK</td><td style="color:#dc2626;">&#10007;</td></tr>
     </table>
   </div>
 </div>

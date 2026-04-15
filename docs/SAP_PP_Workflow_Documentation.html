@@ -292,7 +292,7 @@
 
 <!-- HEADER -->
 <div class="header">
-  <a href="/sap_skills/" class="back-link">Go back to the main page</a>
+  <a href="javascript:window.close()" class="back-link" onclick="window.close(); return false;">Close this Page</a>
   <h1>SAP Plan-to-Produce Workflow</h1>
   <div class="subtitle">S/4HANA IDES &mdash; Automated P2Pr Data Generator via JCo RFC</div>
   <span class="badge">Discrete Manufacturing</span>
@@ -903,37 +903,82 @@ FROM MATDOC WHERE AUFNR = '000001XXXXXX';</code></pre>
 <!-- CDS VIEWS -->
 <div class="section" id="cds">
   <h2 class="section-title">CDS Views Reference</h2>
+  <p style="margin:0 0 16px 0; color:#64748b; font-size:13px;">Verified against DDDDLSRC on S/4HANA IDES (SID: S4H, Release: 758) — 2026-04-15. Views marked <span style="color:#dc2626;">&#10007;</span> do not exist on this IDES instance.</p>
 
   <div class="card">
     <h3>Production Order CDS Views</h3>
     <table>
-      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
-      <tr><td><code>I_ProductionOrder</code></td><td>Production order header</td><td>AUFK, AFKO</td></tr>
-      <tr><td><code>I_ProductionOrderItem</code></td><td>Production order items</td><td>AFPO</td></tr>
-      <tr><td><code>I_ProductionOrderOperation</code></td><td>Order operations</td><td>AFVC</td></tr>
-      <tr><td><code>I_ProductionOrderComponent</code></td><td>Order components (reservations)</td><td>RESB</td></tr>
-      <tr><td><code>I_MfgOrderConfirmation</code></td><td>Order confirmations</td><td>AFRU</td></tr>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_ProductionOrder</code></td><td>Production order header</td><td>AUFK, AFKO</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductionOrderOperation</code></td><td>Order operations</td><td>AFVC</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_MfgOrderConfirmation</code></td><td>Order confirmations</td><td>AFRU</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_OrderType</code></td><td>Order type master</td><td>T003O</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_ProductionOrderItem</code></td><td>Production order items</td><td>AFPO</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_ProductionOrderComponent</code></td><td>Order components (reservations)</td><td>RESB</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>C_ProductionOrder</code></td><td>Consumption: Production Orders</td><td>AUFK</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>C_ProdOrderConfirmation</code></td><td>Consumption: Order Confirmation</td><td>AFRU</td><td style="color:#dc2626;">&#10007;</td></tr>
     </table>
   </div>
 
   <div class="card">
-    <h3>Material Document CDS Views</h3>
+    <h3>Planned Order CDS Views</h3>
     <table>
-      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
-      <tr><td><code>I_MaterialDocumentHeader_2</code></td><td>Material document header</td><td>MATDOC</td></tr>
-      <tr><td><code>I_MaterialDocumentItem_2</code></td><td>Material document items</td><td>MATDOC</td></tr>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_PlannedOrder</code></td><td>Planned order header</td><td>PLAF</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_PlannedOrderComponent</code></td><td>Planned order components</td><td>PLAF</td><td style="color:#16a34a;">&#10003;</td></tr>
     </table>
   </div>
 
   <div class="card">
-    <h3>Material Master CDS Views</h3>
+    <h3>BOM &amp; Routing CDS Views</h3>
     <table>
-      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
-      <tr><td><code>I_Product</code></td><td>Product (material) master</td><td>MARA, MAKT</td></tr>
-      <tr><td><code>I_ProductPlantBasic</code></td><td>Plant-level data</td><td>MARC</td></tr>
-      <tr><td><code>I_ProductValuation</code></td><td>Valuation data</td><td>MBEW</td></tr>
-      <tr><td><code>I_BillOfMaterial</code></td><td>BOM header</td><td>STKO</td></tr>
-      <tr><td><code>I_BillOfMaterialItem</code></td><td>BOM items</td><td>STPO</td></tr>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_BillOfMaterial</code></td><td>BOM header</td><td>STKO</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_BillOfMaterialItem</code></td><td>BOM items</td><td>STPO</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductionRouting</code></td><td>Production routing</td><td>PLKO</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_RoutingHeader</code></td><td>Routing header</td><td>PLKO</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_RoutingOperation</code></td><td>Routing operations</td><td>PLPO</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_WorkCenter</code></td><td>Work center master</td><td>CRHD</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>C_BillOfMaterial</code></td><td>Consumption: BOM header</td><td>STKO</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>C_BillOfMaterialItem</code></td><td>Consumption: BOM items</td><td>STPO</td><td style="color:#16a34a;">&#10003;</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Material Document / Reservations CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_MaterialDocumentHeader_2</code></td><td>Material document header</td><td>MATDOC</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_MaterialDocumentItem_2</code></td><td>Material document items</td><td>MATDOC</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_MaterialStock</code></td><td>Material stock overview</td><td>MARD</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ReservationDocumentItem</code></td><td>Reservation document items</td><td>RESB</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ReservationItem</code></td><td>Reservation items</td><td>RESB</td><td style="color:#16a34a;">&#10003;</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Accounting CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_JournalEntry</code></td><td>Accounting doc header</td><td>ACDOCA, BKPF</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_JournalEntryItem</code></td><td>Accounting line item</td><td>ACDOCA</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_OperationalAcctgDocItem</code></td><td>Operational accounting</td><td>ACDOCA</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_CostCenter</code></td><td>Cost center master</td><td>CSKS</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProfitCenter</code></td><td>Profit center master</td><td>CEPC</td><td style="color:#16a34a;">&#10003;</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Master Data CDS Views</h3>
+    <table>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_Product</code></td><td>Product (material) master</td><td>MARA, MAKT</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductDescription</code></td><td>Product descriptions</td><td>MAKT</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductPlantBasic</code></td><td>Plant-level data</td><td>MARC</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductPlantCosting</code></td><td>Costing data</td><td>MARC</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductPlantMRP</code></td><td>MRP data</td><td>MARC</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductPlantProcurement</code></td><td>Procurement data</td><td>MARC</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductValuation</code></td><td>Valuation data</td><td>MBEW</td><td style="color:#16a34a;">&#10003;</td></tr>
     </table>
   </div>
 

@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HVR Hub Server — Documentation</title>
+<style>
+  :root {
+    --primary: #0e7c86;
+    --primary-light: #14919b;
+    --primary-dark: #065a60;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .header {
+    background: linear-gradient(135deg, #0e7c86 0%, #065a60 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+    position: relative;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary-dark);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #e0f2f1; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: #e0f2f1;
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  tr:hover td { background: #e0f7fa; }
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    margin: 12px 0;
+  }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: #c0392b;
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+  .pre-wrap { position: relative; }
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255,255,255,0.12);
+    color: #cdd6f4;
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 3px 12px;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    z-index: 2;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.22); }
+  .copy-btn.copied { background: #27ae60; color: white; border-color: #27ae60; }
+  .info-box {
+    background: #e0f2f1;
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.9rem;
+  }
+  .warn-box {
+    background: #fff8e1;
+    border-left: 4px solid #f39c12;
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.9rem;
+  }
+  h4 { font-size: 1.05rem; margin: 18px 0 8px 0; color: var(--primary-dark); }
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  .back-link { position: absolute; top: 16px; right: 24px; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .back-link:hover { color: #fff; text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <a href="SAP_HVRHub.html" class="back-link">Back to HVR Hub Cockpit</a>
+  <h1>HVR Hub Server Documentation</h1>
+  <div class="subtitle">Fivetran HVR 6.2.5 &mdash; Real-Time Data Replication Platform</div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#infrastructure">Infrastructure</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#installation">Installation</a>
+    <a href="#configuration">Configuration</a>
+    <a href="#operations">Operations</a>
+    <a href="#modules">Modules</a>
+    <a href="#cli">CLI</a>
+    <a href="#repository">Repository</a>
+    <a href="#updates">Updates</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+    <a href="SAP_HVRHub.html">Back to Cockpit</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- OVERVIEW -->
+<!-- ============================================================ -->
+<div class="section" id="overview">
+  <div class="section-title">Overview</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> What is Fivetran HVR?</h3>
+    <p>Fivetran HVR (High-Volume Replicator) is a self-hosted enterprise-level replication platform for databases and file systems. It provides real-time Change Data Capture (CDC) with low latency and high throughput, supporting a distributed architecture across numerous Database Management Systems (DBMSs).</p>
+
+    <div class="info-box" style="margin-top:16px;">
+      <strong>This Server:</strong> saphvrhub runs HVR 6.2.5/5 as a Hub Server, connected to Fivetran's cloud proxy for managed orchestration. It replicates data from SAP systems to target destinations using CDC technology.
+    </div>
+
+    <h4>Core Modules</h4>
+    <table>
+      <thead><tr><th>Module</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Refresh</strong></td><td>Initial bulk load of data from source to target</td></tr>
+        <tr><td><strong>Capture</strong></td><td>Continuous change data capture from the source location (CDC)</td></tr>
+        <tr><td><strong>Integrate</strong></td><td>Applies captured changes to the target location in near real-time</td></tr>
+        <tr><td><strong>Compare</strong></td><td>Compares source and target to verify data is in sync</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Key Capabilities</h4>
+    <ul style="margin:8px 0 0 20px; font-size:0.9rem;">
+      <li>Real-time CDC with sub-second latency</li>
+      <li>Supports 50+ database platforms and file systems</li>
+      <li>Automatic DDL replication (schema changes)</li>
+      <li>Built-in conflict detection and resolution</li>
+      <li>Data transformation during replication</li>
+      <li>Web UI and REST API for management</li>
+      <li>Secure cloud proxy connectivity to Fivetran</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- INFRASTRUCTURE -->
+<!-- ============================================================ -->
+<div class="section" id="infrastructure">
+  <div class="section-title">Infrastructure</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Server Specifications</h3>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Hostname</td><td><code>saphvrhub</code></td></tr>
+        <tr><td>Operating System</td><td>Rocky Linux 8.10 (Green Obsidian)</td></tr>
+        <tr><td>Kernel</td><td>4.18.0-553.51.1.el8_10.cloud.0.1.x86_64</td></tr>
+        <tr><td>CPUs</td><td>2 vCPUs &mdash; Intel(R) Xeon(R) CPU @ 2.20GHz</td></tr>
+        <tr><td>Memory</td><td>3.6 GB RAM</td></tr>
+        <tr><td>Private IP</td><td><code>10.128.15.240</code></td></tr>
+        <tr><td>Public IP</td><td><code>35.209.174.110</code></td></tr>
+        <tr><td>Cloud Platform</td><td>Google Cloud Platform (us-central1-a)</td></tr>
+        <tr><td>HVR Version</td><td>Fivetran HVR 6.2.5/5 (linux_glibc2.12-x64-64bit)</td></tr>
+        <tr><td>Repository DB</td><td>PostgreSQL 14.20</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Storage Layout</h3>
+    <table>
+      <thead><tr><th>Mount</th><th>Size</th><th>Used</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>/</code></td><td>50 GB</td><td>26 GB (52%)</td><td>Root filesystem (XFS)</td></tr>
+        <tr><td><code>/boot/efi</code></td><td>200 MB</td><td>5.8 MB (3%)</td><td>UEFI boot partition</td></tr>
+        <tr><td><code>/SUMHANA</code></td><td>589 GB</td><td>270 GB (49%)</td><td>SAP/HANA data volume (LVM, ext4)</td></tr>
+        <tr><td><code>/media</code></td><td>786 GB</td><td>591 GB (80%)</td><td>Media/data volume (LVM, ext4)</td></tr>
+        <tr><td><code>/archive</code></td><td>738 GB</td><td>494 GB (71%)</td><td>NFS mount from sapidesecc8 (Oracle archive logs)</td></tr>
+      </tbody>
+    </table>
+    <div class="warn-box"><strong>/media at 80% usage</strong> &mdash; Monitor this volume. HVR uses it for replication data staging.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Network Ports</h3>
+    <table>
+      <thead><tr><th>Port</th><th>Service</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>4340</code></td><td>hvrhubserver</td><td>HVR Hub Server &mdash; Web UI and REST API (HTTP)</td></tr>
+        <tr><td><code>4343</code></td><td>systemd (HVR)</td><td>HVR HTTPS port</td></tr>
+        <tr><td><code>4344</code></td><td>systemd (HVR)</td><td>HVR additional service port</td></tr>
+        <tr><td><code>5432</code></td><td>PostgreSQL</td><td>HVR repository database (localhost only)</td></tr>
+        <tr><td><code>43177</code></td><td>hvrhubserver</td><td>Internal hub server port</td></tr>
+        <tr><td><code>43111</code></td><td>hvrscheduler</td><td>Internal scheduler port</td></tr>
+        <tr><td><code>22</code></td><td>sshd</td><td>SSH access</td></tr>
+        <tr><td><code>20201</code></td><td>otelopscol</td><td>OpenTelemetry operations collector</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ARCHITECTURE -->
+<!-- ============================================================ -->
+<div class="section" id="architecture">
+  <div class="section-title">Architecture</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> System Architecture</h3>
+    <p>The HVR Hub Server is the central component that manages all replication channels, schedules jobs, and maintains the configuration repository.</p>
+
+    <h4>Components on this Server</h4>
+    <table>
+      <thead><tr><th>Component</th><th>User</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>hvrhubserver</strong></td><td><code>hvr</code></td><td>Main hub server process &mdash; manages channels, REST API, Web UI</td></tr>
+        <tr><td><strong>hvrscheduler</strong></td><td><code>hvr</code></td><td>Job scheduler (main + DB scheduler for hub <code>hvrhub</code>)</td></tr>
+        <tr><td><strong>hvrstats</strong></td><td><code>hvr</code></td><td>Statistics collector (global metrics + log analysis)</td></tr>
+        <tr><td><strong>proxyagent</strong></td><td><code>root</code></td><td>Fivetran cloud proxy agent (Java) &mdash; secure tunnel to Fivetran</td></tr>
+        <tr><td><strong>PostgreSQL 14</strong></td><td><code>postgres</code></td><td>Repository database (<code>hvr6</code>) storing all HVR metadata</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Hub and Agent Architecture</h4>
+    <p>HVR uses a Hub-Agent model:</p>
+    <ul style="margin:8px 0 0 20px; font-size:0.9rem;">
+      <li><strong>Hub (this server)</strong> &mdash; Central orchestrator at <code>/usr/hvr/hvr_home</code>. Manages channels, locations, actions, and scheduling.</li>
+      <li><strong>Agent (HVA)</strong> &mdash; A secondary agent installation exists at <code>/usr/hva/hvr_home</code> (HVR 6.2.0/1). Agents run on source/target systems to execute capture and integrate jobs locally.</li>
+      <li><strong>Proxy Agent</strong> &mdash; Java-based agent connecting to Fivetran cloud (<code>wss://prod.aws.us-east-1.proxy.fivetran.com</code>) for managed replication.</li>
+    </ul>
+
+    <h4>Hub Configuration</h4>
+    <table>
+      <thead><tr><th>Setting</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Hub Name</td><td><code>hvrhub</code></td></tr>
+        <tr><td>Repository Class</td><td>PostgreSQL (Aurora compatible)</td></tr>
+        <tr><td>Database Host</td><td><code>localhost</code></td></tr>
+        <tr><td>Database Name</td><td><code>hvr6</code></td></tr>
+        <tr><td>Database Port</td><td><code>5432</code></td></tr>
+        <tr><td>Database User</td><td><code>postgres</code></td></tr>
+        <tr><td>HTTP Port</td><td><code>4340</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- INSTALLATION -->
+<!-- ============================================================ -->
+<div class="section" id="installation">
+  <div class="section-title">Installation</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Directory Structure</h3>
+    <table>
+      <thead><tr><th>Path</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>/usr/hvr/hvr_home</code></td><td>HVR Hub binaries, libraries, JRE, web UI (v6.2.5/5)</td></tr>
+        <tr><td><code>/usr/hvr/hvr_config</code></td><td>Hub configuration: hubs, logs, log archives, metering, wallet</td></tr>
+        <tr><td><code>/usr/hvr/hvr_tmp</code></td><td>Hub temporary files</td></tr>
+        <tr><td><code>/usr/hva/hvr_home</code></td><td>HVR Agent binaries (v6.2.0/1)</td></tr>
+        <tr><td><code>/usr/hva/hvr_config</code></td><td>Agent configuration</td></tr>
+        <tr><td><code>/usr/hva/hvr_tmp</code></td><td>Agent temporary files</td></tr>
+        <tr><td><code>/home/hvr/hvr_config/proxy</code></td><td>Fivetran proxy agent configuration</td></tr>
+      </tbody>
+    </table>
+
+    <h4>OS Users</h4>
+    <table>
+      <thead><tr><th>User</th><th>Role</th></tr></thead>
+      <tbody>
+        <tr><td><code>hvr</code></td><td>HVR Hub Server owner &mdash; runs hvrhubserver, scheduler, stats</td></tr>
+        <tr><td><code>hva</code></td><td>HVR Agent owner &mdash; runs agent processes</td></tr>
+        <tr><td><code>postgres</code></td><td>PostgreSQL database owner</td></tr>
+        <tr><td><code>root</code></td><td>System administrator &mdash; runs proxy agent</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Systemd Service</h4>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>[Unit]
+Description=HVR Hub Server
+
+[Service]
+Type=forking
+Environment="HVR_HOME=/usr/hvr/hvr_home"
+Environment="HVR_CONFIG=/usr/hvr/hvr_config"
+Environment="HVR_TMP=/usr/hvr/hvr_tmp"
+User=hvr
+ExecStart=/usr/hvr/hvr_home/bin/hvrhubserver
+Restart=always
+RestartSec=5s
+
+[Install]
+WantedBy=multi-user.target</code></pre></div>
+    <div class="info-box">The service is <strong>enabled</strong> and set to <code>Restart=always</code> with 5 second delay. To keep it stopped, use the Stop button in the cockpit which also disables the service.</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CONFIGURATION -->
+<!-- ============================================================ -->
+<div class="section" id="configuration">
+  <div class="section-title">Configuration</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Hub Server Configuration</h3>
+    <p>The hub server configuration is stored in <code>/usr/hvr/hvr_config/etc/hvrhubserver.conf</code>:</p>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>{
+  "Database_Host": "localhost",
+  "Database_Name": "hvr6",
+  "Database_Port": 5432,
+  "Database_User": "postgres",
+  "HTTP_Port": "4340",
+  "License_Agreement_Accepted": true,
+  "Repository_Class": "postgresql",
+  "Repository_Class_Flavor": "aurora_pq"
+}</code></pre></div>
+
+    <h4>Fivetran Proxy Agent</h4>
+    <p>The proxy agent connects this hub to Fivetran's cloud management plane via a secure WebSocket tunnel:</p>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Agent ID</td><td><code>bluntly_ethanol</code></td></tr>
+        <tr><td>Proxy Server</td><td><code>wss://prod.aws.us-east-1.proxy.fivetran.com</code></td></tr>
+        <tr><td>Config File</td><td><code>/home/hvr/hvr_config/proxy/proxyagent.conf</code></td></tr>
+        <tr><td>Process</td><td>Java (JRE bundled with HVR)</td></tr>
+        <tr><td>Memory Usage</td><td>~180 MB</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">The proxy agent authenticates to Fivetran using the <code>auth_token</code> stored in the proxy configuration file. This enables Fivetran's cloud dashboard to manage replication channels on this hub.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> PostgreSQL Repository</h3>
+    <p>HVR uses a local PostgreSQL 14 instance as its metadata repository. The cockpit displays real-time status including uptime in both Amsterdam (CET/CEST) and Los Angeles (PT) timezones.</p>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Version</td><td>PostgreSQL 14.20</td></tr>
+        <tr><td>Database</td><td><code>hvr6</code></td></tr>
+        <tr><td>Listens on</td><td><code>127.0.0.1:5432</code> and <code>[::1]:5432</code> (localhost only)</td></tr>
+        <tr><td>User</td><td><code>postgres</code></td></tr>
+        <tr><td>Connections</td><td>4 persistent from HVR (scheduler, stats)</td></tr>
+        <tr><td>Uptime source</td><td><code>pg_postmaster_start_time()</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> NFS Mount</h3>
+    <p>The server has an NFS mount from sapidesecc8 for Oracle archive log access:</p>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># /etc/fstab entry
+sapidesecc8:/oracle/ABA/oraarch    /archive    nfs    defaults    0  0</code></pre></div>
+    <p>This provides access to SAP ECC Oracle archive logs for CDC replication.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- OPERATIONS -->
+<!-- ============================================================ -->
+<div class="section" id="operations">
+  <div class="section-title">Operations</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Service Management</h3>
+    <h4>Check Status</h4>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>systemctl status hvrhubserver --no-pager</code></pre></div>
+
+    <h4>Start / Stop / Restart</h4>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Start (also re-enable auto-restart)
+systemctl enable hvrhubserver && systemctl start hvrhubserver
+
+# Stop (also disable to prevent auto-restart)
+systemctl stop hvrhubserver && systemctl disable hvrhubserver
+
+# Restart
+systemctl restart hvrhubserver</code></pre></div>
+    <div class="warn-box">The cockpit Stop button automatically disables the service to prevent systemd from respawning it (Restart=always). The Start button re-enables it.</div>
+
+    <h4>Process Overview</h4>
+    <p>When running, the following processes should be active:</p>
+    <table>
+      <thead><tr><th>Process</th><th>User</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>hvrhubserver</code></td><td>hvr</td><td>Main hub server (PID parent)</td></tr>
+        <tr><td><code>hvrscheduler hvrhub</code></td><td>hvr</td><td>Job scheduler for hub</td></tr>
+        <tr><td><code>hvrscheduler -wdb hvrhub</code></td><td>hvr</td><td>Database scheduler for hub</td></tr>
+        <tr><td><code>hvrstats -g0 hvrhub</code></td><td>hvr</td><td>Statistics collector</td></tr>
+        <tr><td><code>hvr -chvrstats-logs</code></td><td>hvr</td><td>Log statistics processor</td></tr>
+        <tr><td><code>hvr -chvrstats-glob</code></td><td>hvr</td><td>Global statistics processor</td></tr>
+        <tr><td><code>proxyagent.jar</code></td><td>root</td><td>Fivetran cloud proxy (Java)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Web UI Access</h3>
+    <p>HVR provides a web-based user interface for managing replication:</p>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>URL</td><td><code>http://35.209.174.110:4340</code> (or internal <code>http://10.128.15.240:4340</code>)</td></tr>
+        <tr><td>Requires</td><td>PC/laptop with at least 1024px screen width</td></tr>
+        <tr><td>Not supported</td><td>Mobile phones, Internet Explorer 11</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">The Web UI allows you to configure channels, locations, tables, actions, monitor jobs and events, view statistics, and manage users. Access requires GCP firewall to allow port 4340.</div>
+
+    <h4>Web UI Sections</h4>
+    <table>
+      <thead><tr><th>Section</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>Channels</td><td>Create, configure, activate/deactivate replication channels</td></tr>
+        <tr><td>Locations</td><td>Manage source and target database connections</td></tr>
+        <tr><td>Tables</td><td>Select and configure tables for replication</td></tr>
+        <tr><td>Jobs</td><td>Monitor running and completed replication jobs</td></tr>
+        <tr><td>Events</td><td>View replication events and alerts</td></tr>
+        <tr><td>Statistics</td><td>Performance metrics, latency, throughput</td></tr>
+        <tr><td>Topology</td><td>Visual architecture diagram of replication flows</td></tr>
+        <tr><td>System</td><td>Hub settings, permissions, users, repository config</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> REST API</h3>
+    <p>HVR exposes a comprehensive REST API on port 4340 with ~200 endpoints organized into 19 interface categories:</p>
+    <div style="display:flex; flex-wrap:wrap; gap:8px; margin:12px 0;">
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">Activate</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">Refresh</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">Compare</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">Agent Config</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">Alert</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">Authentication</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">Control</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">Definition</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">Encryption</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">Event</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">Hub Config</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">HubServer</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">Job</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">License</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">Logfile</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">Query</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">Repository</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">Statistics</span>
+      <span style="background:#e0f2f1; padding:4px 10px; border-radius:4px; font-size:0.82rem;">User Config</span>
+    </div>
+    <p style="font-size:0.88rem; color:var(--text-light);">The API uses standard HTTP methods (GET, PUT, POST, DELETE) and returns JSON. It is version-independent and backward-compatible.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MODULES -->
+<!-- ============================================================ -->
+<div class="section" id="modules">
+  <div class="section-title">Replication Modules</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Capture</h3>
+    <p>The Capture module continuously reads changes from the source database transaction logs (CDC). Key parameters:</p>
+    <table>
+      <thead><tr><th>Parameter</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>Coalesce</code></td><td>Merge multiple changes to same row into single operation</td></tr>
+        <tr><td><code>NoBeforeUpdate</code></td><td>Skip capturing before-image of updated rows</td></tr>
+        <tr><td><code>HashBuckets</code> / <code>HashKey</code></td><td>Partition captured changes for parallel processing</td></tr>
+        <tr><td><code>IgnoreCondition</code></td><td>Filter out changes matching a condition</td></tr>
+        <tr><td><code>DeleteAfterCapture</code></td><td>Remove source rows after capture (for queue tables)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Integrate</h3>
+    <p>The Integrate module applies captured changes to the target location. Supports various target types including databases, Kafka, and file systems.</p>
+    <table>
+      <thead><tr><th>Parameter</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>Commit frequency</td><td>Control batch size for target writes</td></tr>
+        <tr><td>Methods</td><td>INSERT/UPDATE/DELETE, MERGE, or bulk operations</td></tr>
+        <tr><td>Kafka Topic/MessageKey</td><td>Target Kafka topic and partitioning key</td></tr>
+        <tr><td>FileFormat</td><td>XML, CSV, Avro, JSON, Parquet with compression</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Actions Reference</h3>
+    <p>Actions define replication behavior. A channel requires at minimum <strong>Capture</strong> (on source) and <strong>Integrate</strong> (on target).</p>
+    <table>
+      <thead><tr><th>Action</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><strong>AdaptDDL</strong></td><td>Automatic schema adaptation (add/drop tables, alter columns)</td></tr>
+        <tr><td><strong>AgentPlugin</strong></td><td>Execute external operations (scripts, stored procedures)</td></tr>
+        <tr><td><strong>Capture</strong></td><td>Change data capture from source</td></tr>
+        <tr><td><strong>CollisionDetect</strong></td><td>Conflict detection and resolution for bi-directional replication</td></tr>
+        <tr><td><strong>ColumnProperties</strong></td><td>Column-level transformations and data type mappings</td></tr>
+        <tr><td><strong>DbObjectGeneration</strong></td><td>Auto-create triggers, procedures, tables on target</td></tr>
+        <tr><td><strong>DbSequence</strong></td><td>Database sequence management during replication</td></tr>
+        <tr><td><strong>Environment</strong></td><td>Set environment variables for replication jobs</td></tr>
+        <tr><td><strong>FileFormat</strong></td><td>File-based output format (Avro, Parquet, CSV, JSON)</td></tr>
+        <tr><td><strong>Integrate</strong></td><td>Apply changes to target location</td></tr>
+        <tr><td><strong>Restrict</strong></td><td>Filter/partition data during replication</td></tr>
+        <tr><td><strong>Scheduling</strong></td><td>Job timing, start times, latency SLA</td></tr>
+        <tr><td><strong>TableProperties</strong></td><td>Table-level transformations and schema mappings</td></tr>
+        <tr><td><strong>Transform</strong></td><td>Custom data transformations via scripts</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:12px; font-size:0.88rem;">Full action reference: <a href="https://fivetran.com/docs/hvr6/action-reference" target="_blank" style="color:var(--primary);">fivetran.com/docs/hvr6/action-reference</a></p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CLI -->
+<!-- ============================================================ -->
+<div class="section" id="cli">
+  <div class="section-title">Command Line Interface</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Key HVR Commands</h3>
+    <p>All commands are in <code>/usr/hvr/hvr_home/bin/</code>. Run as user <code>hvr</code> with environment variables set.</p>
+
+    <h4>Environment Setup</h4>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>export HVR_HOME=/usr/hvr/hvr_home
+export HVR_CONFIG=/usr/hvr/hvr_config
+export HVR_TMP=/usr/hvr/hvr_tmp
+export PATH=$HVR_HOME/bin:$PATH</code></pre></div>
+
+    <h4>Common Commands</h4>
+    <table>
+      <thead><tr><th>Command</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>hvrhubserver</code></td><td>Start/manage the hub server</td></tr>
+        <tr><td><code>hvractivate</code></td><td>Activate replication on a channel</td></tr>
+        <tr><td><code>hvrcompare</code></td><td>Compare source and target data</td></tr>
+        <tr><td><code>hvrcontrol</code></td><td>Start/stop/manage replication jobs</td></tr>
+        <tr><td><code>hvragent</code></td><td>Manage HVR agents</td></tr>
+        <tr><td><code>hvragentconfig</code></td><td>Configure agent connections</td></tr>
+        <tr><td><code>hvragenttest</code></td><td>Test agent connectivity</td></tr>
+        <tr><td><code>hvralert</code></td><td>Manage alert definitions</td></tr>
+        <tr><td><code>hvrcrypt</code></td><td>Encrypt/decrypt credentials</td></tr>
+        <tr><td><code>hvradapt</code></td><td>Adapt table definitions (DDL sync)</td></tr>
+      </tbody>
+    </table>
+
+    <h4>Example: Check Hub Status</h4>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># As user hvr
+su - hvr
+export HVR_HOME=/usr/hvr/hvr_home
+export HVR_CONFIG=/usr/hvr/hvr_config
+$HVR_HOME/bin/hvrcontrol -h hvrhub list</code></pre></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- POSTGRESQL REPOSITORY -->
+<!-- ============================================================ -->
+<div class="section" id="repository">
+  <div class="section-title">PostgreSQL Repository</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Overview</h3>
+    <p>HVR uses a local PostgreSQL 14 instance as its metadata repository. This database stores all hub configuration, channel definitions, location settings, replication state, event history, and job metadata.</p>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Version</td><td>PostgreSQL 14.20</td></tr>
+        <tr><td>Service</td><td><code>postgresql-14</code> (systemd)</td></tr>
+        <tr><td>Database Name</td><td><code>hvr6</code></td></tr>
+        <tr><td>OS User</td><td><code>postgres</code></td></tr>
+        <tr><td>Binaries</td><td><code>/usr/pgsql-14/bin/</code></td></tr>
+        <tr><td>Data Directory</td><td><code>/var/lib/pgsql/14/data/</code></td></tr>
+        <tr><td>Listen</td><td><code>localhost:5432</code> (local only)</td></tr>
+        <tr><td>Size</td><td>~576 MB</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">PostgreSQL only listens on localhost. It is not exposed to the network. HVR connects via Unix socket as the <code>hvr</code> user.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Service Management</h3>
+    <p>The cockpit provides <strong>Start</strong>, <strong>Stop</strong>, and <strong>Restart</strong> controls for the <code>postgresql-14</code> systemd service on the hub server.</p>
+    <table>
+      <thead><tr><th>Action</th><th>Auth</th><th>Behaviour</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Start</strong></td><td>None</td><td>Enables and starts <code>postgresql-14</code>. Reports if already running.</td></tr>
+        <tr><td><strong>Stop</strong></td><td>Master password</td><td>Stops <strong>and disables</strong> <code>postgresql-14</code> (prevents auto-restart). HVR Hub will lose its repository connection &mdash; all replication stops.</td></tr>
+        <tr><td><strong>Restart</strong></td><td>Master password</td><td>Restarts <code>postgresql-14</code> and re-enables self-healing. HVR connections are briefly interrupted.</td></tr>
+      </tbody>
+    </table>
+    <div class="warn-box"><strong>Caution:</strong> Stopping PostgreSQL will cause the HVR Hub Server to lose all metadata access. All active replication channels will fail until PostgreSQL is restarted.</div>
+
+    <h4>Manual Service Control (CLI)</h4>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Check status
+systemctl status postgresql-14 --no-pager
+
+# Start (enable self-healing)
+systemctl enable postgresql-14 && systemctl start postgresql-14
+
+# Stop (disable self-healing)
+systemctl stop postgresql-14 && systemctl disable postgresql-14
+
+# Restart
+systemctl restart postgresql-14</code></pre></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Backup</h3>
+    <p>Database backups use <code>pg_dump</code> in custom format (<code>-Fc</code>) for efficient compression and selective restore. Each backup is written to <strong>two locations</strong> simultaneously:</p>
+    <table>
+      <thead><tr><th>Location</th><th>Path</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td>Local</td><td><code>/usr/hvr/hvr_config/backup/</code></td><td>Primary backup, fast restore</td></tr>
+        <tr><td>NFS (/media)</td><td><code>/media/HVR/</code></td><td>Secondary copy on persistent disk, survives VM rebuild</td></tr>
+      </tbody>
+    </table>
+
+    <h4>From the Cockpit</h4>
+    <p>Click <strong>Backup Now</strong> in the PostgreSQL status card. The backup runs in the background and typically completes in a few seconds.</p>
+
+    <h4>Manual Backup (CLI)</h4>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># SSH to the hub server
+ssh root@10.128.15.240
+
+# Create backup directories
+mkdir -p /usr/hvr/hvr_config/backup /media/HVR
+chmod 777 /usr/hvr/hvr_config/backup /media/HVR
+
+# Run pg_dump (custom format for efficient restore)
+BKNAME=hvr6_$(date +%Y%m%d_%H%M%S).dump
+su - postgres -c '/usr/pgsql-14/bin/pg_dump -Fc hvr6' > /usr/hvr/hvr_config/backup/$BKNAME
+
+# Copy to secondary location
+cp /usr/hvr/hvr_config/backup/$BKNAME /media/HVR/$BKNAME
+chown hvr:hvr /usr/hvr/hvr_config/backup/$BKNAME /media/HVR/$BKNAME
+
+# Verify both copies
+ls -lh /usr/hvr/hvr_config/backup/$BKNAME /media/HVR/$BKNAME</code></pre></div>
+
+    <div class="warn-box"><strong>Important:</strong> Always create a database backup before applying HVR updates. The cockpit does not automatically back up the database during the update process &mdash; only the <code>hvr_home</code> directory is backed up.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Restore</h3>
+    <p>Restoring from a backup requires stopping the HVR Hub Server first, as active connections prevent a clean restore.</p>
+
+    <h4>From the Cockpit</h4>
+    <p>Click <strong>Restore</strong> in the PostgreSQL status card. Select a backup from the list, confirm the operation, and enter the master password. The cockpit automatically stops the hub, restores, re-enables self-healing, and restarts.</p>
+
+    <h4>Manual Restore (CLI)</h4>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Stop HVR Hub Server
+systemctl stop hvrhubserver
+
+# Restore (--clean drops and recreates objects)
+su - postgres -c '/usr/pgsql-14/bin/pg_restore --clean --if-exists -d hvr6 /usr/hvr/hvr_config/backup/hvr6_YYYYMMDD_HHMMSS.dump'
+
+# Re-enable and restart
+systemctl enable hvrhubserver
+systemctl start hvrhubserver
+
+# Verify
+systemctl status hvrhubserver --no-pager</code></pre></div>
+
+    <div class="warn-box"><strong>Downtime:</strong> Restore requires stopping the hub. All replication channels will pause. They resume automatically when the service restarts.</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- UPDATES & UPGRADES -->
+<!-- ============================================================ -->
+<div class="section" id="updates">
+  <div class="section-title">Updates &amp; Upgrades</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Overview</h3>
+    <p>HVR Hub updates are managed through the cockpit's <strong>HVR Updates</strong> section. The process supports both upgrades and downgrades by uploading a Fivetran HVR release package (<code>.tar.gz</code>) and applying it to the running installation.</p>
+
+    <div class="info-box">
+      <strong>Release packages</strong> are available from <a href="https://fivetran.com/docs/hvr6/release-notes" target="_blank" style="color:var(--primary);">Fivetran HVR 6 Release Notes</a>. Download the <code>hub_and_agent_linux_glibc2.12-x64-64bit</code> variant for this server.
+    </div>
+
+    <h4>Package Format</h4>
+    <p>Release packages are <code>.tar.gz</code> compressed archives containing the full HVR home directory. Each package includes a <code>hvr.ver</code> file with the version string (e.g., <code>Fivetran HVR 6.2.5/5 (linux_glibc2.12-x64-64bit)</code>).</p>
+    <p style="font-size:0.88rem; color:var(--text-light); margin-top:8px;">Example filename: <code>fivetran-6.1.0_94-hub_and_agent-linux_glibc2.12-x64-64bit-ga_patch.tar.gz</code></p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Update Workflow</h3>
+    <p>The cockpit provides a 4-step workflow for applying updates:</p>
+
+    <table>
+      <thead><tr><th>Step</th><th>Action</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1a. Upload</strong></td><td>Upload Package</td><td>Select a <code>.tar.gz</code> package from your local machine. The file is streamed to the web server in 64&nbsp;KB chunks (supports files up to 500&nbsp;MB), then SCP'd to the hub's staging directory at <code>/usr/hvr/hvr_config/download/</code>.</td></tr>
+        <tr><td><strong>1b. Download</strong></td><td>Download from URL</td><td>Paste a direct URL to a <code>.tar.gz</code> package. The hub server downloads it directly via <code>curl</code> into the staging directory &mdash; faster than uploading through the browser for large files.</td></tr>
+        <tr><td><strong>2. Check</strong></td><td>Check Updates</td><td>Compares the running version (from <code>/usr/hvr/hvr_home/hvr.ver</code>) against the staged package version (extracted from the tar). Reports upgrade, downgrade, or same version.</td></tr>
+        <tr><td><strong>3. Apply</strong></td><td>Apply Update</td><td>Requires master password. Stops the hub service, creates a timestamped backup of <code>hvr_home</code>, extracts the package, fixes ownership, and restarts the service.</td></tr>
+        <tr><td><strong>4. Delete</strong></td><td>Delete Staged</td><td>Removes all staged <code>.tar.gz</code> packages from the download directory.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Apply Update &mdash; Detailed Steps</h3>
+    <p>When you click <strong>Apply Update</strong> in the cockpit, the following commands execute on the hub server via SSH:</p>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># 1. Stop the HVR Hub service
+systemctl stop hvrhubserver
+
+# 2. Create a timestamped backup of the current installation
+cp -a /usr/hvr/hvr_home /usr/hvr/hvr_home.backup.$(date +%Y%m%d_%H%M%S)
+
+# 3. Extract the new package over the existing installation
+cd /usr/hvr/hvr_home
+tar xzf /usr/hvr/hvr_config/download/&lt;package&gt;.tar.gz
+
+# 4. Fix file ownership
+chown -R hvr:hvr /usr/hvr/hvr_home
+
+# 5. Restart the service
+systemctl start hvrhubserver</code></pre></div>
+
+    <div class="warn-box">
+      <strong>Downtime:</strong> The hub server is offline during the update (typically 30&ndash;60 seconds). All active replication channels (CDC Capture, Integrate, Refresh) will stop. Channels resume automatically once the service restarts.
+    </div>
+
+    <div class="warn-box">
+      <strong>Master password required:</strong> The apply operation requires the vault master password. A detailed confirmation dialog lists all actions before proceeding.
+    </div>
+
+    <div class="info-box">
+      <strong>Self-healing:</strong> After the update, the service is explicitly re-enabled (<code>systemctl enable hvrhubserver</code>) to ensure <code>Restart=always</code> is active. If the update fails mid-way, the error handler also re-enables and attempts to restart the service automatically.
+    </div>
+
+    <h4>Rollback Procedure</h4>
+    <p>If an update fails or causes issues, restore from the automatic backup:</p>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Stop the service
+systemctl stop hvrhubserver
+
+# List available backups
+ls -la /usr/hvr/hvr_home.backup.*
+
+# Restore from the most recent backup
+rm -rf /usr/hvr/hvr_home
+cp -a /usr/hvr/hvr_home.backup.YYYYMMDD_HHMMSS /usr/hvr/hvr_home
+
+# Restart
+systemctl start hvrhubserver</code></pre></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Manual Update (CLI)</h3>
+    <p>If the cockpit is unavailable, you can perform the update manually via SSH:</p>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># SSH to the hub server
+ssh root@10.128.15.240
+
+# Upload the package (from your local machine)
+scp fivetran-*.tar.gz root@10.128.15.240:/usr/hvr/hvr_config/download/
+chown hvr:hvr /usr/hvr/hvr_config/download/*.tar.gz
+
+# Check the staged version
+tar xzf /usr/hvr/hvr_config/download/*.tar.gz -O hvr.ver
+
+# Compare with running version
+cat /usr/hvr/hvr_home/hvr.ver
+
+# Apply (stop, backup, extract, start)
+systemctl stop hvrhubserver
+cp -a /usr/hvr/hvr_home /usr/hvr/hvr_home.backup.$(date +%Y%m%d_%H%M%S)
+cd /usr/hvr/hvr_home && tar xzf /usr/hvr/hvr_config/download/*.tar.gz
+chown -R hvr:hvr /usr/hvr/hvr_home
+systemctl start hvrhubserver
+
+# Verify
+cat /usr/hvr/hvr_home/hvr.ver
+systemctl status hvrhubserver --no-pager</code></pre></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Staging Directory</h3>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Path</td><td><code>/usr/hvr/hvr_config/download/</code></td></tr>
+        <tr><td>Owner</td><td><code>hvr:hvr</code></td></tr>
+        <tr><td>Format</td><td><code>.tar.gz</code> (gzip-compressed tar)</td></tr>
+        <tr><td>Cleanup</td><td>Use cockpit "Delete Staged" or <code>rm -f /usr/hvr/hvr_config/download/*.tar.gz</code></td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">Only the most recent <code>.tar.gz</code> file is used for version comparison and apply operations. Upload a new package to replace the staged one.</div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Version Format</h3>
+    <p>HVR version strings follow the pattern: <code>Fivetran HVR major.minor.patch/build (platform)</code></p>
+    <table>
+      <thead><tr><th>Component</th><th>Example</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>Major</td><td><code>6</code></td><td>Major version (HVR 6)</td></tr>
+        <tr><td>Minor</td><td><code>2</code></td><td>Feature release</td></tr>
+        <tr><td>Patch</td><td><code>5</code></td><td>Bug fix release</td></tr>
+        <tr><td>Build</td><td><code>5</code></td><td>Build number within patch</td></tr>
+        <tr><td>Platform</td><td><code>linux_glibc2.12-x64-64bit</code></td><td>Target platform</td></tr>
+      </tbody>
+    </table>
+    <p style="font-size:0.88rem; color:var(--text-light); margin-top:8px;">The cockpit compares version tuples <code>(major, minor, patch, build)</code> to determine if the staged package is an upgrade, downgrade, or the same version.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TROUBLESHOOTING -->
+<!-- ============================================================ -->
+<div class="section" id="troubleshooting">
+  <div class="section-title">Troubleshooting</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Common Issues</h3>
+    <table>
+      <thead><tr><th>Issue</th><th>Resolution</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Hub server not starting</td>
+          <td>Check logs: <code>journalctl -u hvrhubserver --no-pager -n 50</code><br>Verify PostgreSQL is running: <code>systemctl status postgresql-14</code></td>
+        </tr>
+        <tr>
+          <td>Web UI not accessible</td>
+          <td>Verify port 4340 is listening: <code>ss -tlnp | grep 4340</code><br>Check GCP firewall allows port 4340 from your IP</td>
+        </tr>
+        <tr>
+          <td>Proxy agent not connecting</td>
+          <td>Check Java process: <code>ps aux | grep proxyagent</code><br>Verify proxy config: <code>cat /home/hvr/hvr_config/proxy/proxyagent.conf</code></td>
+        </tr>
+        <tr>
+          <td>NFS mount /archive unavailable</td>
+          <td>Check sapidesecc8 is reachable: <code>ping sapidesecc8</code><br>Remount: <code>mount -a</code></td>
+        </tr>
+        <tr>
+          <td>/media volume running out of space</td>
+          <td>Check usage: <code>du -sh /media/*</code><br>Clean old staging data or extend LVM volume</td>
+        </tr>
+        <tr>
+          <td>Service keeps restarting</td>
+          <td>Disable auto-restart: <code>systemctl disable hvrhubserver</code><br>Then stop: <code>systemctl stop hvrhubserver</code><br>Check logs for crash cause</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>Log Locations</h4>
+    <table>
+      <thead><tr><th>Log</th><th>Path</th></tr></thead>
+      <tbody>
+        <tr><td>Hub Server Logs</td><td><code>/usr/hvr/hvr_config/logs/</code></td></tr>
+        <tr><td>Log Archives</td><td><code>/usr/hvr/hvr_config/logarchives/</code> (548 archived logs)</td></tr>
+        <tr><td>Systemd Journal</td><td><code>journalctl -u hvrhubserver</code></td></tr>
+        <tr><td>Metering Data</td><td><code>/usr/hvr/hvr_config/metering/</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> External Resources</h3>
+    <ul style="margin:8px 0 0 0; list-style:none; padding:0;">
+      <li style="padding:8px 0; border-bottom:1px solid var(--border);"><a href="https://fivetran.com/docs/hvr6" target="_blank" style="color:var(--primary); font-weight:500;">Fivetran HVR 6 Documentation</a> &mdash; Complete official documentation</li>
+      <li style="padding:8px 0; border-bottom:1px solid var(--border);"><a href="https://fivetran.com/docs/hvr6/getting-started" target="_blank" style="color:var(--primary); font-weight:500;">Getting Started Guide</a> &mdash; Architecture, installation, first replication</li>
+      <li style="padding:8px 0; border-bottom:1px solid var(--border);"><a href="https://fivetran.com/docs/hvr6/action-reference" target="_blank" style="color:var(--primary); font-weight:500;">Action Reference</a> &mdash; Complete action and parameter documentation</li>
+      <li style="padding:8px 0; border-bottom:1px solid var(--border);"><a href="https://fivetran.com/docs/hvr6/rest-api" target="_blank" style="color:var(--primary); font-weight:500;">REST API Reference</a> &mdash; ~200 endpoints for automation</li>
+      <li style="padding:8px 0; border-bottom:1px solid var(--border);"><a href="https://fivetran.com/docs/hvr6/supported-platforms" target="_blank" style="color:var(--primary); font-weight:500;">Supported Platforms</a> &mdash; OS and DBMS compatibility matrix</li>
+      <li style="padding:8px 0; border-bottom:1px solid var(--border);"><a href="https://fivetran.com/docs/hvr6/faq" target="_blank" style="color:var(--primary); font-weight:500;">FAQ &amp; Knowledge Base</a> &mdash; Troubleshooting, best practices, how-to guides</li>
+      <li style="padding:8px 0;"><a href="https://fivetran.com/docs/hvr6/release-notes" target="_blank" style="color:var(--primary); font-weight:500;">Release Notes</a> &mdash; HVR 6.x release history and downloads</li>
+    </ul>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
+</div>
+
+<script>
+function copyCode(btn) {
+  var pre = btn.closest('.pre-wrap').querySelector('pre');
+  var text = pre.textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP on HANA MAR Calculation &mdash; Documentation</title>
+<style>
+  :root {
+    --primary: #8B0000;
+    --primary-light: #B22222;
+    --primary-dark: #5C0000;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --code-bg: #f1f3f5;
+    --accent-bg: #fce4e4;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .header { background: linear-gradient(135deg, #8B0000 0%, #5C0000 100%); color: white; padding: 40px 0; text-align: center; }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  .nav { background: white; border-bottom: 1px solid var(--border); padding: 12px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+  .nav-inner { max-width: 900px; margin: 0 auto; padding: 0 20px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .nav a { text-decoration: none; color: var(--primary-dark); padding: 6px 14px; border-radius: 6px; font-size: 0.88rem; font-weight: 500; transition: background 0.2s; }
+  .nav a:hover { background: var(--accent-bg); }
+  .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+  .section { margin-bottom: 40px; }
+  .section-title { font-size: 1.5rem; font-weight: 700; color: var(--primary-dark); border-bottom: 3px solid var(--primary); padding-bottom: 8px; margin-bottom: 20px; }
+  .card { background: var(--card-bg); border-radius: 10px; border: 1px solid var(--border); padding: 24px; margin-bottom: 20px; }
+  .card h3 { font-size: 1.15rem; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; color: var(--primary-dark); }
+  .card h3 .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  p { margin-bottom: 12px; }
+  ul, ol { margin: 10px 0 10px 20px; }
+  li { margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 12px 0; }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--accent-bg); font-weight: 600; color: var(--primary-dark); font-size: 0.85rem; text-transform: uppercase; }
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.88rem; color: #5C0000; }
+  pre { background: #1e293b; color: #e2e8f0; padding: 16px 20px; border-radius: 8px; font-size: 0.85rem; overflow-x: auto; margin: 12px 0; line-height: 1.6; }
+  .info-box { background: var(--accent-bg); border-left: 4px solid var(--primary); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 0.9rem; }
+  .footer { text-align: center; padding: 20px; color: var(--text-light); font-size: 0.82rem; border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>SAP on HANA MAR Calculation</h1>
+  <div class="subtitle">Monthly Activity Report &mdash; Table Activity Analysis for SAP HANA</div>
+</div>
+
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#modules">Modules</a>
+    <a href="#setup">Setup</a>
+    <a href="#workflow">Workflow</a>
+    <a href="#outputs">Outputs</a>
+    <a href="#reference">Reference</a>
+    <a href="https://github.com/fivetran/sap-hana-mar" target="_blank">GitHub</a>
+    <a href="/sap_skills/">Back to Portal</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- OVERVIEW -->
+<div class="section" id="overview">
+  <div class="section-title">Overview</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> What is MAR?</h3>
+    <p>The <strong>Monthly Activity Report (MAR)</strong> tool suite is a collection of Python utilities for analyzing SAP HANA table activity. It connects directly to SAP HANA databases to extract metadata, generate SQL queries for tracking INSERT and UPDATE operations by month, and categorize tables by size and data class.</p>
+    <p>The MAR data helps Fivetran understand:</p>
+    <ul>
+      <li><strong>Which tables are actively changing</strong> &mdash; by counting INSERTs and UPDATEs per month</li>
+      <li><strong>How tables relate to each other</strong> &mdash; primary keys, reference tables, join fields</li>
+      <li><strong>Table classification</strong> &mdash; SAP size categories and data classes (APPL0, APPL1, APPL2)</li>
+      <li><strong>Activity trends</strong> &mdash; monthly volume patterns for capacity planning</li>
+    </ul>
+    <div class="info-box">
+      <strong>GitHub:</strong> <a href="https://github.com/fivetran/sap-hana-mar" target="_blank" style="color:var(--primary-dark);">github.com/fivetran/sap-hana-mar</a>
+    </div>
+  </div>
+</div>
+
+<!-- MODULES -->
+<div class="section" id="modules">
+  <div class="section-title">Modules</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Module Overview</h3>
+    <table>
+      <thead><tr><th>Module</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>main.py</code></td><td>Entry point &mdash; orchestrates the full MAR pipeline</td></tr>
+        <tr><td><code>sql_generator.py</code></td><td>Generates SQL SELECT statements with monthly GROUP BY for tracking activity</td></tr>
+        <tr><td><code>mar_sql_stmt_create.py</code></td><td>Creates MAR-specific SQL with INSERT/UPDATE counts per month</td></tr>
+        <tr><td><code>create_table_json.py</code></td><td>Extracts table metadata from HANA: primary keys, reference tables, join fields</td></tr>
+        <tr><td><code>table_size_and_category.py</code></td><td>Queries SAP metadata (DD09L, DD07T, DARTT) for table size categories and data classes</td></tr>
+        <tr><td><code>hana_metadata.py</code></td><td>Extracts table metadata directly from HANA system views</td></tr>
+        <tr><td><code>load_meta_data_tables.py</code></td><td>Loads metadata tables for batch processing</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> sql_generator.py</h3>
+    <p>Generates SQL queries that count rows by month using date columns. For each table, it creates a SELECT statement that groups records by year-month based on configurable date fields.</p>
+    <pre># Example generated SQL:
+SELECT
+  TO_VARCHAR(ERDAT, 'YYYY-MM') AS MONTH,
+  COUNT(*) AS ROW_COUNT
+FROM SAPS4H.AUFK
+GROUP BY TO_VARCHAR(ERDAT, 'YYYY-MM')
+ORDER BY MONTH;</pre>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> create_table_json.py</h3>
+    <p>Auto-discovers table relationships by querying SAP HANA metadata:</p>
+    <ul>
+      <li>Queries <code>DD03L</code> (table field definitions) to extract primary keys</li>
+      <li>Reads <code>CHECKTABLE</code> column to find reference tables automatically</li>
+      <li>Finds common primary key fields between related tables for JOIN conditions</li>
+      <li>Supports explicit join specifications using <code>TABLE:JOIN_TABLE</code> syntax</li>
+    </ul>
+    <pre># Auto-detect reference tables
+python create_table_json.py --input raw_table_list.json
+
+# Extract date fields to CSV for configuration
+python create_table_json.py --input raw_table_list.json --date-fields-csv date_fields.csv</pre>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> table_size_and_category.py</h3>
+    <p>Classifies tables using SAP metadata tables:</p>
+    <table>
+      <thead><tr><th>SAP Table</th><th>Content</th></tr></thead>
+      <tbody>
+        <tr><td><code>DD09L</code></td><td>Table technical settings (size category, data class)</td></tr>
+        <tr><td><code>DD07T</code></td><td>Domain value descriptions (size category names)</td></tr>
+        <tr><td><code>DARTT</code></td><td>Data class descriptions</td></tr>
+      </tbody>
+    </table>
+    <p>Key SAP data classes:</p>
+    <ul>
+      <li><strong>APPL0</strong> &mdash; Master data (e.g., MARA, KNA1, LFA1)</li>
+      <li><strong>APPL1</strong> &mdash; Transaction data (e.g., BKPF, BSEG, EKKO) &mdash; most relevant for MAR</li>
+      <li><strong>APPL2</strong> &mdash; Organizational data (e.g., T001, T001W)</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div class="section" id="setup">
+  <div class="section-title">Setup</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Installation</h3>
+    <pre># Clone the repository
+git clone https://github.com/fivetran/sap-hana-mar.git
+cd sap-hana-mar
+
+# Install dependencies
+pip install -r requirements.txt</pre>
+    <p>Dependencies include <code>hdbcli</code> (SAP HANA client for Python), <code>pandas</code>, and standard libraries.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Configuration</h3>
+    <pre># Create config from template
+cp hana_config.template.json hana_config.json</pre>
+    <p>Edit <code>hana_config.json</code>:</p>
+    <pre>{
+    "host": "sapidess4",
+    "port": 30015,
+    "user": "SAPHANADB",
+    "password": "your_password"
+}</pre>
+    <div class="info-box">
+      <strong>Security:</strong> <code>hana_config.json</code> is in <code>.gitignore</code>. Never commit credentials. For the SAP HANA password, check the encrypted vault on sapidesecc8 (key: <code>sapidess4_hana</code>).
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Input Files</h3>
+    <table>
+      <thead><tr><th>File</th><th>Purpose</th><th>Format</th></tr></thead>
+      <tbody>
+        <tr><td><code>raw_table_list.template.json</code></td><td>List of tables to analyze</td><td>JSON array: <code>["AUFK", "AFKO:AUFK"]</code></td></tr>
+        <tr><td><code>table_date_configs/</code></td><td>Per-table date column configuration</td><td>JSON files with date field mappings</td></tr>
+        <tr><td><code>appl1_tables.json</code></td><td>Pre-filtered APPL1 (transaction) tables</td><td>JSON array of table names</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- WORKFLOW -->
+<div class="section" id="workflow">
+  <div class="section-title">Workflow</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Typical MAR Calculation Flow</h3>
+    <ol>
+      <li><strong>Identify tables</strong> &mdash; Create <code>raw_table_list.json</code> with tables to analyze</li>
+      <li><strong>Extract metadata</strong> &mdash; Run <code>create_table_json.py</code> to auto-discover PKs, reference tables, date fields</li>
+      <li><strong>Classify tables</strong> &mdash; Run <code>table_size_and_category.py</code> to get size categories and data classes</li>
+      <li><strong>Configure dates</strong> &mdash; Review extracted date fields, select the appropriate date column per table</li>
+      <li><strong>Generate SQL</strong> &mdash; Run <code>main.py</code> to generate MAR SQL queries</li>
+      <li><strong>Execute on HANA</strong> &mdash; Run the generated SQL against HANA to get monthly counts</li>
+      <li><strong>Analyze results</strong> &mdash; Review monthly INSERT/UPDATE trends for each table</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Quick Start</h3>
+    <pre># 1. Configure HANA connection
+cp hana_config.template.json hana_config.json
+# Edit hana_config.json with your credentials
+
+# 2. Create table list
+cp raw_table_list.template.json raw_table_list.json
+# Edit with your tables: ["AUFK", "AFKO:AUFK", "BKPF", ...]
+
+# 3. Extract metadata and generate SQL
+python create_table_json.py --input raw_table_list.json
+python table_size_and_category.py --json raw_table_list.json
+python main.py</pre>
+  </div>
+</div>
+
+<!-- OUTPUTS -->
+<div class="section" id="outputs">
+  <div class="section-title">Outputs</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Generated Files</h3>
+    <table>
+      <thead><tr><th>Output</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>MAR SQL statements</td><td>Monthly activity count queries for each table, ready to execute on HANA</td></tr>
+        <tr><td><code>table_sizes.csv</code></td><td>Table size categories and data class classifications</td></tr>
+        <tr><td><code>appl1_tables.json</code></td><td>Filtered list of APPL1 (transaction) tables</td></tr>
+        <tr><td>Table JSON configs</td><td>Structured metadata: PKs, reference tables, join fields, date columns</td></tr>
+        <tr><td><code>date_fields.csv</code></td><td>Extracted date-type fields per table for configuration</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- REFERENCE -->
+<div class="section" id="reference">
+  <div class="section-title">Reference</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> SAP Metadata Tables Used</h3>
+    <table>
+      <thead><tr><th>Table</th><th>Description</th><th>Used By</th></tr></thead>
+      <tbody>
+        <tr><td><code>DD03L</code></td><td>Table field definitions (columns, types, keys, check tables)</td><td><code>create_table_json.py</code></td></tr>
+        <tr><td><code>DD09L</code></td><td>Table technical settings (size category, data class)</td><td><code>table_size_and_category.py</code></td></tr>
+        <tr><td><code>DD07T</code></td><td>Domain fixed value descriptions</td><td><code>table_size_and_category.py</code></td></tr>
+        <tr><td><code>DARTT</code></td><td>Data class descriptions</td><td><code>table_size_and_category.py</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Links</h3>
+    <ul style="list-style:none; padding:0;">
+      <li style="padding:8px 0; border-bottom:1px solid var(--border);"><a href="https://github.com/fivetran/sap-hana-mar" target="_blank" style="color:var(--primary-dark); font-weight:600;">GitHub Repository</a> &mdash; Source code and README</li>
+      <li style="padding:8px 0; border-bottom:1px solid var(--border);"><a href="/sap_skills/" style="color:var(--primary-dark); font-weight:600;">SAP Skills Portal</a> &mdash; All business process skills</li>
+      <li style="padding:8px 0;"><a href="/sap_skills/docs/SAP_Management_Cockpit.html" style="color:var(--primary-dark); font-weight:600;">Management Cockpit</a> &mdash; System landscape and operations</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
+</div>
+
+</body>
+</html>

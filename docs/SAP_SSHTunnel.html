@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSH Server — SAP Management Cockpit</title>
+<style>
+  :root {
+    --primary: #0f766e;
+    --primary-light: #14b8a6;
+    --primary-dark: #0d5c56;
+    --accent: #0f766e;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0f766e 0%, #0d5c56 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+    position: relative;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+
+  /* Navigation */
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary-dark);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #e6f5f4; }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: #e6f5f4;
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  tr:hover td { background: #f0fafa; }
+
+  /* Code */
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    margin: 12px 0;
+  }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: #c0392b;
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+
+  /* Copy button */
+  .pre-wrap { position: relative; }
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255,255,255,0.12);
+    color: #cdd6f4;
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 3px 12px;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    z-index: 2;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.22); }
+  .copy-btn.copied { background: #27ae60; color: white; border-color: #27ae60; }
+
+  /* Disk bar */
+  .disk-bar-bg {
+    background: #e9ecef;
+    border-radius: 4px;
+    height: 8px;
+    width: 100%;
+    overflow: hidden;
+  }
+  .disk-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s;
+  }
+  .disk-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.84rem;
+  }
+  .disk-row:last-child { border-bottom: none; }
+  .disk-mount { font-weight: 600; color: var(--text); min-width: 100px; }
+  .disk-info { color: var(--text-light); font-size: 0.78rem; white-space: nowrap; }
+
+  /* Link list */
+  .link-list { list-style: none; padding: 0; }
+  .link-list li { padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .link-list li:last-child { border-bottom: none; }
+  .link-list a { color: var(--primary-dark); text-decoration: none; font-weight: 500; }
+  .link-list a:hover { text-decoration: underline; }
+  .link-list .link-desc { color: var(--text-light); font-size: 0.85rem; }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  .back-link { position: absolute; top: 16px; right: 24px; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .back-link:hover { color: #fff; text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <a href="/sap_skills/" class="back-link">Go back to the main page</a>
+  <h1>SSH Server</h1>
+  <div class="subtitle">SSH Tunnel Server for SAP Connectivity</div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#system">System Info</a>
+    <a href="#status">Status</a>
+    <a href="#ssh-access">SSH Access</a>
+    <a href="#links">Links</a>
+    <a href="SAP_SSHTunnel_Guide.html">Guide</a>
+    <a href="SAP_Management_Cockpit.html">Back to Cockpit</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- SYSTEM INFO -->
+<!-- ============================================================ -->
+<div class="section" id="system">
+  <div class="section-title" style="display:flex; align-items:center; justify-content:space-between;">
+    System Information
+    <button onclick="refreshAll()" id="refresh-btn" style="font-size:0.8rem; padding:6px 14px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Refresh</button>
+  </div>
+
+  <div style="display:flex; gap:20px; flex-wrap:wrap;">
+    <div class="card" style="flex:2; min-width:480px;">
+      <h3><span class="dot" style="background: var(--primary)"></span> Server Details</h3>
+      <table>
+        <thead>
+          <tr><th>Property</th><th>Value</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Hostname</td><td><code>ts-sap-hana-s4-ssh-tunnel</code></td></tr>
+          <tr><td>Role</td><td>SSH Tunnel Server &mdash; Secure connectivity for SAP systems</td></tr>
+          <tr><td>OS</td><td><span id="os-version" style="color:var(--text-light);">Loading...</span> <button onclick="sshConnect()" id="ssh-btn" style="display:inline-block; margin-left:12px; padding:3px 12px; background:#0f766e; color:white; border:none; border-radius:5px; font-size:0.78rem; font-weight:600; cursor:pointer;">SSH</button></td></tr>
+          <tr><td>CPUs</td><td id="hw-cpus" style="color:var(--text-light);">Loading...</td></tr>
+          <tr><td>Memory</td><td id="hw-memory" style="color:var(--text-light);">Loading...</td></tr>
+          <tr><td>Internal IP</td><td><code>10.142.0.37</code></td></tr>
+          <tr><td>External IP</td><td><code>35.229.110.30</code></td></tr>
+          <tr><td>GCP Zone</td><td>us-east1-b</td></tr>
+          <tr><td>GCP Instance</td><td><code>ts-sap-hana-s4-ssh-tunnel</code></td></tr>
+
+          <tr><td>Uptime</td><td id="hw-uptime" style="color:var(--text-light);">Loading...</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="card" style="flex:1; min-width:260px;">
+      <h3 style="display:flex; align-items:center; justify-content:space-between;">
+        <span><span class="dot" style="background: var(--primary)"></span> Disk Space</span>
+        <button onclick="loadDiskSpace()" id="disk-refresh-btn" style="font-size:0.72rem; padding:4px 10px; background:var(--primary); color:white; border:none; border-radius:5px; cursor:pointer; font-weight:600;">Refresh</button>
+      </h3>
+      <div id="disk-space-content" style="font-size:0.88rem; color:var(--text-light);">Loading...</div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- STATUS -->
+<!-- ============================================================ -->
+<div class="section" id="status">
+  <div class="section-title" style="display:flex; align-items:center; justify-content:space-between;">
+    Status
+    <button onclick="checkStatus()" id="status-btn" style="font-size:0.8rem; padding:6px 14px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Check Status</button>
+  </div>
+
+  <div style="display:flex; gap:20px; flex-wrap:wrap;">
+    <div class="card" style="flex:1; min-width:250px; text-align:center;">
+      <h3 style="justify-content:center;"><span id="ssh-dot" class="dot" style="background: #6c757d"></span> SSH Service</h3>
+      <div id="ssh-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
+      <div id="ssh-detail" style="font-size:0.85rem; color:var(--text-light);">Click "Check Status" to verify</div>
+      <div style="margin-top:14px; display:flex; gap:8px; justify-content:center;">
+        <button id="ssh-start-btn" onclick="sshServiceControl('start')" style="font-size:0.78rem; padding:5px 14px; background:#27ae60; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Start</button>
+        <button id="ssh-stop-btn" onclick="sshServiceControl('stop')" style="font-size:0.78rem; padding:5px 14px; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Stop</button>
+        <button id="ssh-restart-btn" onclick="sshServiceControl('restart')" style="font-size:0.78rem; padding:5px 14px; background:#7c3aed; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Restart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SSH ACCESS -->
+<!-- ============================================================ -->
+<div class="section" id="ssh-access">
+  <div class="section-title">SSH Access</div>
+
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Add SSH Public Key</h3>
+    <p style="margin-bottom:10px; font-size:0.88rem; color:var(--text-light);">Paste a public key to authorize access for user <code>fivetran</code>. The key will be added to <code>~fivetran/.ssh/authorized_keys</code> if not already present.</p>
+    <textarea id="ssh-pubkey" rows="4" style="width:100%; font-family:monospace; font-size:0.82rem; padding:10px; border:1px solid var(--border); border-radius:6px; resize:vertical; background:var(--code-bg);" placeholder="ssh-rsa AAAA... user@host"></textarea>
+    <div style="margin-top:10px; display:flex; gap:10px; align-items:center;">
+      <button onclick="addSshKey()" id="ssh-key-btn" style="padding:7px 18px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85rem;">Add Key</button>
+      <span id="ssh-key-status" style="font-size:0.85rem; display:none;"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LINKS -->
+<!-- ============================================================ -->
+<div class="section" id="links">
+  <div class="section-title">Links</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Resources</h3>
+    <ul class="link-list">
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-east1-b/instances/ts-sap-hana-s4-ssh-tunnel?invt=AbtinQ&project=internal-sales" target="_blank" style="flex-shrink:0;">
+            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-east1-b/instances/ts-sap-hana-s4-ssh-tunnel?invt=AbtinQ&project=internal-sales" target="_blank">VM Settings</a>
+            <div class="link-desc">Google Cloud Compute Engine &mdash; ts-sap-hana-s4-ssh-tunnel</div>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- PASSWORD MODAL -->
+<div id="pwd-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+  <div style="background:white; border-radius:12px; padding:28px; max-width:360px; width:90%; box-shadow:0 8px 30px rgba(0,0,0,0.3);">
+    <div id="pwd-title" style="font-size:1rem; font-weight:700; color:var(--text); margin-bottom:14px;">Enter master password</div>
+    <input id="pwd-input" type="password" placeholder="Master password" style="width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:6px; font-size:0.95rem; outline:none; box-sizing:border-box;" onkeydown="if(event.key==='Enter')document.getElementById('pwd-ok').click();">
+    <div style="display:flex; gap:10px; margin-top:16px; justify-content:flex-end;">
+      <button onclick="closePwdModal(null)" style="padding:7px 18px; background:#e9ecef; color:var(--text); border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85rem;">Cancel</button>
+      <button id="pwd-ok" onclick="closePwdModal(document.getElementById('pwd-input').value)" style="padding:7px 18px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85rem;">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
+</div>
+
+<script>
+function copyCode(btn) {
+  var pre = btn.closest('.pre-wrap').querySelector('pre');
+  var text = pre.textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+var _pwdResolve = null;
+function askPassword(title) {
+  return new Promise(function(resolve) {
+    _pwdResolve = resolve;
+    document.getElementById('pwd-title').textContent = title || 'Enter master password';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-overlay').style.display = 'flex';
+    setTimeout(function() { document.getElementById('pwd-input').focus(); }, 100);
+  });
+}
+function closePwdModal(val) {
+  document.getElementById('pwd-overlay').style.display = 'none';
+  if (_pwdResolve) { _pwdResolve(val); _pwdResolve = null; }
+}
+
+function sshServiceControl(action) {
+  var btnId = 'ssh-' + action + '-btn';
+  var btn = document.getElementById(btnId);
+  var labels = {start: 'Start', stop: 'Stop', restart: 'Restart'};
+  var colors = {start: '#27ae60', stop: '#e74c3c', restart: '#7c3aed'};
+
+  function doAction(pwd) {
+    btn.textContent = action === 'start' ? 'Starting...' : action === 'stop' ? 'Stopping...' : 'Restarting...';
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    var payload = {action: action};
+    if (pwd) payload.master_password = pwd;
+    fetch('/sap_skills/api/sshtunnel_control', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        btn.textContent = data.message || (action + ' issued');
+        btn.style.background = 'var(--primary)';
+        setTimeout(function() { checkStatus(); }, 3000);
+      } else {
+        btn.textContent = data.message || 'Error';
+        btn.style.background = '#e74c3c';
+      }
+      setTimeout(function() { btn.textContent = labels[action]; btn.style.background = colors[action]; btn.disabled = false; btn.style.opacity = '1'; }, 4000);
+    })
+    .catch(function() {
+      btn.textContent = 'Error'; btn.style.background = '#e74c3c';
+      setTimeout(function() { btn.textContent = labels[action]; btn.style.background = colors[action]; btn.disabled = false; btn.style.opacity = '1'; }, 3000);
+    });
+  }
+
+  if (action === 'start') {
+    if (!confirm('Start SSH service?')) return;
+    doAction(null);
+  } else {
+    var msg = action === 'stop'
+      ? 'WARNING: Stopping SSH service.\n\nAll active SSH sessions will be terminated.'
+      : 'WARNING: Restarting SSH service.\n\nAll active SSH sessions will be briefly interrupted.';
+    if (!confirm(msg)) return;
+    askPassword('Enter master password to authorize ' + action.charAt(0).toUpperCase() + action.slice(1)).then(function(pwd) {
+      if (!pwd) return;
+      doAction(pwd);
+    });
+  }
+}
+
+function refreshAll() {
+  loadHardwareInfo();
+  loadDiskSpace();
+  checkStatus();
+}
+
+function loadHardwareInfo() {
+  fetch('/sap_skills/api/sshtunnel_hardware', )
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      document.getElementById('os-version').textContent = data.os || 'Unknown';
+      document.getElementById('os-version').style.color = 'var(--text)';
+      document.getElementById('hw-cpus').textContent = data.cpus || 'Unknown';
+      document.getElementById('hw-cpus').style.color = 'var(--text)';
+      document.getElementById('hw-memory').textContent = data.memory || 'Unknown';
+      document.getElementById('hw-memory').style.color = 'var(--text)';
+      document.getElementById('hw-uptime').textContent = data.uptime || 'Unknown';
+      document.getElementById('hw-uptime').style.color = 'var(--text)';
+    }
+  })
+  .catch(function() {
+    document.getElementById('os-version').textContent = 'Connection error';
+    document.getElementById('os-version').style.color = '#e74c3c';
+  });
+}
+
+function sshConnect() {
+  var btn = document.getElementById('ssh-btn');
+  btn.textContent = 'Connecting...';
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  fetch('/sap_skills/api/sshtunnel_ssh_credential')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      navigator.clipboard.writeText(data.password).then(function() {
+        btn.textContent = 'Password copied!';
+        btn.style.background = '#27ae60';
+        window.open('ssh://fivetran@35.229.110.30', '_blank');
+      });
+    } else {
+      btn.textContent = 'Error';
+      btn.style.background = '#e74c3c';
+    }
+    setTimeout(function() { btn.textContent = 'SSH'; btn.style.background = '#0f766e'; btn.disabled = false; btn.style.opacity = '1'; }, 3000);
+  })
+  .catch(function() {
+    btn.textContent = 'Error'; btn.style.background = '#e74c3c';
+    setTimeout(function() { btn.textContent = 'SSH'; btn.style.background = '#0f766e'; btn.disabled = false; btn.style.opacity = '1'; }, 3000);
+  });
+}
+
+function loadDiskSpace() {
+  fetch('/sap_skills/api/sshtunnel_disk', )
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var el = document.getElementById('disk-space-content');
+    if (data.status === 'ok' && data.disks) {
+      var html = '';
+      data.disks.forEach(function(d) {
+        var pct = parseInt(d.use_pct) || 0;
+        var color = pct > 90 ? '#e74c3c' : pct > 75 ? '#f39c12' : '#27ae60';
+        html += '<div class="disk-row">';
+        html += '<span class="disk-mount">' + d.mount + '</span>';
+        html += '<div style="flex:1;"><div class="disk-bar-bg"><div class="disk-bar-fill" style="width:' + pct + '%; background:' + color + ';"></div></div></div>';
+        html += '<span class="disk-info">' + d.used + ' / ' + d.size + ' (' + d.use_pct + ')</span>';
+        html += '</div>';
+      });
+      el.innerHTML = html;
+    } else {
+      el.textContent = 'Unable to load disk space';
+    }
+  })
+  .catch(function() {
+    document.getElementById('disk-space-content').textContent = 'Connection error';
+  });
+}
+
+function checkStatus() {
+  var btn = document.getElementById('status-btn');
+  btn.textContent = 'Checking...';
+  btn.disabled = true;
+
+  fetch('/sap_skills/api/sshtunnel_status', )
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.textContent = 'Check Status';
+    btn.disabled = false;
+    if (data.status === 'ok') {
+      // SSH status
+      var sshDot = document.getElementById('ssh-dot');
+      var sshSt = document.getElementById('ssh-status');
+      var sshDt = document.getElementById('ssh-detail');
+      if (data.ssh_reachable) {
+        sshDot.style.background = '#27ae60';
+        sshSt.textContent = 'Running';
+        sshSt.style.color = '#27ae60';
+        sshDt.textContent = 'SSH service is responding';
+      } else {
+        sshDot.style.background = '#e74c3c';
+        sshSt.textContent = 'Down';
+        sshSt.style.color = '#e74c3c';
+        sshDt.textContent = 'SSH service is not responding';
+      }
+
+    }
+  })
+  .catch(function() {
+    btn.textContent = 'Check Status';
+    btn.disabled = false;
+    document.getElementById('ssh-status').textContent = 'Error';
+    document.getElementById('ssh-status').style.color = '#e74c3c';
+  });
+}
+
+function addSshKey() {
+  var key = document.getElementById('ssh-pubkey').value.trim();
+  var btn = document.getElementById('ssh-key-btn');
+  var statusEl = document.getElementById('ssh-key-status');
+  if (!key) { statusEl.style.display = 'inline'; statusEl.style.color = '#e74c3c'; statusEl.textContent = 'Please paste a public key'; return; }
+  if (!key.startsWith('ssh-rsa ') && !key.startsWith('ssh-ed25519 ') && !key.startsWith('ecdsa-')) {
+    statusEl.style.display = 'inline'; statusEl.style.color = '#e74c3c'; statusEl.textContent = 'Invalid key format'; return;
+  }
+  btn.textContent = 'Adding...'; btn.disabled = true;
+  statusEl.style.display = 'inline'; statusEl.style.color = 'var(--text-light)'; statusEl.textContent = 'Adding key...';
+  fetch('/sap_skills/api/sshtunnel_add_key', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({key: key})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.textContent = 'Add Key'; btn.disabled = false;
+    statusEl.style.display = 'inline';
+    if (data.status === 'ok') {
+      statusEl.style.color = '#27ae60';
+      statusEl.textContent = data.message || 'Key added successfully';
+      document.getElementById('ssh-pubkey').value = '';
+    } else {
+      statusEl.style.color = '#e74c3c';
+      statusEl.textContent = data.message || 'Error adding key';
+    }
+  })
+  .catch(function(e) {
+    btn.textContent = 'Add Key'; btn.disabled = false;
+    statusEl.style.display = 'inline'; statusEl.style.color = '#e74c3c'; statusEl.textContent = 'Network error';
+  });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  loadHardwareInfo();
+  loadDiskSpace();
+  checkStatus();
+  setInterval(function() { checkStatus(); }, 300000);
+});
+</script>
+
+</body>
+</html>

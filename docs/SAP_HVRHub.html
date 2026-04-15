@@ -1,0 +1,1758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HVR Hub Server — SAP Management Cockpit</title>
+<style>
+  :root {
+    --primary: #0e7c86;
+    --primary-light: #14919b;
+    --primary-dark: #065a60;
+    --accent: #0e7c86;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  /* Header */
+  .header {
+    background: linear-gradient(135deg, #0e7c86 0%, #065a60 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+    position: relative;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+
+  /* Navigation */
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary-dark);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #e0f2f1; }
+
+  /* Container */
+  .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+
+  /* Section */
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  /* Tables */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: #e0f2f1;
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  tr:hover td { background: #e0f7fa; }
+
+  /* Code */
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    margin: 12px 0;
+  }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: #c0392b;
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+
+  /* Disk bar */
+  .disk-bar-bg {
+    background: #e9ecef;
+    border-radius: 4px;
+    height: 8px;
+    width: 100%;
+    overflow: hidden;
+  }
+  .disk-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s;
+  }
+  .disk-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.84rem;
+  }
+  .disk-row:last-child { border-bottom: none; }
+  .disk-mount { font-weight: 600; color: var(--text); min-width: 100px; }
+  .disk-info { color: var(--text-light); font-size: 0.78rem; white-space: nowrap; }
+
+  /* Link list */
+  .link-list {
+    list-style: none;
+    padding: 0;
+  }
+  .link-list li {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .link-list li:last-child { border-bottom: none; }
+  .link-list a {
+    color: var(--primary-dark);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .link-list a:hover { text-decoration: underline; }
+  .link-list .link-desc {
+    color: var(--text-light);
+    font-size: 0.85rem;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  .back-link { position: absolute; top: 16px; right: 24px; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .back-link:hover { color: #fff; text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <a href="/sap_skills/" class="back-link">Go back to the main page</a>
+  <h1>HVR Hub Server</h1>
+  <div class="subtitle">Fivetran HVR &mdash; Real-Time Data Replication</div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#system">System Info</a>
+    <a href="#status">Status</a>
+    <a href="#updates">HVR Updates</a>
+    <a href="#pg-updates">PG Updates</a>
+    <a href="#drivers">Drivers</a>
+    <a href="#links">Links</a>
+    <a href="SAP_HVRHub_Documentation.html">Documentation</a>
+    <a href="SAP_Management_Cockpit.html">Back to Cockpit</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- SYSTEM INFO -->
+<!-- ============================================================ -->
+<div class="section" id="system">
+  <div class="section-title" style="display:flex; align-items:center; justify-content:space-between;">
+    System Information
+    <button onclick="refreshDisk()" id="refresh-btn" style="font-size:0.8rem; padding:6px 14px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Refresh</button>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Server Details</h3>
+    <table>
+      <thead>
+        <tr><th>Property</th><th>Value</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Hostname</td><td><code>saphvrhub</code></td></tr>
+        <tr><td>Role</td><td>HVR Hub Server &mdash; Real-Time Data Replication</td></tr>
+        <tr><td>OS</td><td><span id="os-version" style="color:var(--text-light);">Loading...</span> <button onclick="sshConnect()" id="ssh-btn" style="display:inline-block; margin-left:12px; padding:3px 12px; background:#0284C7; color:white; border:none; border-radius:5px; font-size:0.78rem; font-weight:600; cursor:pointer;">SSH</button></td></tr>
+        <tr><td>CPUs</td><td id="hw-cpus" style="color:var(--text-light);">Loading...</td></tr>
+        <tr><td>Memory</td><td id="hw-memory" style="color:var(--text-light);">Loading...</td></tr>
+        <tr><td>HVR Release</td><td id="hvr-version" style="color:var(--text-light);">Loading...</td></tr>
+        <tr><td>IP Addresses</td><td>Private <code>10.128.15.240</code> &mdash; Public <code>35.209.174.110</code></td></tr>
+        <tr><td>GCP Zone</td><td>us-central1-a</td></tr>
+        <tr><td>GCP Instance</td><td><code>antonio-carbone-hvr-hub</code></td></tr>
+        <tr><td>HVR Home</td><td><code>/usr/hvr/hvr_home</code></td></tr>
+        <tr><td>HVR Config</td><td><code>/usr/hvr/hvr_config</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3 style="display:flex; align-items:center; justify-content:space-between;">
+      <span><span class="dot" style="background: var(--primary)"></span> File Systems</span>
+      <button onclick="refreshDisk()" id="disk-refresh-btn" style="font-size:0.72rem; padding:4px 10px; background:var(--primary); color:white; border:none; border-radius:5px; cursor:pointer; font-weight:600;">Refresh</button>
+    </h3>
+    <div id="disk-space-content" style="font-size:0.88rem; color:var(--text-light);">Loading...</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- STATUS -->
+<!-- ============================================================ -->
+<div class="section" id="status">
+  <div class="section-title" style="display:flex; align-items:center; justify-content:space-between;">
+    Status
+    <button onclick="checkStatus()" id="status-btn" style="font-size:0.8rem; padding:6px 14px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Check Status</button>
+  </div>
+
+  <div style="display:flex; gap:20px; flex-wrap:wrap;">
+    <div class="card" style="flex:1; min-width:300px; text-align:center;">
+      <h3 style="justify-content:center;"><span id="hvr-dot" class="dot" style="background: #6c757d"></span> HVR Hub Service</h3>
+      <div id="hvr-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
+      <div id="hvr-detail" style="font-size:0.85rem; color:var(--text-light);">Click "Check Status" to verify</div>
+      <div id="hvr-uptime" style="font-size:0.82rem; color:var(--text-light); margin-top:6px;"></div>
+      <div id="hvr-memory" style="font-size:0.82rem; color:var(--text-light); margin-top:2px;"></div>
+      <div id="hvr-tasks" style="font-size:0.82rem; color:var(--text-light); margin-top:2px;"></div>
+      <div style="margin-top:14px; display:flex; gap:8px; justify-content:center;">
+        <button id="hvr-start-btn" onclick="hvrControl('start')" style="font-size:0.78rem; padding:5px 14px; background:#27ae60; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Start</button>
+        <button id="hvr-stop-btn" onclick="hvrControl('stop')" style="font-size:0.78rem; padding:5px 14px; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Stop</button>
+        <button id="hvr-restart-btn" onclick="hvrControl('restart')" style="font-size:0.78rem; padding:5px 14px; background:#7c3aed; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Restart</button>
+      </div>
+    </div>
+
+    <div class="card" style="flex:1; min-width:300px; text-align:center;">
+      <h3 style="justify-content:center;"><span id="pg-dot" class="dot" style="background: #6c757d"></span> PostgreSQL 14 Repository</h3>
+      <div id="pg-status" style="font-size:1.4rem; font-weight:700; color:#6c757d; margin:12px 0;">Unknown</div>
+      <div id="pg-detail" style="font-size:0.85rem; color:var(--text-light);">Metadata repository for HVR Hub</div>
+      <div id="pg-version" style="font-size:0.82rem; color:var(--text-light); margin-top:6px;"></div>
+      <div id="pg-database" style="font-size:0.82rem; color:var(--text-light); margin-top:2px;"></div>
+      <div id="pg-size" style="font-size:0.82rem; color:var(--text-light); margin-top:2px;"></div>
+      <div id="pg-connections" style="font-size:0.82rem; color:var(--text-light); margin-top:2px;"></div>
+      <div id="pg-backup-info" style="font-size:0.82rem; color:var(--text-light); margin-top:2px;"></div>
+      <div style="margin-top:14px; display:flex; gap:8px; justify-content:center; flex-wrap:wrap;">
+        <button id="pg-start-btn" onclick="pgControl('start')" style="font-size:0.78rem; padding:5px 14px; background:#27ae60; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Start</button>
+        <button id="pg-stop-btn" onclick="pgControl('stop')" style="font-size:0.78rem; padding:5px 14px; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Stop</button>
+        <button id="pg-restart-btn" onclick="pgControl('restart')" style="font-size:0.78rem; padding:5px 14px; background:#7c3aed; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Restart</button>
+        <button id="pg-backup-btn" onclick="pgBackup()" style="font-size:0.78rem; padding:5px 14px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Backup Now</button>
+        <button id="pg-restore-btn" onclick="pgRestore()" style="font-size:0.78rem; padding:5px 14px; background:#e67e22; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Restore</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- HVR UPDATES -->
+<!-- ============================================================ -->
+<div class="section" id="updates">
+  <div class="section-title">HVR Updates</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Stage Package</h3>
+    <p style="font-size:0.88rem; color:var(--text-light); margin-bottom:14px;">Stage a Fivetran HVR release package (<code>.tar.gz</code>) on the hub server for upgrade or downgrade.</p>
+
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <label style="display:inline-flex; align-items:center; gap:8px; padding:8px 18px; background:var(--primary); color:white; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">
+        Choose File
+        <input type="file" id="pkg-file" accept=".tar.gz" style="display:none;" onchange="handleFileSelect(this)">
+      </label>
+      <span id="pkg-filename" style="font-size:0.85rem; color:var(--text-light);">No file selected</span>
+      <button id="pkg-upload-btn" onclick="uploadPackage()" disabled style="padding:8px 18px; background:#6c757d; color:white; border:none; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:not-allowed;">Upload to Server</button>
+    </div>
+    <div id="pkg-progress" style="display:none; margin-top:10px;">
+      <div style="background:#e9ecef; border-radius:4px; height:8px; width:100%; overflow:hidden;">
+        <div id="pkg-progress-bar" style="height:100%; border-radius:4px; background:var(--primary); width:0%; transition:width 0.3s;"></div>
+      </div>
+      <div id="pkg-progress-text" style="font-size:0.82rem; color:var(--text-light); margin-top:4px;">Uploading...</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Version Comparison</h3>
+
+    <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:14px;">
+      <div style="flex:1; min-width:180px; background:#e0f2f1; border-radius:8px; padding:16px; text-align:center;">
+        <div style="font-size:0.78rem; text-transform:uppercase; font-weight:600; color:var(--primary-dark); margin-bottom:6px;">Running Version</div>
+        <div id="upd-running" style="font-size:1rem; font-weight:700; color:var(--text);">Loading...</div>
+      </div>
+      <div style="flex:1; min-width:180px; background:#f1f3f5; border-radius:8px; padding:16px; text-align:center;">
+        <div style="font-size:0.78rem; text-transform:uppercase; font-weight:600; color:var(--text-light); margin-bottom:6px;">Latest Available</div>
+        <div id="upd-latest" style="font-size:1rem; font-weight:700; color:var(--text-light);">Checking...</div>
+        <div id="upd-latest-link" style="font-size:0.78rem; margin-top:4px;"></div>
+      </div>
+      <div style="flex:1; min-width:180px; background:#f1f3f5; border-radius:8px; padding:16px; text-align:center;">
+        <div style="font-size:0.78rem; text-transform:uppercase; font-weight:600; color:var(--text-light); margin-bottom:6px;">Staged Package</div>
+        <div id="upd-staged" style="font-size:1rem; font-weight:700; color:var(--text);">None</div>
+        <div id="upd-staged-file" style="font-size:0.78rem; color:var(--text-light); margin-top:4px;"></div>
+      </div>
+      <div style="flex:1; min-width:180px; background:#f1f3f5; border-radius:8px; padding:16px; text-align:center;">
+        <div style="font-size:0.78rem; text-transform:uppercase; font-weight:600; color:var(--text-light); margin-bottom:6px;">Action</div>
+        <div id="upd-action" style="font-size:1rem; font-weight:700; color:var(--text-light);">&mdash;</div>
+      </div>
+    </div>
+
+    <div id="upd-msg" style="font-size:0.85rem; color:var(--text-light); margin-bottom:14px;"></div>
+
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button id="upd-check-btn" onclick="checkUpdates()" style="padding:8px 18px; background:var(--primary); color:white; border:none; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">Check Staged Package</button>
+      <button id="upd-apply-btn" onclick="applyUpdate()" disabled style="padding:8px 18px; background:#6c757d; color:white; border:none; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:not-allowed;">Apply Update</button>
+      <button id="upd-delete-btn" onclick="deleteStagedPackage()" style="padding:8px 18px; background:#e9ecef; color:var(--text); border:none; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">Delete Staged Package</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- POSTGRESQL UPDATES -->
+<!-- ============================================================ -->
+<div class="section" id="pg-updates">
+  <div class="section-title">PostgreSQL Updates</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Available Update</h3>
+    <p style="font-size:0.88rem; color:var(--text-light); margin-bottom:14px;">Check for PostgreSQL 14 updates from the PGDG yum repository and apply them directly.</p>
+
+    <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:14px;">
+      <div style="flex:1; min-width:200px; background:#e0f2f1; border-radius:8px; padding:16px; text-align:center;">
+        <div style="font-size:0.78rem; text-transform:uppercase; font-weight:600; color:var(--primary-dark); margin-bottom:6px;">Installed</div>
+        <div id="pg-upd-installed" style="font-size:1.1rem; font-weight:700; color:var(--text);">Loading...</div>
+      </div>
+      <div style="flex:1; min-width:200px; background:#f1f3f5; border-radius:8px; padding:16px; text-align:center;">
+        <div style="font-size:0.78rem; text-transform:uppercase; font-weight:600; color:var(--text-light); margin-bottom:6px;">Available in Repository</div>
+        <div id="pg-upd-available" style="font-size:1.1rem; font-weight:700; color:var(--text-light);">Checking...</div>
+      </div>
+      <div style="flex:1; min-width:200px; background:#f1f3f5; border-radius:8px; padding:16px; text-align:center;">
+        <div style="font-size:0.78rem; text-transform:uppercase; font-weight:600; color:var(--text-light); margin-bottom:6px;">Status</div>
+        <div id="pg-upd-status" style="font-size:1.1rem; font-weight:700; color:var(--text-light);">&mdash;</div>
+      </div>
+    </div>
+
+    <div id="pg-upd-packages" style="display:none; margin-bottom:14px; font-size:0.85rem; background:var(--code-bg); border-radius:8px; padding:14px; font-family:monospace; white-space:pre-wrap;"></div>
+
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button id="pg-upd-check-btn" onclick="checkPgUpdates()" style="padding:8px 18px; background:var(--primary); color:white; border:none; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">Check for Updates</button>
+      <button id="pg-upd-apply-btn" onclick="applyPgUpdate()" disabled style="padding:8px 18px; background:#6c757d; color:white; border:none; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:not-allowed;">Download &amp; Apply Update</button>
+    </div>
+  </div>
+
+  <div class="card" id="log-viewer-card" style="display:none;">
+    <h3 style="display:flex; align-items:center; justify-content:space-between;">
+      <span><span class="dot" style="background: var(--primary)" id="log-dot"></span> Live Log</span>
+      <span style="display:flex; align-items:center; gap:10px;">
+        <span id="log-timer" style="font-size:0.78rem; font-weight:400; color:var(--text-light);"></span>
+        <span id="log-services" style="font-size:0.78rem; font-weight:500;"></span>
+        <button id="log-stop-btn" onclick="stopLogTail()" style="font-size:0.75rem; padding:4px 12px; background:#e74c3c; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:600;">Stop</button>
+        <button onclick="closeLogViewer()" style="font-size:0.75rem; padding:4px 12px; background:#6c757d; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:600;">Close</button>
+      </span>
+    </h3>
+    <div id="log-output" style="background:#1e1e1e; color:#d4d4d4; border-radius:8px; padding:14px; font-family:'Cascadia Code','Fira Code','Consolas',monospace; font-size:0.8rem; line-height:1.5; max-height:400px; overflow-y:auto; white-space:pre-wrap; word-break:break-all;"></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- DATABASE DRIVERS -->
+<!-- ============================================================ -->
+<div class="section" id="drivers">
+  <div class="section-title" style="display:flex; align-items:center; justify-content:space-between;">
+    Database Drivers
+    <button id="drv-refresh-btn" onclick="loadDrivers()" style="font-size:0.78rem; padding:5px 14px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Refresh</button>
+  </div>
+
+  <div id="drv-update-banner" style="display:none; background:#fff3e0; border:1px solid #ffcc02; border-radius:8px; padding:12px 18px; margin-bottom:16px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+    <div>
+      <span style="font-weight:600; color:#e67e22;" id="drv-update-count">0</span> driver update(s) available
+    </div>
+    <button id="drv-update-all-btn" onclick="updateAllDrivers()" style="padding:6px 16px; background:#e67e22; color:white; border:none; border-radius:6px; font-size:0.82rem; font-weight:600; cursor:pointer;">Update All</button>
+  </div>
+
+  <div id="drv-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap:16px;">
+    <div style="text-align:center; color:var(--text-light); padding:40px;">Loading drivers...</div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <h3><span class="dot" style="background: var(--primary)"></span> Add Driver</h3>
+    <p style="font-size:0.88rem; color:var(--text-light); margin-bottom:12px;">Search available database drivers in the yum repositories and install them on the hub server.</p>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <input id="drv-search-input" type="text" placeholder="Search driver (e.g. oracle, mysql, mariadb...)" style="flex:1; min-width:240px; padding:8px 14px; border:1px solid var(--border); border-radius:6px; font-size:0.85rem; outline:none;" onkeydown="if(event.key==='Enter') searchDrivers()">
+      <button id="drv-search-btn" onclick="searchDrivers()" style="padding:8px 18px; background:var(--primary); color:white; border:none; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer; white-space:nowrap;">Search</button>
+    </div>
+    <div id="drv-search-results" style="margin-top:12px;"></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LINKS -->
+<!-- ============================================================ -->
+<div class="section" id="links">
+  <div class="section-title">Links</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Resources</h3>
+    <ul class="link-list">
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="#" onclick="openHvrWebUI(); return false;" style="flex-shrink:0;">
+            <img src="hvr_icon.svg" alt="HVR" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="#" onclick="openHvrWebUI(); return false;">HVR Web UI</a>
+            <div class="link-desc">HVR Hub Management Console (port 4340) &mdash; credentials auto-filled</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-central1-a/instances/antonio-carbone-hvr-hub?invt=AbtinQ&project=internal-sales" target="_blank" style="flex-shrink:0;">
+            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-central1-a/instances/antonio-carbone-hvr-hub?invt=AbtinQ&project=internal-sales" target="_blank">VM Settings</a>
+            <div class="link-desc">Google Cloud Compute Engine</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/details/antonio-carbone-home-ip2?project=internal-sales" target="_blank" style="flex-shrink:0;">
+            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/details/antonio-carbone-home-ip2?project=internal-sales" target="_blank">Set GCP Firewall</a>
+            <div class="link-desc">Google Cloud Firewall Manager &mdash; Network security policies</div>
+          </div>
+        </div>
+      </li>
+    </ul>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- PASSWORD MODAL -->
+<div id="pwd-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+  <div style="background:white; border-radius:12px; padding:28px; max-width:360px; width:90%; box-shadow:0 8px 30px rgba(0,0,0,0.3);">
+    <div id="pwd-title" style="font-size:1rem; font-weight:700; color:var(--text); margin-bottom:14px;">Enter master password</div>
+    <input id="pwd-input" type="password" placeholder="Master password" style="width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:6px; font-size:0.95rem; outline:none; box-sizing:border-box;" onkeydown="if(event.key==='Enter')document.getElementById('pwd-ok').click();">
+    <div style="display:flex; gap:10px; margin-top:16px; justify-content:flex-end;">
+      <button onclick="closePwdModal(null)" style="padding:7px 18px; background:#e9ecef; color:var(--text); border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85rem;">Cancel</button>
+      <button id="pwd-ok" onclick="closePwdModal(document.getElementById('pwd-input').value)" style="padding:7px 18px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85rem;">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
+</div>
+
+<script>
+var _pwdResolve = null;
+function askPassword(title) {
+  return new Promise(function(resolve) {
+    _pwdResolve = resolve;
+    document.getElementById('pwd-title').textContent = title || 'Enter master password';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-overlay').style.display = 'flex';
+    setTimeout(function() { document.getElementById('pwd-input').focus(); }, 100);
+  });
+}
+function closePwdModal(val) {
+  document.getElementById('pwd-overlay').style.display = 'none';
+  if (_pwdResolve) { _pwdResolve(val); _pwdResolve = null; }
+}
+
+function loadOsVersion() {
+  fetch('/sap_skills/api/hvrhub_os')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var el = document.getElementById('os-version');
+    if (data.status === 'ok') {
+      el.textContent = data.os;
+      el.style.color = 'var(--text)';
+    } else {
+      el.textContent = 'Unable to detect';
+      el.style.color = '#e74c3c';
+    }
+  })
+  .catch(function() {
+    var el = document.getElementById('os-version');
+    el.textContent = 'Connection error';
+    el.style.color = '#e74c3c';
+  });
+}
+
+function loadHardwareInfo() {
+  fetch('/sap_skills/api/hvrhub_hardware')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      document.getElementById('hw-cpus').textContent = data.cpus + ' vCPUs — ' + data.cpu_model;
+      document.getElementById('hw-cpus').style.color = 'var(--text)';
+      document.getElementById('hw-memory').textContent = data.memory;
+      document.getElementById('hw-memory').style.color = 'var(--text)';
+    }
+  }).catch(function() {});
+}
+
+function loadHvrVersion() {
+  fetch('/sap_skills/api/hvrhub_version')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var el = document.getElementById('hvr-version');
+    if (data.status === 'ok') {
+      el.textContent = data.version;
+      el.style.color = 'var(--text)';
+    }
+  }).catch(function() {});
+}
+
+function refreshDisk() {
+  var container = document.getElementById('disk-space-content');
+  var btn = document.getElementById('disk-refresh-btn');
+  var mainBtn = document.getElementById('refresh-btn');
+  if (btn) { btn.textContent = 'Loading...'; btn.disabled = true; }
+  if (mainBtn) { mainBtn.textContent = 'Loading...'; mainBtn.disabled = true; }
+  fetch('/sap_skills/api/hvrhub_disk_space')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      var html = '';
+      data.filesystems.forEach(function(fs) {
+        var pct = parseInt(fs.use_pct) || 0;
+        var color = pct > 90 ? '#e74c3c' : pct > 75 ? '#f39c12' : '#27ae60';
+        html += '<div class="disk-row" style="flex-wrap:wrap;">';
+        html += '<div class="disk-mount">' + fs.mount + '</div>';
+        html += '<div style="flex:1; min-width:100px;">';
+        html += '<div class="disk-bar-bg"><div class="disk-bar-fill" style="width:' + pct + '%; background:' + color + ';"></div></div>';
+        html += '</div>';
+        html += '<div class="disk-info">' + fs.used + ' / ' + fs.size + ' (' + fs.use_pct + ')</div>';
+        if (fs.nfs_info) {
+          var nfs = fs.nfs_info;
+          var clientMatch = nfs.match(/^(NFS exported .* \d+ clients): (.+)$/);
+          if (clientMatch) {
+            var id = 'nfs-' + fs.mount.replace(/\//g, '_');
+            html += '<div style="width:100%; font-size:0.75rem; color:#0e7c86; margin-top:2px; padding-left:2px;">';
+            html += clientMatch[1] + ' <a href="#" onclick="var el=document.getElementById(\'' + id + '\');el.style.display=el.style.display===\'none\'?\'block\':\'none\';this.textContent=el.style.display===\'none\'?\'show\':\'hide\';return false;" style="color:#0e7c86; font-weight:600;">show</a>';
+            html += '<div id="' + id + '" style="display:none; margin-top:4px; padding:6px 8px; background:#e0f2f1; border-radius:4px; font-family:monospace; word-break:break-all; line-height:1.8;">' + clientMatch[2] + '</div>';
+            html += '</div>';
+          } else {
+            html += '<div style="width:100%; font-size:0.75rem; color:#0e7c86; margin-top:2px; padding-left:2px;">' + nfs + '</div>';
+          }
+        }
+        html += '</div>';
+      });
+      container.innerHTML = html;
+    } else {
+      container.innerHTML = '<span style="color:#e74c3c;">' + (data.message || 'Error loading disk space') + '</span>';
+    }
+    if (btn) { btn.textContent = 'Refresh'; btn.disabled = false; }
+    if (mainBtn) { mainBtn.textContent = 'Refresh'; mainBtn.disabled = false; }
+  })
+  .catch(function() {
+    container.innerHTML = '<span style="color:#e74c3c;">Connection error</span>';
+    if (btn) { btn.textContent = 'Refresh'; btn.disabled = false; }
+    if (mainBtn) { mainBtn.textContent = 'Refresh'; mainBtn.disabled = false; }
+  });
+}
+
+function checkStatus() {
+  var btn = document.getElementById('status-btn');
+  btn.textContent = 'Checking...'; btn.disabled = true;
+  fetch('/sap_skills/api/hvrhub_status')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var dot = document.getElementById('hvr-dot');
+    var status = document.getElementById('hvr-status');
+    var detail = document.getElementById('hvr-detail');
+    var uptime = document.getElementById('hvr-uptime');
+    var memory = document.getElementById('hvr-memory');
+    var tasks = document.getElementById('hvr-tasks');
+    if (data.status === 'ok') {
+      if (data.active) {
+        dot.style.background = '#27ae60';
+        status.textContent = 'Active';
+        status.style.color = '#27ae60';
+        detail.textContent = 'HVR Hub Server is running';
+      } else {
+        dot.style.background = '#e74c3c';
+        status.textContent = 'Inactive';
+        status.style.color = '#e74c3c';
+        detail.textContent = 'HVR Hub Server is stopped';
+      }
+      if (data.uptime) {
+        var d = new Date(data.uptime);
+        if (!isNaN(d.getTime())) {
+          var ams = d.toLocaleString('en-GB', {timeZone:'Europe/Amsterdam', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false});
+          var la = d.toLocaleString('en-US', {timeZone:'America/Los_Angeles', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false});
+          uptime.innerHTML = 'Since: ' + ams + ' (Amsterdam) &mdash; ' + la + ' (Los Angeles)';
+        } else {
+          uptime.textContent = 'Since: ' + data.uptime;
+        }
+      } else { uptime.textContent = ''; }
+      memory.textContent = data.memory_usage ? 'Memory: ' + data.memory_usage : '';
+      tasks.textContent = data.tasks ? 'Tasks: ' + data.tasks : '';
+    } else {
+      dot.style.background = '#e74c3c';
+      status.textContent = 'Error';
+      status.style.color = '#e74c3c';
+      detail.textContent = data.message || 'Failed to check status';
+    }
+    btn.textContent = 'Check Status'; btn.disabled = false;
+  })
+  .catch(function() {
+    document.getElementById('hvr-dot').style.background = '#e74c3c';
+    document.getElementById('hvr-status').textContent = 'Error';
+    document.getElementById('hvr-status').style.color = '#e74c3c';
+    document.getElementById('hvr-detail').textContent = 'Connection error';
+    btn.textContent = 'Check Status'; btn.disabled = false;
+  });
+}
+
+function hvrControl(action) {
+  var btn = document.getElementById('hvr-' + action + '-btn');
+  if (action === 'start') {
+    btn.textContent = 'Starting...'; btn.disabled = true;
+    fetch('/sap_skills/api/hvrhub_control', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({action: 'start'})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'info') { alert(data.message); }
+      else if (data.status === 'ok') { alert(data.message); }
+      else { alert('Error: ' + (data.message || 'Unknown error')); }
+      btn.textContent = 'Start'; btn.disabled = false;
+      setTimeout(checkStatus, 2000);
+    })
+    .catch(function() { alert('Connection error'); btn.textContent = 'Start'; btn.disabled = false; });
+  } else {
+    var label = action === 'stop' ? 'Stop' : 'Restart';
+    var warning = action === 'stop'
+      ? 'WARNING: Stopping HVR Hub Server.\n\nAll active replication jobs will be interrupted.'
+      : 'Restart HVR Hub Server?\n\nActive jobs will be briefly interrupted.';
+    if (!confirm(warning)) return;
+    askPassword('Enter master password to authorize ' + label + ':').then(function(pwd) {
+      if (!pwd) return;
+      btn.textContent = label + 'ting...'; btn.disabled = true;
+      fetch('/sap_skills/api/hvrhub_control', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({action: action, master_password: pwd})
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.status === 'ok') { alert(data.message); }
+        else { alert('Error: ' + (data.message || 'Unknown error')); }
+        btn.textContent = label; btn.disabled = false;
+        setTimeout(checkStatus, 2000);
+      })
+      .catch(function() { alert('Connection error'); btn.textContent = label; btn.disabled = false; });
+    });
+  }
+}
+
+function sshConnect() {
+  var btn = document.getElementById('ssh-btn');
+  btn.textContent = 'Connecting...';
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  fetch('/sap_skills/api/hvrhub_ssh_credential')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      try { navigator.clipboard.writeText(data.password); } catch(e) {}
+      btn.textContent = 'Password copied!';
+      btn.style.background = '#27ae60';
+      window.location.href = 'ssh://root@35.209.174.110';
+    } else {
+      btn.textContent = 'Error';
+      btn.style.background = '#e74c3c';
+    }
+    setTimeout(function() {
+      btn.textContent = 'SSH';
+      btn.style.background = '#0284C7';
+      btn.style.opacity = '1';
+      btn.disabled = false;
+    }, 3000);
+  })
+  .catch(function() {
+    btn.textContent = 'Error';
+    btn.style.background = '#e74c3c';
+    setTimeout(function() {
+      btn.textContent = 'SSH';
+      btn.style.background = '#0284C7';
+      btn.style.opacity = '1';
+      btn.disabled = false;
+    }, 3000);
+  });
+}
+
+// --- HVR Web UI ---
+function openHvrWebUI() {
+  fetch('/sap_skills/api/hvrhub_webui_credential')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      try { navigator.clipboard.writeText(data.password); } catch(e) {}
+      // Show credentials toast
+      var toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#1e293b;color:white;padding:12px 24px;border-radius:10px;z-index:99999;font-size:0.9rem;box-shadow:0 4px 20px rgba(0,0,0,0.3);text-align:center;';
+      toast.innerHTML = 'User: <b>' + data.username + '</b> &mdash; Password copied to clipboard';
+      document.body.appendChild(toast);
+      setTimeout(function() { toast.remove(); }, 5000);
+      window.open('http://35.209.174.110:4340', '_blank');
+    } else {
+      window.open('http://35.209.174.110:4340', '_blank');
+    }
+  })
+  .catch(function() {
+    window.open('http://35.209.174.110:4340', '_blank');
+  });
+}
+
+// --- HVR Updates ---
+var _selectedFile = null;
+
+function handleFileSelect(input) {
+  var file = input.files[0];
+  var nameEl = document.getElementById('pkg-filename');
+  var btn = document.getElementById('pkg-upload-btn');
+  if (file && file.name.endsWith('.tar.gz')) {
+    _selectedFile = file;
+    nameEl.textContent = file.name + ' (' + (file.size / (1024*1024)).toFixed(0) + ' MB)';
+    nameEl.style.color = 'var(--text)';
+    btn.disabled = false;
+    btn.style.background = 'var(--primary)';
+    btn.style.cursor = 'pointer';
+  } else {
+    _selectedFile = null;
+    nameEl.textContent = file ? 'Invalid file — must be .tar.gz' : 'No file selected';
+    nameEl.style.color = '#e74c3c';
+    btn.disabled = true;
+    btn.style.background = '#6c757d';
+    btn.style.cursor = 'not-allowed';
+  }
+}
+
+function uploadPackage() {
+  if (!_selectedFile) return;
+  var btn = document.getElementById('pkg-upload-btn');
+  var progress = document.getElementById('pkg-progress');
+  var bar = document.getElementById('pkg-progress-bar');
+  var text = document.getElementById('pkg-progress-text');
+  btn.disabled = true;
+  btn.textContent = 'Uploading...';
+  btn.style.background = '#6c757d';
+  progress.style.display = 'block';
+  bar.style.width = '0%';
+  text.textContent = 'Uploading ' + _selectedFile.name + '...';
+
+  var formData = new FormData();
+  formData.append('package', _selectedFile);
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', '/sap_skills/api/hvrhub_upload_package');
+  xhr.upload.onprogress = function(e) {
+    if (e.lengthComputable) {
+      var pct = Math.round((e.loaded / e.total) * 100);
+      bar.style.width = pct + '%';
+      text.textContent = 'Uploading... ' + pct + '% (' + (e.loaded / (1024*1024)).toFixed(0) + ' / ' + (e.total / (1024*1024)).toFixed(0) + ' MB)';
+    }
+  };
+  xhr.onload = function() {
+    var data = JSON.parse(xhr.responseText);
+    if (data.status === 'ok') {
+      bar.style.width = '100%';
+      bar.style.background = '#27ae60';
+      text.textContent = 'Upload complete — ' + data.filename;
+      checkUpdates();
+    } else {
+      bar.style.background = '#e74c3c';
+      text.textContent = 'Error: ' + (data.message || 'Upload failed');
+    }
+    btn.textContent = 'Upload to Server';
+    btn.disabled = false;
+    btn.style.background = 'var(--primary)';
+    btn.style.cursor = 'pointer';
+  };
+  xhr.onerror = function() {
+    bar.style.background = '#e74c3c';
+    text.textContent = 'Connection error during upload';
+    btn.textContent = 'Upload to Server';
+    btn.disabled = false;
+    btn.style.background = 'var(--primary)';
+  };
+  xhr.send(formData);
+}
+
+function checkUpdates() {
+  var btn = document.getElementById('upd-check-btn');
+  btn.textContent = 'Checking...'; btn.disabled = true;
+  fetch('/sap_skills/api/hvrhub_check_update')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    document.getElementById('upd-running').textContent = data.running_version || 'Unknown';
+    var stagedEl = document.getElementById('upd-staged');
+    var stagedFile = document.getElementById('upd-staged-file');
+    var actionEl = document.getElementById('upd-action');
+    var applyBtn = document.getElementById('upd-apply-btn');
+    var msgEl = document.getElementById('upd-msg');
+
+    if (data.staged_version) {
+      stagedEl.textContent = data.staged_version;
+      stagedFile.textContent = data.staged_filename || '';
+      if (data.comparison === 'upgrade') {
+        actionEl.textContent = 'Upgrade';
+        actionEl.style.color = '#27ae60';
+        msgEl.innerHTML = '<span style="color:#27ae60; font-weight:600;">Newer version available.</span> The staged package is a newer release than the running version.';
+        applyBtn.disabled = false;
+        applyBtn.style.background = '#27ae60';
+        applyBtn.style.cursor = 'pointer';
+        applyBtn.textContent = 'Apply Upgrade';
+      } else if (data.comparison === 'downgrade') {
+        actionEl.textContent = 'Downgrade';
+        actionEl.style.color = '#f39c12';
+        msgEl.innerHTML = '<span style="color:#f39c12; font-weight:600;">Older version staged.</span> The staged package is an older release than the running version.';
+        applyBtn.disabled = false;
+        applyBtn.style.background = '#f39c12';
+        applyBtn.style.cursor = 'pointer';
+        applyBtn.textContent = 'Apply Downgrade';
+      } else {
+        actionEl.textContent = 'Same Version';
+        actionEl.style.color = 'var(--text-light)';
+        msgEl.textContent = 'The staged package is the same version as the running one.';
+        applyBtn.disabled = true;
+        applyBtn.style.background = '#6c757d';
+        applyBtn.style.cursor = 'not-allowed';
+        applyBtn.textContent = 'Apply Update';
+      }
+    } else {
+      stagedEl.textContent = 'None';
+      stagedEl.style.color = 'var(--text-light)';
+      stagedFile.textContent = '';
+      actionEl.textContent = '\u2014';
+      actionEl.style.color = 'var(--text-light)';
+      msgEl.textContent = 'No package staged. Upload a .tar.gz package to begin.';
+      applyBtn.disabled = true;
+      applyBtn.style.background = '#6c757d';
+      applyBtn.style.cursor = 'not-allowed';
+      applyBtn.textContent = 'Apply Update';
+    }
+    btn.textContent = 'Check Staged Package'; btn.disabled = false;
+  })
+  .catch(function() {
+    btn.textContent = 'Check Staged Package'; btn.disabled = false;
+  });
+}
+
+function applyUpdate() {
+  var applyBtn = document.getElementById('upd-apply-btn');
+  var action = document.getElementById('upd-action').textContent;
+  var staged = document.getElementById('upd-staged').textContent;
+  var running = document.getElementById('upd-running').textContent;
+  var warning = 'WARNING: ' + action.toUpperCase() + '\n\n'
+    + 'From: ' + running + '\n'
+    + 'To:     ' + staged + '\n\n'
+    + 'This operation will:\n'
+    + '  1. STOP the HVR Hub Server\n'
+    + '  2. STOP ALL replication channels and active jobs\n'
+    + '  3. Backup the current installation (timestamped copy)\n'
+    + '  4. Extract the new package over the existing installation\n'
+    + '  5. Re-enable auto-restart (self-healing) and start the service\n\n'
+    + 'All CDC capture and integrate jobs will be interrupted until the hub restarts.\n'
+    + 'Channels will resume automatically once the service is back online.\n\n'
+    + 'Master password is required to proceed.';
+  if (!confirm(warning)) return;
+
+  askPassword('Enter master password to authorize ' + action + ':').then(function(pwd) {
+    if (!pwd) return;
+    applyBtn.disabled = true;
+    applyBtn.textContent = 'Applying...';
+    applyBtn.style.background = '#6c757d';
+    var msgEl = document.getElementById('upd-msg');
+    msgEl.innerHTML = '<span style="color:var(--primary); font-weight:600;">Stopping service, creating backup, extracting package... This may take a minute.</span>';
+
+    fetch('/sap_skills/api/hvrhub_apply_update', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({master_password: pwd})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        msgEl.innerHTML = '<span style="color:#27ae60; font-weight:600;">Update applied successfully!</span> ' + (data.message || '');
+        applyBtn.textContent = 'Done';
+        applyBtn.style.background = '#27ae60';
+        loadHvrVersion();
+        setTimeout(checkStatus, 3000);
+        setTimeout(checkUpdates, 4000);
+      } else {
+        msgEl.innerHTML = '<span style="color:#e74c3c; font-weight:600;">Error:</span> ' + (data.message || 'Update failed') + '<br><span style="font-size:0.85rem; color:var(--text-light);">The service has been re-enabled and restarted. Check status above.</span>';
+        applyBtn.textContent = 'Apply Update';
+        applyBtn.disabled = false;
+        applyBtn.style.background = '#e74c3c';
+        setTimeout(checkStatus, 3000);
+      }
+    })
+    .catch(function() {
+      msgEl.innerHTML = '<span style="color:#e74c3c; font-weight:600;">Connection error during update.</span><br><span style="font-size:0.85rem; color:var(--text-light);">The service should self-heal and restart automatically. Check status in a few seconds.</span>';
+      applyBtn.textContent = 'Apply Update';
+      applyBtn.disabled = false;
+      setTimeout(checkStatus, 5000);
+    });
+  });
+}
+
+function deleteStagedPackage() {
+  if (!confirm('Delete the staged package from the server?')) return;
+  var btn = document.getElementById('upd-delete-btn');
+  btn.textContent = 'Deleting...'; btn.disabled = true;
+  fetch('/sap_skills/api/hvrhub_delete_staged', {method: 'POST'})
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      checkUpdates();
+    } else {
+      alert('Error: ' + (data.message || 'Delete failed'));
+    }
+    btn.textContent = 'Delete Staged Package'; btn.disabled = false;
+  })
+  .catch(function() {
+    btn.textContent = 'Delete Staged Package'; btn.disabled = false;
+  });
+}
+
+// --- PostgreSQL Status ---
+function checkPgStatus() {
+  fetch('/sap_skills/api/hvrhub_pg_status')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var dot = document.getElementById('pg-dot');
+    var status = document.getElementById('pg-status');
+    var detail = document.getElementById('pg-detail');
+    if (data.status === 'ok') {
+      if (data.active) {
+        dot.style.background = '#27ae60';
+        status.textContent = 'Active';
+        status.style.color = '#27ae60';
+        detail.textContent = 'PostgreSQL service is running';
+      } else {
+        dot.style.background = '#e74c3c';
+        status.textContent = 'Inactive';
+        status.style.color = '#e74c3c';
+        detail.textContent = 'PostgreSQL service is stopped';
+      }
+      document.getElementById('pg-version').textContent = data.version || '';
+      document.getElementById('pg-database').textContent = data.database ? 'Database: ' + data.database : '';
+      document.getElementById('pg-size').textContent = data.size ? 'Size: ' + data.size + ' \u2014 Connections: ' + (data.connections || '0') : '';
+      var pgUp = document.getElementById('pg-connections');
+      if (data.pg_uptime) {
+        var d = new Date(data.pg_uptime);
+        if (!isNaN(d.getTime())) {
+          var ams = d.toLocaleString('en-GB', {timeZone:'Europe/Amsterdam', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false});
+          var la = d.toLocaleString('en-US', {timeZone:'America/Los_Angeles', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false});
+          pgUp.innerHTML = 'Since: ' + ams + ' (Amsterdam) &mdash; ' + la + ' (LA)';
+        } else { pgUp.textContent = ''; }
+      } else { pgUp.textContent = ''; }
+      var bkInfo = document.getElementById('pg-backup-info');
+      if (data.last_backup_file) {
+        var d = new Date(data.last_backup_time);
+        var ts = !isNaN(d.getTime()) ? d.toLocaleString('en-GB', {timeZone:'Europe/Amsterdam', day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit', hour12:false}) : '';
+        bkInfo.innerHTML = 'Last backup: <span style="color:var(--text);">' + data.last_backup_file + '</span>' + (ts ? ' (' + ts + ')' : '');
+      } else {
+        bkInfo.innerHTML = 'Last backup: <span style="color:#e67e22;">None</span>';
+      }
+    }
+  }).catch(function() {});
+}
+
+function pgBackup() {
+  var btn = document.getElementById('pg-backup-btn');
+  if (!confirm('Create a PostgreSQL backup of the hvr6 repository database?\n\nBackup will be saved to:\n  1. /usr/hvr/hvr_config/backup/ (local)\n  2. /media/HVR/ (secondary safe copy)')) return;
+  btn.textContent = 'Backing up...'; btn.disabled = true;
+  btn.style.background = '#6c757d';
+  fetch('/sap_skills/api/hvrhub_pg_backup', {method: 'POST'})
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      alert('Backup created: ' + data.filename);
+      checkPgStatus();
+    } else {
+      alert('Backup error: ' + (data.message || 'Unknown'));
+    }
+    btn.textContent = 'Backup Now'; btn.disabled = false;
+    btn.style.background = 'var(--primary)';
+  })
+  .catch(function() {
+    alert('Connection error during backup');
+    btn.textContent = 'Backup Now'; btn.disabled = false;
+    btn.style.background = 'var(--primary)';
+  });
+}
+
+function pgRestore() {
+  var btn = document.getElementById('pg-restore-btn');
+  btn.textContent = 'Loading...'; btn.disabled = true;
+  fetch('/sap_skills/api/hvrhub_pg_list_backups')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.textContent = 'Restore'; btn.disabled = false;
+    if (data.status !== 'ok' || !data.backups || data.backups.length === 0) {
+      alert('No backups available. Create one first.');
+      return;
+    }
+    var list = 'Available backups:\n\n';
+    for (var i = 0; i < data.backups.length; i++) {
+      var b = data.backups[i];
+      var ts = b.timestamp ? new Date(b.timestamp).toLocaleString('en-GB', {timeZone:'Europe/Amsterdam', day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:false}) : '';
+      list += (i + 1) + '. ' + b.filename + ' (' + b.size_mb + ' MB' + (ts ? ', ' + ts : '') + ')\n';
+    }
+    list += '\nEnter the number of the backup to restore (or cancel):';
+    var choice = prompt(list);
+    if (!choice) return;
+    var idx = parseInt(choice) - 1;
+    if (isNaN(idx) || idx < 0 || idx >= data.backups.length) {
+      alert('Invalid selection.');
+      return;
+    }
+    var selected = data.backups[idx];
+    var warning = 'WARNING: RESTORE DATABASE\n\n'
+      + 'File: ' + selected.filename + '\n\n'
+      + 'This will:\n'
+      + '  1. STOP the HVR Hub Server\n'
+      + '  2. STOP all replication channels\n'
+      + '  3. Restore the hvr6 database from backup\n'
+      + '  4. Re-enable and restart the HVR Hub Server\n\n'
+      + 'Master password is required.';
+    if (!confirm(warning)) return;
+    askPassword('Enter master password to authorize database restore:').then(function(pwd) {
+      if (!pwd) return;
+      btn.textContent = 'Restoring...'; btn.disabled = true;
+      btn.style.background = '#6c757d';
+      fetch('/sap_skills/api/hvrhub_pg_restore', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({master_password: pwd, backup_file: selected.filename})
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(rdata) {
+        if (rdata.status === 'ok') {
+          alert(rdata.message);
+          checkPgStatus();
+          setTimeout(checkStatus, 3000);
+        } else {
+          alert('Restore error: ' + (rdata.message || 'Unknown'));
+        }
+        btn.textContent = 'Restore'; btn.disabled = false;
+        btn.style.background = '#e67e22';
+      })
+      .catch(function() {
+        alert('Connection error during restore');
+        btn.textContent = 'Restore'; btn.disabled = false;
+        btn.style.background = '#e67e22';
+      });
+    });
+  })
+  .catch(function() {
+    alert('Failed to load backup list');
+    btn.textContent = 'Restore'; btn.disabled = false;
+  });
+}
+
+// --- PostgreSQL Control (Start/Stop/Restart) ---
+function pgControl(action) {
+  var btn = document.getElementById('pg-' + action + '-btn');
+  var label = action.charAt(0).toUpperCase() + action.slice(1);
+  if (action === 'start') {
+    btn.textContent = 'Starting...'; btn.disabled = true;
+    fetch('/sap_skills/api/hvrhub_pg_control', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({action: 'start'})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok' || data.status === 'info') { alert(data.message); }
+      else { alert('Error: ' + (data.message || 'Unknown error')); }
+      btn.textContent = 'Start'; btn.disabled = false;
+      setTimeout(checkPgStatus, 2000);
+    })
+    .catch(function() { alert('Connection error'); btn.textContent = 'Start'; btn.disabled = false; });
+  } else {
+    var warning = action === 'stop'
+      ? 'WARNING: Stopping PostgreSQL 14.\n\nHVR Hub will lose its metadata repository and all replication will stop.\n\nMaster password is required.'
+      : 'Restart PostgreSQL 14?\n\nHVR connections will be briefly interrupted.\n\nMaster password is required.';
+    if (!confirm(warning)) return;
+    askPassword('Enter master password to authorize PostgreSQL ' + label + ':').then(function(pwd) {
+      if (!pwd) return;
+      btn.textContent = label + 'ting...'; btn.disabled = true;
+      fetch('/sap_skills/api/hvrhub_pg_control', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({action: action, master_password: pwd})
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.status === 'ok') { alert(data.message); }
+        else { alert('Error: ' + (data.message || 'Unknown error')); }
+        btn.textContent = label; btn.disabled = false;
+        setTimeout(checkPgStatus, 2000);
+      })
+      .catch(function() { alert('Connection error'); btn.textContent = label; btn.disabled = false; });
+    });
+  }
+}
+
+// --- PostgreSQL Update Check ---
+function checkPgUpdates() {
+  var btn = document.getElementById('pg-upd-check-btn');
+  btn.textContent = 'Checking...'; btn.disabled = true;
+  document.getElementById('pg-upd-installed').textContent = 'Checking...';
+  document.getElementById('pg-upd-available').textContent = 'Checking...';
+  document.getElementById('pg-upd-status').textContent = '...';
+  document.getElementById('pg-upd-packages').style.display = 'none';
+  fetch('/sap_skills/api/hvrhub_pg_check_update')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.textContent = 'Check for Updates'; btn.disabled = false;
+    if (data.status === 'ok') {
+      document.getElementById('pg-upd-installed').textContent = data.installed_version || 'Unknown';
+      if (data.update_available) {
+        document.getElementById('pg-upd-available').textContent = data.available_version;
+        document.getElementById('pg-upd-available').style.color = '#e67e22';
+        document.getElementById('pg-upd-status').textContent = 'Update available';
+        document.getElementById('pg-upd-status').style.color = '#e67e22';
+        if (data.packages) {
+          document.getElementById('pg-upd-packages').textContent = data.packages;
+          document.getElementById('pg-upd-packages').style.display = 'block';
+        }
+        var applyBtn = document.getElementById('pg-upd-apply-btn');
+        applyBtn.disabled = false;
+        applyBtn.style.background = '#e67e22';
+        applyBtn.style.cursor = 'pointer';
+      } else {
+        document.getElementById('pg-upd-available').textContent = data.installed_version;
+        document.getElementById('pg-upd-available').style.color = '#27ae60';
+        document.getElementById('pg-upd-status').innerHTML = '<span style="color:#27ae60;">\u2713 Up to date</span>';
+      }
+    } else {
+      document.getElementById('pg-upd-installed').textContent = 'Error';
+      document.getElementById('pg-upd-available').textContent = 'Error';
+      document.getElementById('pg-upd-status').textContent = data.message || 'Check failed';
+    }
+  })
+  .catch(function() {
+    btn.textContent = 'Check for Updates'; btn.disabled = false;
+    document.getElementById('pg-upd-status').textContent = 'Connection error';
+  });
+}
+
+// --- PostgreSQL Apply Update (async with log tail) ---
+var logTailInterval = null;
+
+function applyPgUpdate() {
+  var installed = document.getElementById('pg-upd-installed').textContent;
+  var available = document.getElementById('pg-upd-available').textContent;
+  var warning = 'UPDATE POSTGRESQL\n\n'
+    + 'Current: ' + installed + '\n'
+    + 'New: ' + available + '\n\n'
+    + 'This will:\n'
+    + '  1. Create a database backup (hvr6)\n'
+    + '  2. Stop HVR Hub Server\n'
+    + '  3. Stop PostgreSQL 14\n'
+    + '  4. Download and install the update via yum\n'
+    + '  5. Start PostgreSQL 14\n'
+    + '  6. Start HVR Hub Server\n\n'
+    + 'Progress will be shown in a live log below.\n'
+    + 'Master password is required.';
+  if (!confirm(warning)) return;
+  askPassword('Enter master password to authorize PostgreSQL update:').then(function(pwd) {
+    if (!pwd) return;
+    var btn = document.getElementById('pg-upd-apply-btn');
+    btn.textContent = 'Launching...'; btn.disabled = true;
+    btn.style.background = '#6c757d';
+    btn.style.cursor = 'not-allowed';
+    fetch('/sap_skills/api/hvrhub_pg_apply_update', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({master_password: pwd})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        btn.textContent = 'Update in progress...';
+        startLogTail();
+      } else {
+        alert('Error: ' + (data.message || 'Unknown'));
+        btn.textContent = 'Download & Apply Update'; btn.disabled = false;
+        btn.style.background = '#e67e22'; btn.style.cursor = 'pointer';
+      }
+    })
+    .catch(function() {
+      alert('Connection error');
+      btn.textContent = 'Download & Apply Update'; btn.disabled = false;
+      btn.style.background = '#e67e22'; btn.style.cursor = 'pointer';
+    });
+  });
+}
+
+function startLogTail() {
+  var card = document.getElementById('log-viewer-card');
+  card.style.display = 'block';
+  document.getElementById('log-output').textContent = 'Connecting to log stream...\n';
+  document.getElementById('log-dot').style.background = '#27ae60';
+  document.getElementById('log-dot').style.animation = 'none';
+  // Blink the dot
+  var dotEl = document.getElementById('log-dot');
+  setInterval(function() {
+    dotEl.style.opacity = dotEl.style.opacity === '0.3' ? '1' : '0.3';
+  }, 500);
+  card.scrollIntoView({behavior: 'smooth', block: 'start'});
+  tailLog();
+  logTailInterval = setInterval(tailLog, 10000);
+}
+
+function stopLogTail() {
+  if (logTailInterval) { clearInterval(logTailInterval); logTailInterval = null; }
+  if (drvLogInterval) { clearInterval(drvLogInterval); drvLogInterval = null; }
+  document.getElementById('log-dot').style.background = '#6c757d';
+  document.getElementById('log-dot').style.opacity = '1';
+  document.getElementById('log-timer').textContent = 'Stopped';
+  checkPgStatus(); checkStatus(); checkPgUpdates(); loadDrivers();
+}
+
+function closeLogViewer() {
+  stopLogTail();
+  document.getElementById('log-viewer-card').style.display = 'none';
+}
+
+function tailLog() {
+  var timerEl = document.getElementById('log-timer');
+  timerEl.textContent = 'Refreshing...';
+  fetch('/sap_skills/api/hvrhub_tail_log')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status !== 'ok') return;
+    var now = new Date();
+    timerEl.textContent = 'Last: ' + now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', second:'2-digit'}) + ' (every 10s)';
+    // Service status badges
+    var svcEl = document.getElementById('log-services');
+    var hvrColor = data.hvr_service === 'active' ? '#27ae60' : data.hvr_service === 'activating' ? '#e67e22' : '#e74c3c';
+    var pgColor = data.pg_service === 'active' ? '#27ae60' : '#e74c3c';
+    svcEl.innerHTML = '<span style="background:' + hvrColor + '; color:white; padding:2px 8px; border-radius:4px; font-size:0.72rem;">HVR: ' + (data.hvr_service || '?') + '</span> '
+      + '<span style="background:' + pgColor + '; color:white; padding:2px 8px; border-radius:4px; font-size:0.72rem;">PG: ' + (data.pg_service || '?') + '</span>';
+    // Log content
+    var logEl = document.getElementById('log-output');
+    var content = '';
+    if (data.pg_update_log && data.pg_update_log !== 'No update log') {
+      content += colorizeLog(data.pg_update_log) + '\n';
+    }
+    content += '\n<span style="color:#569cd6;">--- HVR Hub Journal ---</span>\n';
+    content += colorizeLog(data.hvr_log);
+    logEl.innerHTML = content;
+    logEl.scrollTop = logEl.scrollHeight;
+    // Auto-stop if update is done
+    if (data.pg_update_log && data.pg_update_log.indexOf('[DONE]') !== -1) {
+      stopLogTail();
+      document.getElementById('log-timer').textContent = 'Update complete';
+      document.getElementById('log-dot').style.background = '#27ae60';
+      var btn = document.getElementById('pg-upd-apply-btn');
+      btn.textContent = 'Download & Apply Update'; btn.disabled = true;
+      btn.style.background = '#6c757d'; btn.style.cursor = 'not-allowed';
+    }
+  })
+  .catch(function() {
+    timerEl.textContent = 'Connection error — retrying...';
+  });
+}
+
+function colorizeLog(text) {
+  if (!text) return '';
+  return text
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/\[DONE\][^\n]*/g, '<span style="color:#4ec9b0; font-weight:bold;">$&</span>')
+    .replace(/\[BACKUP\][^\n]*/g, '<span style="color:#dcdcaa;">$&</span>')
+    .replace(/\[STOP\][^\n]*/g, '<span style="color:#ce9178;">$&</span>')
+    .replace(/\[START\][^\n]*/g, '<span style="color:#4ec9b0;">$&</span>')
+    .replace(/\[YUM\][^\n]*/g, '<span style="color:#569cd6;">$&</span>')
+    .replace(/\[PG_UPDATE\][^\n]*/g, '<span style="color:#c586c0; font-weight:bold;">$&</span>')
+    .replace(/(error|Error|ERROR|failed|Failed)/g, '<span style="color:#f44747; font-weight:bold;">$&</span>');
+}
+
+// --- Latest Release Check ---
+function checkLatestRelease() {
+  fetch('/sap_skills/api/hvrhub_latest_release')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    var el = document.getElementById('upd-latest');
+    var linkEl = document.getElementById('upd-latest-link');
+    if (data.status === 'ok' && data.latest_version) {
+      el.textContent = data.latest_version;
+      // Compare with running version
+      var running = document.getElementById('upd-running').textContent;
+      var runMatch = running.match(/(\d+)\.(\d+)\.(\d+)\/(\d+)/);
+      var latMatch = data.latest_version.match(/(\d+)\.(\d+)\.(\d+)\/(\d+)/);
+      if (runMatch && latMatch) {
+        var rv = [parseInt(runMatch[1]), parseInt(runMatch[2]), parseInt(runMatch[3]), parseInt(runMatch[4])];
+        var lv = [parseInt(latMatch[1]), parseInt(latMatch[2]), parseInt(latMatch[3]), parseInt(latMatch[4])];
+        var newer = false;
+        for (var i = 0; i < 4; i++) {
+          if (lv[i] > rv[i]) { newer = true; break; }
+          if (lv[i] < rv[i]) break;
+        }
+        if (newer) {
+          el.style.color = '#e67e22';
+          el.textContent = data.latest_version + ' \u2191';
+          linkEl.innerHTML = '<a href="' + data.release_notes_url + '" target="_blank" style="color:var(--primary); font-weight:500;">Update available \u2014 Release Notes</a>';
+        } else {
+          el.style.color = '#27ae60';
+          el.textContent = data.latest_version + ' \u2713';
+          linkEl.innerHTML = '<span style="color:#27ae60;">Up to date</span>';
+        }
+      }
+      if (!linkEl.innerHTML) {
+        linkEl.innerHTML = '<a href="' + data.release_notes_url + '" target="_blank" style="color:var(--primary);">Release Notes</a>';
+      }
+    } else {
+      el.textContent = 'N/A';
+      el.style.color = 'var(--text-light)';
+    }
+  })
+  .catch(function() {
+    document.getElementById('upd-latest').textContent = 'N/A';
+  });
+}
+
+// --- Database Drivers ---
+var driverData = [];
+var vendorData = [];
+
+function loadDrivers() {
+  var btn = document.getElementById('drv-refresh-btn');
+  btn.textContent = 'Loading...'; btn.disabled = true;
+  // Fetch both yum drivers and vendor drivers in parallel
+  Promise.all([
+    fetch('/sap_skills/api/hvrhub_drivers').then(function(r) { return r.json(); }),
+    fetch('/sap_skills/api/hvrhub_vendor_driver_check').then(function(r) { return r.json(); })
+  ]).then(function(results) {
+    btn.textContent = 'Refresh'; btn.disabled = false;
+    var yumData = results[0];
+    var vdrData = results[1];
+    if (yumData.status !== 'ok') return;
+    vendorData = (vdrData.status === 'ok') ? vdrData.vendors : [];
+
+    // Merge: replace manual drivers with vendor data
+    var vendorPkgs = {};
+    for (var v = 0; v < vendorData.length; v++) {
+      vendorPkgs[vendorData[v].package] = vendorData[v];
+    }
+
+    driverData = [];
+    for (var i = 0; i < yumData.drivers.length; i++) {
+      var d = yumData.drivers[i];
+      if (d.repo === 'manual' && vendorPkgs[d.package]) {
+        // Replace with vendor data
+        var vd = vendorPkgs[d.package];
+        d.vendor = true;
+        d.latest = vd.latest;
+        d.vendor_url = vd.url;
+        d.vendor_format = vd.format;
+        d.vendor_note = vd.note || '';
+        d.vendor_latest = vd.latest;
+        if (vd.update_available) d.update_available = vd.latest;
+      }
+      driverData.push(d);
+    }
+
+    var grid = document.getElementById('drv-grid');
+    var html = '';
+    var updatable = [];
+
+    var icons = {
+      'snowflake-odbc': {color:'#29b5e8', letter:'SF'},
+      'msodbcsql18': {color:'#cc2927', letter:'MS'},
+      'mssql-tools18': {color:'#cc2927', letter:'MS'},
+      'simbaspark': {color:'#ff3621', letter:'DB'},
+      'AmazonRedshiftODBC-64bit': {color:'#8C4FFF', letter:'RS'},
+      'unixODBC': {color:'#555', letter:'uO'},
+      'googlebigqueryodbc': {color:'#4285f4', letter:'BQ'}
+    };
+
+    for (var i = 0; i < driverData.length; i++) {
+      var d = driverData[i];
+      var ic = icons[d.package] || {color:'#888', letter:'??'};
+      var hasUpdate = d.update_available ? true : false;
+      if (hasUpdate) updatable.push(d.package);
+      var borderColor = hasUpdate ? '#e67e22' : 'var(--border)';
+
+      html += '<div style="background:var(--card-bg); border-radius:10px; border:2px solid ' + borderColor + '; padding:18px; display:flex; flex-direction:column; gap:10px;">';
+      html += '<div style="display:flex; align-items:center; gap:12px;">';
+      html += '<div style="width:42px; height:42px; border-radius:8px; background:' + ic.color + '; display:flex; align-items:center; justify-content:center; color:white; font-weight:700; font-size:0.85rem; flex-shrink:0;">' + ic.letter + '</div>';
+      html += '<div style="flex:1; min-width:0;">';
+      html += '<div style="font-weight:600; font-size:0.92rem; line-height:1.2;">' + d.name + '</div>';
+      html += '<div style="font-size:0.78rem; color:var(--text-light); font-family:monospace;">' + d.package + '</div>';
+      html += '</div></div>';
+      // Version + repo badge
+      html += '<div style="display:flex; justify-content:space-between; align-items:center;">';
+      html += '<div><span style="font-size:0.78rem; color:var(--text-light);">Installed:</span> <span style="font-weight:600; font-size:0.88rem;">' + d.version + '</span></div>';
+      if (d.vendor) {
+        html += '<span style="font-size:0.72rem; padding:2px 8px; border-radius:4px; background:#e8eaf6; color:#3949ab;">Vendor</span>';
+      } else if (d.repo !== 'manual') {
+        html += '<span style="font-size:0.72rem; padding:2px 8px; border-radius:4px; background:#e0f2f1; color:var(--primary-dark);">' + d.repo + '</span>';
+      }
+      html += '</div>';
+      // Latest version for vendor drivers
+      if (d.vendor && d.latest) {
+        html += '<div style="font-size:0.78rem; color:var(--text-light);">Latest: <strong>' + d.latest + '</strong></div>';
+      }
+      // Update available
+      if (hasUpdate && d.vendor) {
+        html += '<div style="background:#fff3e0; border-radius:6px; padding:8px 12px; display:flex; align-items:center; justify-content:space-between;">';
+        html += '<div><span style="font-size:0.78rem; color:#e67e22; font-weight:600;">Update:</span> <span style="font-weight:600; font-size:0.88rem;">' + d.update_available + '</span></div>';
+        html += '<button onclick="updateVendorDriver(\'' + d.package + '\')" style="font-size:0.75rem; padding:4px 12px; background:#e67e22; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:600;">Download &amp; Update</button>';
+        html += '</div>';
+        if (d.vendor_note) html += '<div style="font-size:0.75rem; color:var(--text-light); font-style:italic;">' + d.vendor_note + '</div>';
+      } else if (hasUpdate) {
+        html += '<div style="background:#fff3e0; border-radius:6px; padding:8px 12px; display:flex; align-items:center; justify-content:space-between;">';
+        html += '<div><span style="font-size:0.78rem; color:#e67e22; font-weight:600;">Update:</span> <span style="font-weight:600; font-size:0.88rem;">' + d.update_available + '</span></div>';
+        html += '<button onclick="updateDriver(\'' + d.package + '\')" style="font-size:0.75rem; padding:4px 12px; background:#e67e22; color:white; border:none; border-radius:5px; cursor:pointer; font-weight:600;">Update</button>';
+        html += '</div>';
+      } else if (d.vendor) {
+        html += '<div style="font-size:0.82rem; color:#27ae60;">\u2713 Up to date</div>';
+      } else if (d.updatable) {
+        html += '<div style="font-size:0.82rem; color:#27ae60;">\u2713 Up to date</div>';
+      }
+      html += '</div>';
+    }
+    grid.innerHTML = html;
+
+    // Update banner
+    var banner = document.getElementById('drv-update-banner');
+    if (updatable.length > 0) {
+      banner.style.display = 'flex';
+      document.getElementById('drv-update-count').textContent = updatable.length;
+    } else {
+      banner.style.display = 'none';
+    }
+  })
+  .catch(function() {
+    btn.textContent = 'Refresh'; btn.disabled = false;
+    document.getElementById('drv-grid').innerHTML = '<div style="text-align:center; color:#e74c3c; padding:20px;">Failed to load drivers</div>';
+  });
+}
+
+function updateDriver(pkg) {
+  var d = null;
+  for (var i = 0; i < driverData.length; i++) {
+    if (driverData[i].package === pkg) { d = driverData[i]; break; }
+  }
+  if (!d || !d.update_available) return;
+  if (!confirm('Update ' + d.name + '?\n\nCurrent: ' + d.version + '\nNew: ' + d.update_available)) return;
+  launchDriverUpdate([pkg]);
+}
+
+function updateVendorDriver(pkg) {
+  var d = null;
+  for (var i = 0; i < driverData.length; i++) {
+    if (driverData[i].package === pkg) { d = driverData[i]; break; }
+  }
+  if (!d || !d.vendor_url) return;
+  var msg = 'Download & Update ' + d.name + '?\n\nCurrent: ' + d.version + '\nLatest: ' + (d.vendor_latest || 'latest');
+  if (d.vendor_note) msg += '\n\nNote: ' + d.vendor_note;
+  if (!confirm(msg)) return;
+  var btn = event.target;
+  btn.textContent = 'Downloading...'; btn.disabled = true;
+  fetch('/sap_skills/api/hvrhub_vendor_driver_install', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({package: d.package, url: d.vendor_url, format: d.vendor_format || 'rpm'})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      btn.textContent = 'Installing...';
+      startDriverLogTail();
+    } else {
+      alert('Error: ' + (data.message || 'Unknown'));
+      btn.textContent = 'Download & Update'; btn.disabled = false;
+    }
+  })
+  .catch(function() {
+    alert('Connection error');
+    btn.textContent = 'Download & Update'; btn.disabled = false;
+  });
+}
+
+function updateAllDrivers() {
+  var yumPkgs = [];
+  var vendorPkgs = [];
+  var details = '';
+  for (var i = 0; i < driverData.length; i++) {
+    var d = driverData[i];
+    if (d.update_available && d.vendor_url) {
+      vendorPkgs.push(d);
+      details += '  ' + d.name + ': ' + d.version + ' \u2192 ' + (d.vendor_latest || 'latest') + ' (vendor)\n';
+    } else if (d.update_available) {
+      yumPkgs.push(d.package);
+      details += '  ' + d.name + ': ' + d.version + ' \u2192 ' + d.update_available + '\n';
+    }
+  }
+  var total = yumPkgs.length + vendorPkgs.length;
+  if (total === 0) { alert('All drivers are up to date.'); return; }
+  if (!confirm('Update ' + total + ' driver(s)?\n\n' + details)) return;
+  var btn = document.getElementById('drv-update-all-btn');
+  btn.textContent = 'Updating...'; btn.disabled = true;
+  var pending = 0;
+  var errors = [];
+  function checkDone() {
+    if (pending > 0) return;
+    if (errors.length > 0) alert('Some updates failed:\n' + errors.join('\n'));
+    startDriverLogTail();
+  }
+  if (yumPkgs.length > 0) {
+    pending++;
+    fetch('/sap_skills/api/hvrhub_driver_update', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({packages: yumPkgs})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status !== 'ok') errors.push('Yum: ' + (data.message || 'Unknown'));
+      pending--; checkDone();
+    })
+    .catch(function() { errors.push('Yum: connection error'); pending--; checkDone(); });
+  }
+  for (var v = 0; v < vendorPkgs.length; v++) {
+    (function(d) {
+      pending++;
+      fetch('/sap_skills/api/hvrhub_vendor_driver_install', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({package: d.package, url: d.vendor_url, format: d.vendor_format || 'rpm'})
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.status !== 'ok') errors.push(d.name + ': ' + (data.message || 'Unknown'));
+        pending--; checkDone();
+      })
+      .catch(function() { errors.push(d.name + ': connection error'); pending--; checkDone(); });
+    })(vendorPkgs[v]);
+  }
+}
+
+function launchDriverUpdate(pkgs) {
+  var btn = document.getElementById('drv-update-all-btn');
+  btn.textContent = 'Updating...'; btn.disabled = true;
+  fetch('/sap_skills/api/hvrhub_driver_update', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({packages: pkgs})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      btn.textContent = 'Update in progress...';
+      startDriverLogTail();
+    } else {
+      alert('Error: ' + (data.message || 'Unknown'));
+      btn.textContent = 'Update All'; btn.disabled = false;
+    }
+  })
+  .catch(function() {
+    alert('Connection error');
+    btn.textContent = 'Update All'; btn.disabled = false;
+  });
+}
+
+var drvLogInterval = null;
+function startDriverLogTail() {
+  // Show the log viewer from PG Updates section (reuse it)
+  var card = document.getElementById('log-viewer-card');
+  card.style.display = 'block';
+  document.getElementById('log-output').textContent = 'Connecting to driver update log...\n';
+  document.getElementById('log-dot').style.background = '#e67e22';
+  card.scrollIntoView({behavior: 'smooth', block: 'start'});
+  tailDriverLog();
+  drvLogInterval = setInterval(tailDriverLog, 10000);
+}
+
+function tailDriverLog() {
+  var timerEl = document.getElementById('log-timer');
+  timerEl.textContent = 'Refreshing...';
+  fetch('/sap_skills/api/hvrhub_tail_log')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status !== 'ok') return;
+    var now = new Date();
+    timerEl.textContent = 'Last: ' + now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', second:'2-digit'}) + ' (every 10s)';
+    var svcEl = document.getElementById('log-services');
+    var hvrColor = data.hvr_service === 'active' ? '#27ae60' : '#e74c3c';
+    var pgColor = data.pg_service === 'active' ? '#27ae60' : '#e74c3c';
+    svcEl.innerHTML = '<span style="background:' + hvrColor + '; color:white; padding:2px 8px; border-radius:4px; font-size:0.72rem;">HVR: ' + (data.hvr_service || '?') + '</span> '
+      + '<span style="background:' + pgColor + '; color:white; padding:2px 8px; border-radius:4px; font-size:0.72rem;">PG: ' + (data.pg_service || '?') + '</span>';
+    var logEl = document.getElementById('log-output');
+    var content = '';
+    if (data.driver_update_log && data.driver_update_log !== 'No driver update log') {
+      content += colorizeLog(data.driver_update_log.replace(/\[DRIVER_UPDATE\]/g, '[DRIVER_UPDATE]').replace(/\[YUM\]/g, '[YUM]').replace(/\[VERSIONS\]/g, '[START]').replace(/\[DONE\]/g, '[DONE]'));
+    } else {
+      content += '<span style="color:#569cd6;">Waiting for update log...</span>';
+    }
+    logEl.innerHTML = content;
+    logEl.scrollTop = logEl.scrollHeight;
+    // Auto-stop if done
+    if (data.driver_update_log && data.driver_update_log.indexOf('[DONE]') !== -1) {
+      clearInterval(drvLogInterval); drvLogInterval = null;
+      document.getElementById('log-dot').style.background = '#27ae60';
+      timerEl.textContent = 'Update complete';
+      var btn = document.getElementById('drv-update-all-btn');
+      btn.textContent = 'Update All'; btn.disabled = false;
+      // Refresh driver list after a moment
+      setTimeout(loadDrivers, 2000);
+    }
+  })
+  .catch(function() { timerEl.textContent = 'Connection error — retrying...'; });
+}
+
+// --- Driver Search & Install ---
+function searchDrivers() {
+  var query = document.getElementById('drv-search-input').value.trim();
+  var btn = document.getElementById('drv-search-btn');
+  var resultsEl = document.getElementById('drv-search-results');
+  if (!query || query.length < 2) { resultsEl.innerHTML = '<span style="color:#e74c3c; font-size:0.85rem;">Enter at least 2 characters</span>'; return; }
+  btn.textContent = 'Searching...'; btn.disabled = true;
+  resultsEl.innerHTML = '<span style="color:var(--text-light); font-size:0.85rem;">Searching yum repositories...</span>';
+  fetch('/sap_skills/api/hvrhub_driver_search?q=' + encodeURIComponent(query))
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.textContent = 'Search'; btn.disabled = false;
+    if (data.status !== 'ok') { resultsEl.innerHTML = '<span style="color:#e74c3c; font-size:0.85rem;">' + (data.message || 'Search failed') + '</span>'; return; }
+    if (!data.results || data.results.length === 0) {
+      resultsEl.innerHTML = '<span style="color:var(--text-light); font-size:0.85rem;">No packages found for "' + query + '"</span>';
+      return;
+    }
+    var html = '<div style="font-size:0.82rem; color:var(--text-light); margin-bottom:8px;">' + data.results.length + ' package(s) found:</div>';
+    html += '<div style="max-height:300px; overflow-y:auto; border:1px solid var(--border); border-radius:8px;">';
+    html += '<table style="margin:0; font-size:0.82rem;"><thead><tr><th style="padding:8px 12px;">Package</th><th style="padding:8px 12px;">Description</th><th style="padding:8px 12px; text-align:center;">Action</th></tr></thead><tbody>';
+    for (var i = 0; i < data.results.length; i++) {
+      var p = data.results[i];
+      var bgColor = i % 2 === 0 ? 'var(--card-bg)' : 'var(--code-bg)';
+      html += '<tr style="background:' + bgColor + ';">';
+      html += '<td style="padding:6px 12px; font-family:monospace; font-weight:600;">' + p.package + '<span style="color:var(--text-light); font-weight:400;">.' + p.arch + '</span></td>';
+      html += '<td style="padding:6px 12px; color:var(--text-light);">' + p.description + '</td>';
+      html += '<td style="padding:6px 12px; text-align:center;">';
+      if (p.installed) {
+        html += '<span style="color:#27ae60; font-size:0.78rem; font-weight:600;">\u2713 Installed</span>';
+      } else {
+        html += '<button onclick="installDriver(\'' + p.package + '\')" style="font-size:0.75rem; padding:3px 12px; background:var(--primary); color:white; border:none; border-radius:5px; cursor:pointer; font-weight:600;">Install</button>';
+      }
+      html += '</td></tr>';
+    }
+    html += '</tbody></table></div>';
+    resultsEl.innerHTML = html;
+  })
+  .catch(function() {
+    btn.textContent = 'Search'; btn.disabled = false;
+    resultsEl.innerHTML = '<span style="color:#e74c3c; font-size:0.85rem;">Connection error</span>';
+  });
+}
+
+function installDriver(pkg) {
+  if (!confirm('Install driver package: ' + pkg + '?\n\nThis will download and install the package via yum.')) return;
+  fetch('/sap_skills/api/hvrhub_driver_install', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({package: pkg})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      startDriverLogTail();
+    } else {
+      alert('Error: ' + (data.message || 'Unknown'));
+    }
+  })
+  .catch(function() { alert('Connection error'); });
+}
+
+window.addEventListener('DOMContentLoaded', function() { loadOsVersion(); loadHardwareInfo(); loadHvrVersion(); refreshDisk(); checkStatus(); checkPgStatus(); checkUpdates(); checkLatestRelease(); checkPgUpdates(); loadDrivers(); });
+</script>
+
+</body>
+</html>

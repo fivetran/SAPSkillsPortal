@@ -240,6 +240,8 @@
     <a href="#links">Links</a>
     <a href="#security">Security</a>
     <a href="#troubleshooting">Troubleshooting</a>
+    <a href="#sql-console">SQL Console</a>
+    <a href="#email">Email</a>
     <a href="SAP_S4HANA_2023.html">Back to Cockpit</a>
   </div>
 </div>
@@ -635,6 +637,30 @@
 </div>
 
 <!-- ============================================================ -->
+<!-- EMAIL -->
+<!-- ============================================================ -->
+<div class="section" id="email">
+  <div class="section-title">Email Relay</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> SMTP Configuration</h3>
+    <p>This server is configured to send email via <strong>smtp2go</strong> relay using Postfix.</p>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>MTA</td><td>Postfix (SUSE, lmdb maps)</td></tr>
+        <tr><td>Relay</td><td><code>mail.smtp2go.com:2525</code></td></tr>
+        <tr><td>From Address</td><td><code>sapidess4@fivetran-internal-sales.com</code></td></tr>
+        <tr><td>Auth</td><td>SASL (credentials in vault key <code>smtp2go</code>)</td></tr>
+        <tr><td>TLS</td><td>Enabled (opportunistic)</td></tr>
+        <tr><td>Config</td><td><code>/etc/postfix/main.cf</code>, <code>/etc/postfix/sasl_passwd</code></td></tr>
+      </tbody>
+    </table>
+    <p><strong>Send a test email:</strong></p>
+    <pre>echo "Test" | mailx -s "Test from sapidess4" -r "sapidess4@fivetran-internal-sales.com" recipient@email.com</pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
 <!-- TROUBLESHOOTING -->
 <!-- ============================================================ -->
 <div class="section" id="troubleshooting">
@@ -713,6 +739,79 @@
     <div class="info-box">
       The web server runs on <code>sapidesecc8</code> and connects to <code>sapidess4</code> via SSH/hdbsql to execute commands. No credentials are hardcoded in the HTML &mdash; all sensitive data flows through the server-side vault.
     </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- HANA SQL CONSOLE -->
+<!-- ============================================================ -->
+<div class="section" id="sql-console">
+  <div class="section-title">HANA SQL Console</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Overview</h3>
+    <p>The HANA SQL Console provides an interactive query interface directly from the cockpit. Queries are executed on the SAP HANA database via <code>hdbsql</code> on <code>sapidess4</code>.</p>
+
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Tool</td><td><code>/usr/sap/S4H/hdbclient/hdbsql</code></td></tr>
+        <tr><td>Execution Host</td><td>sapidess4 (via SSH from sapidesecc8)</td></tr>
+        <tr><td>Output Format</td><td>CSV (<code>-x</code> flag)</td></tr>
+        <tr><td>Query Timeout</td><td>120 seconds</td></tr>
+        <tr><td>API Endpoint</td><td><code>POST /sap_skills/api/hana_sql_execute</code></td></tr>
+        <tr><td>Authentication</td><td>No master password required &mdash; credentials retrieved from server-side vault</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Available Databases &amp; Users</h3>
+    <table>
+      <thead><tr><th>Database</th><th>Port</th><th>Available Users</th><th>Vault Key</th></tr></thead>
+      <tbody>
+        <tr><td>FIV (Tenant)</td><td>30015</td><td>SYSTEM, SAPHANADB</td><td><code>sapidess4_hana</code> &rarr; tenant "FIV"</td></tr>
+        <tr><td>SYSTEMDB</td><td>39613</td><td>SYSTEM</td><td><code>sapidess4_hana</code> &rarr; tenant "PIT"</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      <strong>FIV</strong> is the main S/4HANA tenant database containing all SAP application data. <strong>SYSTEMDB</strong> is the HANA system database used for administration and monitoring.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Features</h3>
+    <ul style="margin-top:8px; padding-left:20px;">
+      <li><strong>Database selector</strong> &mdash; switch between FIV and SYSTEMDB</li>
+      <li><strong>User selector</strong> &mdash; SYSTEM or SAPHANADB (FIV only)</li>
+      <li><strong>Optional schema</strong> &mdash; sets <code>CURRENT_SCHEMA</code> via <code>-Z</code> flag</li>
+      <li><strong>Ctrl+Enter</strong> &mdash; keyboard shortcut to execute</li>
+      <li><strong>Results table</strong> &mdash; sortable columns with row count and elapsed time</li>
+      <li><strong>Copy button</strong> &mdash; copies results as tab-separated text</li>
+      <li><strong>Error display</strong> &mdash; HANA error messages shown in red box</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Example Queries</h3>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>-- List all databases
+SELECT DATABASE_NAME, ACTIVE_STATUS FROM SYS.M_DATABASES
+
+-- Check HANA version
+SELECT VERSION FROM SYS.M_DATABASE
+
+-- Top 10 largest tables in FIV
+SELECT TOP 10 SCHEMA_NAME, TABLE_NAME, RECORD_COUNT, TABLE_SIZE
+FROM SYS.M_CS_TABLES ORDER BY TABLE_SIZE DESC
+
+-- Active connections
+SELECT CONNECTION_ID, USER_NAME, CLIENT_IP, CONNECTION_STATUS
+FROM SYS.M_CONNECTIONS WHERE CONNECTION_STATUS = 'RUNNING'
+
+-- Memory usage
+SELECT HOST, TOTAL_MEMORY_USED_SIZE / 1024 / 1024 / 1024 AS USED_GB,
+       ALLOCATION_LIMIT / 1024 / 1024 / 1024 AS LIMIT_GB
+FROM SYS.M_HOST_RESOURCE_UTILIZATION</code></pre></div>
   </div>
 </div>
 

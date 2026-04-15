@@ -240,7 +240,7 @@
 
 <!-- HEADER -->
 <div class="header">
-  <a href="/sap_skills/" class="back-link">Go back to the main page</a>
+  <a href="javascript:window.close()" class="back-link" onclick="window.close(); return false;">Close this Page</a>
   <h1>S/4HANA 2023</h1>
   <div class="subtitle">SAP S/4HANA IDES Application Server and HANA Server</div>
 </div>
@@ -250,6 +250,8 @@
   <div class="nav-inner">
     <a href="#system">System Info</a>
     <a href="#status">Status</a>
+    <a href="#sap-cert">Certificate</a>
+    <a href="#hana-sql">SQL Console</a>
     <a href="#links">Links</a>
     <a href="SAP_S4HANA_2023_Guide.html">Documentation</a>
     <a href="SAP_Management_Cockpit.html">Back to Cockpit</a>
@@ -282,8 +284,10 @@
           <tr><td>Client</td><td><code>100</code></td></tr>
           <tr><td>Database</td><td id="hana-version">SAP HANA 2.0 SPS 08 (2.00.080.00.1731056231)</td></tr>
           <tr><td>Tenant</td><td id="hana-tenant">FIV</td></tr>
-          <tr><td>OS</td><td><span id="os-version">SUSE Linux Enterprise Server 15 SP3</span> <a href="ssh://root@sapidess4" style="display:inline-block; margin-left:12px; padding:3px 12px; background:#0284C7; color:white; border-radius:5px; font-size:0.78rem; font-weight:600; text-decoration:none;">SSH</a></td></tr>
+          <tr><td>OS</td><td><span id="os-version">SUSE Linux Enterprise Server 15 SP3</span> <a href="ssh://root@104.154.26.159" style="display:inline-block; margin-left:12px; padding:3px 12px; background:#0284C7; color:white; border-radius:5px; font-size:0.78rem; font-weight:600; text-decoration:none;">SSH</a></td></tr>
           <tr><td>IP Addresses</td><td>Private <code>10.128.15.239</code> &mdash; Public <code>104.154.26.159</code></td></tr>
+          <tr><td>GCP Zone</td><td>us-central1-c</td></tr>
+          <tr><td>GCP Instance</td><td><code>antonio-carbone-ldp-sap-s4hana-2024-10-01</code></td></tr>
           <tr><td>CPUs</td><td id="hw-cpus">...</td></tr>
           <tr><td>Memory</td><td id="hw-memory">...</td></tr>
         </tbody>
@@ -365,6 +369,72 @@
   </div>
 </div>
 
+<!-- ============================================================ -->
+<!-- SAP CERTIFICATE -->
+<!-- ============================================================ -->
+<div class="section" id="sap-cert">
+  <div class="section-title" style="display:flex; justify-content:space-between; align-items:center;">
+    SAP Certificate
+    <button onclick="loadCert()" id="cert-btn" style="font-size:0.8rem; padding:6px 14px; background:#27ae60; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Check</button>
+  </div>
+  <div class="card">
+    <div id="cert-content" style="color:var(--text-light); font-size:0.9rem;">Loading certificate info...</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- HANA SQL CONSOLE -->
+<!-- ============================================================ -->
+<div class="section" id="hana-sql">
+  <div class="section-title">HANA SQL Console</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Interactive Query</h3>
+
+    <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px; align-items:flex-end;">
+      <div style="flex:0 0 auto;">
+        <label style="display:block; font-size:0.82rem; font-weight:600; color:var(--text-light); margin-bottom:4px;">Database</label>
+        <select id="sql-db" onchange="sqlDbChanged()" style="padding:7px 12px; border:1px solid var(--border); border-radius:6px; font-size:0.88rem; background:white; min-width:140px;">
+          <option value="FIV">FIV (Tenant)</option>
+          <option value="SYSTEMDB">SYSTEMDB</option>
+        </select>
+      </div>
+      <div style="flex:0 0 auto;">
+        <label style="display:block; font-size:0.82rem; font-weight:600; color:var(--text-light); margin-bottom:4px;">User</label>
+        <select id="sql-user" style="padding:7px 12px; border:1px solid var(--border); border-radius:6px; font-size:0.88rem; background:white; min-width:160px;">
+          <option value="SYSTEM">SYSTEM</option>
+          <option value="SAPHANADB">SAPHANADB</option>
+        </select>
+      </div>
+      <div style="flex:0 0 auto;">
+        <label style="display:block; font-size:0.82rem; font-weight:600; color:var(--text-light); margin-bottom:4px;">Schema (optional)</label>
+        <input id="sql-schema" type="text" placeholder="e.g. SAPHANADB" style="padding:7px 12px; border:1px solid var(--border); border-radius:6px; font-size:0.88rem; width:160px;">
+      </div>
+      <div style="flex:0 0 auto; display:flex; gap:8px;">
+        <button onclick="executeSql()" id="sql-exec-btn" style="padding:7px 18px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.88rem;">Execute</button>
+        <button onclick="clearSqlResults()" style="padding:7px 14px; background:#6c757d; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.82rem;">Clear</button>
+      </div>
+    </div>
+
+    <textarea id="sql-query" rows="5" placeholder="SELECT * FROM SYS.M_DATABASES" style="width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:6px; font-family:'SF Mono','Fira Code',Consolas,monospace; font-size:0.85rem; resize:vertical; background:var(--code-bg); color:var(--text); line-height:1.5;" spellcheck="false"></textarea>
+
+    <div id="sql-status" style="font-size:0.82rem; color:var(--text-light); margin-top:8px; display:none;"></div>
+
+    <div id="sql-results" style="margin-top:14px; display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span id="sql-row-count" style="font-size:0.82rem; color:var(--text-light);"></span>
+        <button onclick="copySqlResults()" style="font-size:0.75rem; padding:4px 10px; background:var(--code-bg); color:var(--text-light); border:1px solid var(--border); border-radius:4px; cursor:pointer;">Copy</button>
+      </div>
+      <div id="sql-table-wrap" style="overflow-x:auto; border:1px solid var(--border); border-radius:6px; max-height:500px; overflow-y:auto;">
+        <table id="sql-table" style="width:100%; border-collapse:collapse; font-size:0.82rem; font-family:'SF Mono','Fira Code',Consolas,monospace;">
+        </table>
+      </div>
+    </div>
+
+    <div id="sql-error" style="margin-top:14px; display:none; padding:12px 16px; background:#fef2f2; border:1px solid #fecaca; border-radius:6px; color:#dc2626; font-size:0.85rem; font-family:'SF Mono','Fira Code',Consolas,monospace; white-space:pre-wrap;"></div>
+  </div>
+</div>
+
 <!-- LINKS -->
 <!-- ============================================================ -->
 <div class="section" id="links">
@@ -436,6 +506,28 @@
           <div>
             <a href="https://console.cloud.google.com/storage/browser/sap-hana-backint/FIV/usr/sap/FIV/SYS/global/hdb/backint/DB_FIV?pageState=(%22StorageObjectListTable%22:(%22f%22:%22%255B%255D%22))&amp;invt=AbtinQ&amp;project=internal-sales" target="_blank">Backint Backup Destination</a>
             <div class="link-desc">Google Cloud Storage</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://ssh.cloud.google.com/v2/ssh/projects/internal-sales/zones/us-east1-b/instances/ts-sap-hana-s4-ssh-tunnel?authuser=0&amp;hl=en_US&amp;projectNumber=354793711235&amp;useAdminProxy=true" target="_blank" style="flex-shrink:0;">
+            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://ssh.cloud.google.com/v2/ssh/projects/internal-sales/zones/us-east1-b/instances/ts-sap-hana-s4-ssh-tunnel?authuser=0&amp;hl=en_US&amp;projectNumber=354793711235&amp;useAdminProxy=true" target="_blank">SSH Server for Fivetran Connectors</a>
+            <div class="link-desc">GCP SSH Tunnel &mdash; Fivetran connector access to SAP systems</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/details/antonio-carbone-home-ip2?project=internal-sales" target="_blank" style="flex-shrink:0;">
+            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/details/antonio-carbone-home-ip2?project=internal-sales" target="_blank">Set GCP Firewall</a>
+            <div class="link-desc">Google Cloud Firewall Manager &mdash; Network security policies</div>
           </div>
         </div>
       </li>
@@ -1021,6 +1113,157 @@ function startHanaCountdown() {
   _hanaCountdownInterval = setInterval(tick, 1000);
 }
 
+// ---- HANA SQL Console ----
+function sqlDbChanged() {
+  var db = document.getElementById('sql-db').value;
+  var userSel = document.getElementById('sql-user');
+  if (db === 'SYSTEMDB') {
+    userSel.innerHTML = '<option value="SYSTEM">SYSTEM</option>';
+  } else {
+    userSel.innerHTML = '<option value="SYSTEM">SYSTEM</option><option value="SAPHANADB">SAPHANADB</option>';
+  }
+}
+
+function executeSql() {
+  var sql = document.getElementById('sql-query').value.trim();
+  if (!sql) return;
+  var db = document.getElementById('sql-db').value;
+  var user = document.getElementById('sql-user').value;
+  var schema = document.getElementById('sql-schema').value.trim();
+  var btn = document.getElementById('sql-exec-btn');
+  var statusEl = document.getElementById('sql-status');
+  var resultsEl = document.getElementById('sql-results');
+  var errorEl = document.getElementById('sql-error');
+
+  btn.textContent = 'Executing...';
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  statusEl.style.display = 'block';
+  statusEl.textContent = 'Running query on ' + db + ' as ' + user + '...';
+  resultsEl.style.display = 'none';
+  errorEl.style.display = 'none';
+
+  fetch('/sap_skills/api/hana_sql_execute', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({database: db, user: user, sql: sql, schema: schema})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.textContent = 'Execute';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    if (data.status === 'ok') {
+      statusEl.textContent = data.rows.length + ' row(s) returned in ' + (data.elapsed_ms || 0) + ' ms';
+      errorEl.style.display = 'none';
+      if (data.headers && data.headers.length > 0) {
+        resultsEl.style.display = 'block';
+        document.getElementById('sql-row-count').textContent = data.rows.length + ' row(s)';
+        var tbl = document.getElementById('sql-table');
+        var html = '<thead><tr>';
+        data.headers.forEach(function(c) {
+          html += '<th style="padding:8px 12px; text-align:left; background:#f8f9fa; border-bottom:2px solid var(--border); white-space:nowrap; position:sticky; top:0;">' + c + '</th>';
+        });
+        html += '</tr></thead><tbody>';
+        data.rows.forEach(function(row, i) {
+          html += '<tr style="background:' + (i % 2 === 0 ? 'white' : '#f8f9fa') + ';">';
+          row.forEach(function(val) {
+            html += '<td style="padding:6px 12px; border-bottom:1px solid #eee; white-space:nowrap;">' + (val === null ? '<span style=\'color:#aaa;\'>NULL</span>' : escapeHtml(String(val))) + '</td>';
+          });
+          html += '</tr>';
+        });
+        html += '</tbody>';
+        tbl.innerHTML = html;
+      } else {
+        resultsEl.style.display = 'none';
+        statusEl.textContent = 'Statement executed successfully' + (data.message ? ': ' + data.message : '');
+      }
+    } else {
+      statusEl.textContent = 'Error';
+      errorEl.style.display = 'block';
+      errorEl.textContent = data.message || 'Unknown error';
+    }
+  })
+  .catch(function(e) {
+    btn.textContent = 'Execute';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    statusEl.textContent = 'Error';
+    errorEl.style.display = 'block';
+    errorEl.textContent = 'Network error: ' + e.message;
+  });
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function clearSqlResults() {
+  document.getElementById('sql-results').style.display = 'none';
+  document.getElementById('sql-error').style.display = 'none';
+  document.getElementById('sql-status').style.display = 'none';
+  document.getElementById('sql-table').innerHTML = '';
+}
+
+function copySqlResults() {
+  var tbl = document.getElementById('sql-table');
+  var rows = tbl.querySelectorAll('tr');
+  var lines = [];
+  rows.forEach(function(tr) {
+    var cells = tr.querySelectorAll('th, td');
+    var vals = [];
+    cells.forEach(function(c) { vals.push(c.textContent); });
+    lines.push(vals.join('\t'));
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(function() {
+    var btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+  });
+}
+
+// Handle Ctrl+Enter to execute
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && document.activeElement && document.activeElement.id === 'sql-query') {
+    e.preventDefault();
+    executeSql();
+  }
+});
+
+function loadCert() {
+  var el = document.getElementById('cert-content');
+  var btn = document.getElementById('cert-btn');
+  btn.textContent = 'Checking...'; btn.disabled = true;
+  el.textContent = 'Loading certificate info...';
+  fetch('/sap_skills/api/sap_cert_expiry')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.textContent = 'Check'; btn.disabled = false;
+    if (data.status === 'ok') {
+      var color = '#27ae60';
+      var badge = 'Valid';
+      if (data.cert_status === 'critical') { color = '#e74c3c'; badge = 'EXPIRING SOON'; }
+      else if (data.cert_status === 'warning') { color = '#f39c12'; badge = 'Expiring in ' + data.days_remaining + ' days'; }
+      else if (data.cert_status === 'expired') { color = '#e74c3c'; badge = 'EXPIRED'; }
+      else { badge = data.days_remaining + ' days remaining'; }
+
+      var html = '<table style="width:100%; font-size:0.88rem;">';
+      html += '<tr><td style="padding:6px 10px; border-bottom:1px solid var(--border); font-weight:600; width:130px;">Status</td>';
+      html += '<td style="padding:6px 10px; border-bottom:1px solid var(--border);"><span style="padding:3px 10px; border-radius:12px; font-size:0.78rem; font-weight:600; background:' + color + '20; color:' + color + ';">' + badge + '</span></td></tr>';
+      html += '<tr><td style="padding:6px 10px; border-bottom:1px solid var(--border); font-weight:600;">Subject</td><td style="padding:6px 10px; border-bottom:1px solid var(--border);"><code>' + data.subject + '</code></td></tr>';
+      html += '<tr><td style="padding:6px 10px; border-bottom:1px solid var(--border); font-weight:600;">Issuer</td><td style="padding:6px 10px; border-bottom:1px solid var(--border);">' + data.issuer + '</td></tr>';
+      html += '<tr><td style="padding:6px 10px; border-bottom:1px solid var(--border); font-weight:600;">Valid From</td><td style="padding:6px 10px; border-bottom:1px solid var(--border);">' + data.not_before + '</td></tr>';
+      html += '<tr><td style="padding:6px 10px; border-bottom:1px solid var(--border); font-weight:600;">Expires</td><td style="padding:6px 10px; border-bottom:1px solid var(--border); font-weight:600; color:' + color + ';">' + data.expiry_date + ' (' + data.days_remaining + ' days)</td></tr>';
+      html += '<tr><td style="padding:6px 10px; font-weight:600;">Serial</td><td style="padding:6px 10px; font-size:0.8rem;">' + data.serial + '</td></tr>';
+      html += '</table>';
+      el.innerHTML = html;
+    } else {
+      el.textContent = data.message || 'Error loading certificate';
+    }
+  })
+  .catch(function() { btn.textContent = 'Check'; btn.disabled = false; el.textContent = 'Connection error'; });
+}
+
 function loadLicense() {
   var el = document.getElementById('license-content');
   fetch('/sap_skills/api/s4h_license')
@@ -1068,6 +1311,7 @@ function loadLicense() {
 document.addEventListener('DOMContentLoaded', function() {
   refreshStatus();
   loadLicense();
+  loadCert();
   loadDiskSpace();
   setInterval(function() { refreshStatus(); loadLicense(); }, 300000);
   loadHardwareInfo();

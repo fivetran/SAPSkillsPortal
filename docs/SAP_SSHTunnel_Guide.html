@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSH Tunnel Server &mdash; User Guide</title>
+<style>
+  :root {
+    --primary: #0f766e;
+    --primary-light: #14b8a6;
+    --primary-dark: #0d5c56;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --warning: #f39c12;
+    --danger: #e74c3c;
+    --code-bg: #f1f3f5;
+    --accent-bg: #e6f5f3;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #0f766e 0%, #0d5c56 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+    position: relative;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary-dark);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: var(--accent-bg); }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--primary-dark);
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  p { margin-bottom: 12px; }
+  ul { margin: 10px 0 10px 20px; }
+  li { margin-bottom: 6px; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 12px 0;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: var(--accent-bg);
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  tr:hover td { background: #f0f6f5; }
+
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: #0d5c56;
+  }
+
+  .info-box {
+    background: var(--accent-bg);
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.9rem;
+  }
+
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: white;
+  }
+  .badge-green { background: var(--success); }
+  .badge-red { background: var(--danger); }
+  .badge-blue { background: var(--primary); }
+  .badge-purple { background: #7c3aed; }
+
+  pre {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    overflow-x: auto;
+    margin: 12px 0;
+    line-height: 1.6;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-light);
+    font-size: 0.82rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <h1>SSH Tunnel Server &mdash; User Guide</h1>
+  <div class="subtitle">ts-sap-hana-s4-ssh-tunnel &mdash; Secure Jump Host for SAP Landscape</div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#system-info">System Info</a>
+    <a href="#ssh-service">SSH Service</a>
+    <a href="#access">Access</a>
+    <a href="#tunneling">Tunneling</a>
+    <a href="#key-management">Key Management</a>
+    <a href="#security">Security</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#email">Email</a>
+    <a href="SAP_SSHTunnel.html">Back to Cockpit</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- OVERVIEW -->
+<!-- ============================================================ -->
+<div class="section" id="overview">
+  <div class="section-title">Overview</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> What is the SSH Tunnel Server?</h3>
+    <p>The SSH Tunnel Server (<code>ts-sap-hana-s4-ssh-tunnel</code>) is a lightweight <strong>Debian Linux</strong> VM hosted on Google Cloud Platform that serves as a <strong>secure jump host</strong> (bastion host) for accessing the SAP landscape from external networks.</p>
+    <p>The SAP servers (S/4HANA, ECC Oracle, SQL Server, HVR Hub) reside on internal GCP networks without external IP addresses. This tunnel server has both an <strong>internal IP</strong> (for reaching SAP systems) and an <strong>external IP</strong> (for accepting connections from the internet), bridging the two.</p>
+    <div class="info-box">
+      <strong>Primary use cases:</strong> SSH jump host for remote access, port forwarding for SAP GUI and HANA Studio, secure file transfers, and automated connectivity checks from the web server (sapidesecc8).
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SYSTEM INFO -->
+<!-- ============================================================ -->
+<div class="section" id="system-info">
+  <div class="section-title">System Info</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Server Details</h3>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Hostname</td><td><code>ts-sap-hana-s4-ssh-tunnel</code></td></tr>
+        <tr><td>OS</td><td>Debian GNU/Linux 12 (bookworm)</td></tr>
+        <tr><td>Kernel</td><td><code>6.1.0-44-cloud-amd64</code></td></tr>
+        <tr><td>CPUs</td><td>2 vCPUs</td></tr>
+        <tr><td>Memory</td><td>975 MiB</td></tr>
+        <tr><td>Disk</td><td>9.7 GB (39% used)</td></tr>
+        <tr><td>Internal IP</td><td><code>10.142.0.37</code></td></tr>
+        <tr><td>External IP</td><td><code>35.229.110.30</code> (static)</td></tr>
+        <tr><td>GCP Zone</td><td><code>us-east1-b</code></td></tr>
+        <tr><td>GCP Instance</td><td><code>ts-sap-hana-s4-ssh-tunnel</code></td></tr>
+        <tr><td>GCP Project</td><td><code>internal-sales</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Network Topology</h3>
+    <table>
+      <thead><tr><th>Server</th><th>Internal IP</th><th>Reachable from Tunnel</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>sap-sql-ides</code></td><td><code>10.128.0.51</code></td><td><span class="badge badge-green">Yes</span></td><td>SAP ECC 6.0 on SQL Server (Windows)</td></tr>
+        <tr><td><code>hvrhub</code></td><td><code>10.128.15.240</code></td><td><span class="badge badge-green">Yes</span></td><td>Fivetran HVR Hub</td></tr>
+        <tr><td><code>sapidess4</code></td><td><code>10.128.15.210</code></td><td><span class="badge badge-red">No (different subnet)</span></td><td>SAP S/4HANA 2023</td></tr>
+        <tr><td><code>sapidesecc8</code></td><td><code>10.128.15.220</code></td><td><span class="badge badge-red">No (different subnet)</span></td><td>SAP ECC 6.0 EHP8 on Oracle</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      <strong>Note:</strong> The tunnel server is on the <code>10.142.x.x</code> subnet while sapidess4 and sapidesecc8 are on <code>10.128.15.x</code>. Direct ICMP ping is not possible between these subnets, but SSH forwarding through GCP VPC routing works for the reachable hosts.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SSH SERVICE -->
+<!-- ============================================================ -->
+<div class="section" id="ssh-service">
+  <div class="section-title">SSH Service</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Service Details</h3>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Service</td><td><code>ssh.service</code> (OpenBSD Secure Shell server)</td></tr>
+        <tr><td>Daemon</td><td><code>sshd</code></td></tr>
+        <tr><td>Port</td><td>22 (TCP)</td></tr>
+        <tr><td>Config file</td><td><code>/etc/ssh/sshd_config</code></td></tr>
+        <tr><td>Status</td><td><span class="badge badge-green">enabled</span> (starts on boot)</td></tr>
+        <tr><td>Protocol</td><td>SSH-2</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Configuration</h3>
+    <table>
+      <thead><tr><th>Setting</th><th>Value</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>PermitRootLogin</code></td><td><code>prohibit-password</code></td><td>Root login via SSH key only (no password)</td></tr>
+        <tr><td><code>PasswordAuthentication</code></td><td><code>yes</code></td><td>Password auth enabled globally</td></tr>
+        <tr><td><code>ChallengeResponseAuthentication</code></td><td><code>yes</code></td><td>Keyboard-interactive auth enabled</td></tr>
+        <tr><td><code>UsePAM</code></td><td><code>yes</code></td><td>PAM authentication enabled</td></tr>
+        <tr><td><code>X11Forwarding</code></td><td><code>yes</code></td><td>X11 display forwarding allowed</td></tr>
+        <tr><td><code>AllowTcpForwarding</code></td><td><code>yes</code> (default)</td><td>TCP port forwarding allowed</td></tr>
+        <tr><td><code>GatewayPorts</code></td><td><code>no</code> (default)</td><td>Remote port forwarding binds to localhost only</td></tr>
+        <tr><td><code>ClientAliveInterval</code></td><td><code>120</code></td><td>Keep-alive ping every 120 seconds</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      <strong>Match block:</strong> The <code>fivetran</code> user has an explicit <code>PasswordAuthentication yes</code> match rule, ensuring password login works for this user even if the global setting changes.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Start / Stop / Restart</h3>
+    <p>The cockpit provides <span class="badge badge-green">Start</span>, <span class="badge badge-red">Stop</span>, and <span class="badge badge-purple">Restart</span> buttons for the SSH service.</p>
+    <ul>
+      <li><strong>Start</strong> &mdash; starts the SSH daemon; no password required</li>
+      <li><strong>Stop</strong> &mdash; stops the SSH daemon; <strong>requires master password</strong>. All active SSH sessions will be terminated.</li>
+      <li><strong>Restart</strong> &mdash; restarts the SSH daemon; <strong>requires master password</strong>. Active sessions will be briefly interrupted.</li>
+    </ul>
+    <p><strong>Command line (from sapidesecc8):</strong></p>
+    <pre># Check status
+ssh root@sapidesecc8 "ssh root@10.142.0.37 'systemctl status ssh'"
+
+# Start SSH service
+ssh root@sapidesecc8 "ssh root@10.142.0.37 'systemctl start ssh'"
+
+# Stop SSH service (WARNING: all sessions will be terminated)
+ssh root@sapidesecc8 "ssh root@10.142.0.37 'systemctl stop ssh'"
+
+# Restart SSH service
+ssh root@sapidesecc8 "ssh root@10.142.0.37 'systemctl restart ssh'"
+
+# Enable SSH on boot
+ssh root@sapidesecc8 "ssh root@10.142.0.37 'systemctl enable ssh'"</pre>
+    <p><strong>If already logged in on the tunnel server:</strong></p>
+    <pre>sudo systemctl status ssh
+sudo systemctl start ssh
+sudo systemctl stop ssh
+sudo systemctl restart ssh</pre>
+    <div class="info-box">
+      <strong>Warning:</strong> Stopping the SSH service will prevent all remote access to the server. The only way to recover is through the GCP Console serial console or by restarting the VM from GCP.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ACCESS -->
+<!-- ============================================================ -->
+<div class="section" id="access">
+  <div class="section-title">Access</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> User Accounts</h3>
+    <table>
+      <thead><tr><th>User</th><th>Auth Method</th><th>Shell</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>root</code></td><td>SSH key only</td><td><code>/bin/bash</code></td><td>System administrator (from sapidesecc8 only)</td></tr>
+        <tr><td><code>fivetran</code></td><td>SSH key + password</td><td><code>/bin/sh</code></td><td>Fivetran service account &mdash; used for tunneling</td></tr>
+        <tr><td><code>antonio_carbone</code></td><td>SSH key (GCP OS Login)</td><td><code>/bin/bash</code></td><td>Personal account via Google Cloud IAP</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Credentials</h3>
+    <table>
+      <thead><tr><th>User</th><th>Password</th><th>Vault Key</th></tr></thead>
+      <tbody>
+        <tr><td><code>root</code></td><td>Key auth only (sapidesecc8&rsquo;s key is authorized)</td><td><code>ssh_tunnel_server</code></td></tr>
+        <tr><td><code>fivetran</code></td><td>Stored in vault</td><td><code>ssh_tunnel_server</code></td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      <strong>SSH button:</strong> The cockpit&rsquo;s SSH button copies the fivetran password to clipboard and opens an <code>ssh://</code> connection to <code>fivetran@35.229.110.30</code>.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Connection Methods</h3>
+    <p><strong>From your Mac (key-based, no password):</strong></p>
+    <pre>ssh fivetran@35.229.110.30</pre>
+    <p><strong>Via GCP Identity-Aware Proxy (IAP):</strong></p>
+    <pre>gcloud compute ssh ts-sap-hana-s4-ssh-tunnel --zone=us-east1-b --project=internal-sales</pre>
+    <p><strong>From sapidesecc8 (key-based, no password):</strong></p>
+    <pre>ssh root@10.142.0.37      # as root
+ssh fivetran@10.142.0.37  # as fivetran</pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TUNNELING -->
+<!-- ============================================================ -->
+<div class="section" id="tunneling">
+  <div class="section-title">Tunneling</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> SSH Jump Host</h3>
+    <p>Use the <code>-J</code> flag to jump through the tunnel server to reach internal SAP hosts:</p>
+    <pre># Jump to S/4HANA server via tunnel
+ssh -J fivetran@35.229.110.30 root@sapidess4
+
+# Jump to ECC Oracle server
+ssh -J fivetran@35.229.110.30 root@sapidesecc8</pre>
+    <div class="info-box">
+      <strong>ProxyJump:</strong> The <code>-J</code> flag (ProxyJump) establishes a transparent connection through the tunnel server. You authenticate to both the tunnel and the target host in sequence.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Port Forwarding</h3>
+    <p>Forward local ports to internal SAP services through the tunnel:</p>
+    <table>
+      <thead><tr><th>Service</th><th>Command</th><th>Local Access</th></tr></thead>
+      <tbody>
+        <tr><td>SAP GUI (S/4HANA)</td><td><code>ssh -L 3200:sapidess4:3200 fivetran@35.229.110.30</code></td><td><code>localhost:3200</code></td></tr>
+        <tr><td>HANA Studio</td><td><code>ssh -L 30015:sapidess4:30015 fivetran@35.229.110.30</code></td><td><code>localhost:30015</code></td></tr>
+        <tr><td>SAP GUI (ECC Oracle)</td><td><code>ssh -L 3201:sapidesecc8:3200 fivetran@35.229.110.30</code></td><td><code>localhost:3201</code></td></tr>
+        <tr><td>SQL Server</td><td><code>ssh -L 1433:10.128.0.51:1433 fivetran@35.229.110.30</code></td><td><code>localhost:1433</code></td></tr>
+      </tbody>
+    </table>
+    <p><strong>Multiple tunnels in one command:</strong></p>
+    <pre>ssh -L 3200:sapidess4:3200 \
+    -L 3201:sapidesecc8:3200 \
+    -L 30015:sapidess4:30015 \
+    fivetran@35.229.110.30</pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- KEY MANAGEMENT -->
+<!-- ============================================================ -->
+<div class="section" id="key-management">
+  <div class="section-title">Key Management</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Adding SSH Keys</h3>
+    <p>The cockpit provides an <strong>Add SSH Public Key</strong> form that appends a public key to <code>/home/fivetran/.ssh/authorized_keys</code> on the tunnel server.</p>
+    <ul>
+      <li>Paste any standard SSH public key (<code>ssh-rsa</code>, <code>ssh-ed25519</code>, or <code>ecdsa</code>)</li>
+      <li>The key is checked for duplicates &mdash; if the key body already exists, it won&rsquo;t be added again</li>
+      <li>An <code>added-by-claude</code> comment is appended to keys added through the portal</li>
+      <li>Keys are added to the <code>fivetran</code> user only (not root)</li>
+    </ul>
+    <div class="info-box">
+      <strong>API:</strong> <code>POST /sap_skills/api/sshtunnel_add_key</code> with body <code>{"key": "ssh-rsa AAAA... user@host"}</code>. The server SSHs as root to the tunnel server and modifies the authorized_keys file.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Authorized Keys Files</h3>
+    <table>
+      <thead><tr><th>File</th><th>User</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>/home/fivetran/.ssh/authorized_keys</code></td><td>fivetran</td><td>Fivetran service keys + keys added via portal</td></tr>
+        <tr><td><code>/root/.ssh/authorized_keys</code></td><td>root</td><td>sapidesecc8&rsquo;s root key (for management)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECURITY -->
+<!-- ============================================================ -->
+<div class="section" id="security">
+  <div class="section-title">Security</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Firewall</h3>
+    <table>
+      <thead><tr><th>Rule</th><th>Direction</th><th>Port</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td><code>ssh-port22</code></td><td>Ingress</td><td>TCP 22</td><td><code>0.0.0.0/0</code> (all)</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      <strong>GCP Firewall:</strong> Port 22 is open from all sources. Security relies on SSH authentication (key + password). Consider restricting source IPs to known Fivetran office ranges for additional security.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Security Considerations</h3>
+    <ul>
+      <li><strong>Root access:</strong> SSH key only (<code>prohibit-password</code>) &mdash; password login as root is impossible</li>
+      <li><strong>OS updates:</strong> Debian 12 (bookworm) is current stable (upgraded 2026-04-14 from Debian 11 bullseye)</li>
+      <li><strong>Unattended upgrades:</strong> The <code>unattended-upgrades</code> service is running for automatic security patches</li>
+      <li><strong>ClientAliveInterval:</strong> Set to 120 seconds &mdash; idle sessions are kept alive to prevent disconnection</li>
+      <li><strong>Monitoring:</strong> The web server (sapidesecc8) checks tunnel server reachability via the Management Cockpit</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TROUBLESHOOTING -->
+<!-- ============================================================ -->
+<div class="section" id="troubleshooting">
+  <div class="section-title">Troubleshooting</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Common Issues</h3>
+    <table>
+      <thead><tr><th>Issue</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>SSH service not responding</td><td>Use cockpit Start button, or GCP Console serial console: <code>systemctl start ssh</code></td></tr>
+        <tr><td>Connection refused on port 22</td><td>Check GCP firewall rule <code>ssh-port22</code> exists; check <code>systemctl status ssh</code></td></tr>
+        <tr><td>Permission denied (publickey)</td><td>Key not in <code>authorized_keys</code> &mdash; add via cockpit or manually</td></tr>
+        <tr><td>Password rejected</td><td>Verify <code>PasswordAuthentication yes</code> in sshd_config; verify user password with <code>passwd fivetran</code></td></tr>
+        <tr><td>Cockpit shows &ldquo;Connection error&rdquo;</td><td>Tunnel server is down &mdash; check GCP Console for VM status, restart if needed</td></tr>
+        <tr><td>Tunnel hangs after idle</td><td><code>ClientAliveInterval</code> should prevent this; add <code>ServerAliveInterval 60</code> to your local <code>~/.ssh/config</code></td></tr>
+        <tr><td>Port forward not working</td><td>Verify target host is reachable from tunnel server: <code>ssh root@10.142.0.37 "ping -c1 TARGET_IP"</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Diagnostic Commands</h3>
+    <pre># Check SSH service status
+ssh root@sapidesecc8 "ssh root@10.142.0.37 'systemctl status ssh'"
+
+# Check active sessions
+ssh root@sapidesecc8 "ssh root@10.142.0.37 'who'"
+
+# Check sshd config syntax
+ssh root@sapidesecc8 "ssh root@10.142.0.37 'sshd -t && echo OK || echo FAILED'"
+
+# Check auth log
+ssh root@sapidesecc8 "ssh root@10.142.0.37 'tail -20 /var/log/auth.log'"
+
+# Check disk space
+ssh root@sapidesecc8 "ssh root@10.142.0.37 'df -h /'"
+
+# Restart SSH after config change
+ssh root@sapidesecc8 "ssh root@10.142.0.37 'systemctl restart ssh'"</pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- EMAIL -->
+<!-- ============================================================ -->
+<div class="section" id="email">
+  <div class="section-title">Email Relay</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> SMTP Configuration</h3>
+    <p>This server is configured to send email via <strong>smtp2go</strong> relay using Exim4.</p>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>MTA</td><td>Exim4 (Debian smarthost mode)</td></tr>
+        <tr><td>Relay</td><td><code>mail.smtp2go.com::2525</code></td></tr>
+        <tr><td>From Address</td><td><code>sshtunnel@fivetran-internal-sales.com</code></td></tr>
+        <tr><td>Auth</td><td>SASL via <code>/etc/exim4/passwd.client</code> (credentials in vault key <code>smtp2go</code>)</td></tr>
+        <tr><td>Config</td><td><code>/etc/exim4/update-exim4.conf.conf</code>, <code>/etc/exim4/passwd.client</code></td></tr>
+      </tbody>
+    </table>
+    <p><strong>Send a test email:</strong></p>
+    <pre>echo "Test" | mail -s "Test from sshtunnel" -a "From: sshtunnel@fivetran-internal-sales.com" recipient@email.com</pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ARCHITECTURE -->
+<!-- ============================================================ -->
+<div class="section" id="architecture">
+  <div class="section-title">Architecture</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Cockpit API Endpoints</h3>
+    <table>
+      <thead><tr><th>Endpoint</th><th>Method</th><th>Auth</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>/sap_skills/api/sshtunnel_hardware</code></td><td>GET</td><td>None</td><td>OS, CPUs, memory, uptime</td></tr>
+        <tr><td><code>/sap_skills/api/sshtunnel_disk</code></td><td>GET</td><td>None</td><td>Disk space usage</td></tr>
+        <tr><td><code>/sap_skills/api/sshtunnel_status</code></td><td>GET</td><td>None</td><td>SSH reachability check</td></tr>
+        <tr><td><code>/sap_skills/api/sshtunnel_sessions</code></td><td>GET</td><td>None</td><td>Active SSH sessions (who)</td></tr>
+        <tr><td><code>/sap_skills/api/sshtunnel_ssh_credential</code></td><td>GET</td><td>None</td><td>Returns fivetran user/password from vault</td></tr>
+        <tr><td><code>/sap_skills/api/sshtunnel_control</code></td><td>POST</td><td>Master pwd (stop/restart)</td><td>Start/stop/restart SSH service</td></tr>
+        <tr><td><code>/sap_skills/api/sshtunnel_add_key</code></td><td>POST</td><td>None</td><td>Add public key to fivetran authorized_keys</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> How It Works</h3>
+    <p>All cockpit operations are executed <strong>remotely from sapidesecc8</strong>. The web server (sapidesecc8) SSHs to the tunnel server (<code>root@10.142.0.37</code>) using key-based authentication and runs commands. The results are returned as JSON to the browser.</p>
+    <table>
+      <thead><tr><th>Component</th><th>Location</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td>Web server</td><td><code>sapidesecc8</code></td><td><code>gcs_explorer_server.py</code> handles API requests</td></tr>
+        <tr><td>SSH tunnel server</td><td><code>10.142.0.37</code></td><td>Target of all remote commands</td></tr>
+        <tr><td>Cockpit page</td><td><code>/usr/sap/sap_skills/docs/SAP_SSHTunnel.html</code></td><td>Browser UI with JavaScript fetch calls</td></tr>
+        <tr><td>Guide page</td><td><code>/usr/sap/sap_skills/docs/SAP_SSHTunnel_Guide.html</code></td><td>This documentation page</td></tr>
+        <tr><td>Vault credentials</td><td><code>/usr/sap/sap_skills/.vault.enc</code></td><td>Encrypted vault key: <code>ssh_tunnel_server</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monitoring Agent &mdash; User Guide</title>
+<style>
+  :root {
+    --primary: #0d7377;
+    --primary-light: #12999e;
+    --primary-dark: #095456;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --warning: #f39c12;
+    --danger: #e74c3c;
+    --code-bg: #f1f3f5;
+    --accent-bg: #e6f5f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+  .header {
+    background: linear-gradient(135deg, #0d7377 0%, #095456 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary-dark);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: var(--accent-bg); }
+  .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: var(--primary-dark);
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  p { margin-bottom: 12px; }
+  ul { margin: 10px 0 10px 20px; }
+  li { margin-bottom: 6px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin: 12px 0;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: var(--accent-bg);
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+  }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: #095456;
+  }
+  pre {
+    background: #1e293b;
+    color: #e2e8f0;
+    padding: 16px 20px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    overflow-x: auto;
+    margin: 12px 0;
+    line-height: 1.6;
+  }
+  .info-box {
+    background: var(--accent-bg);
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.9rem;
+  }
+  .footer {
+    text-align: center;
+    padding: 20px;
+    color: var(--text-light);
+    font-size: 0.82rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Monitoring Agent &mdash; User Guide</h1>
+  <div class="subtitle">Email Relay, Distribution Lists, Service Monitor, Portal Watchdog, Activity Logging &amp; Health Checks</div>
+</div>
+
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#smtp">SMTP Relay</a>
+    <a href="#servers">Server Config</a>
+    <a href="#distribution-lists">Distribution Lists</a>
+    <a href="#apis">APIs</a>
+    <a href="#maintenance">Maintenance</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+    <a href="#service-monitor">Service Monitor</a>
+    <a href="#portal-watchdog">Portal Watchdog</a>
+    <a href="#activity-logging">Activity Logging</a>
+    <a href="#health-check">Health Check</a>
+    <a href="SAP_Monitoring.html">Back to Cockpit</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- OVERVIEW -->
+<div class="section" id="overview">
+  <div class="section-title">Overview</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> What is the Monitoring Agent?</h3>
+    <p>The Monitoring Agent provides <strong>email notification capabilities</strong> across the entire SAP landscape. All Linux servers are configured to relay email through <strong>smtp2go</strong>, a cloud SMTP service, using the verified domain <code>fivetran-internal-sales.com</code>.</p>
+    <p>Key features:</p>
+    <ul>
+      <li><strong>Distribution lists</strong> &mdash; managed via the web UI, stored in <code>/usr/sap/sap_skills/mailing_lists.json</code>, loaded dynamically on page load</li>
+      <li><strong>Per-server email</strong> &mdash; each server sends as <code>&lt;hostname&gt;@fivetran-internal-sales.com</code></li>
+      <li><strong>Portal email</strong> &mdash; the Skills Portal sends as <code>sap-skills@fivetran-internal-sales.com</code></li>
+      <li><strong>Test email</strong> &mdash; one-click test from the cockpit page</li>
+    </ul>
+  </div>
+</div>
+
+<!-- SMTP RELAY -->
+<div class="section" id="smtp">
+  <div class="section-title">SMTP Relay</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> smtp2go Configuration</h3>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Provider</td><td><a href="https://app.smtp2go.com" target="_blank" style="color:var(--primary);">smtp2go</a></td></tr>
+        <tr><td>SMTP Server</td><td><code>mail.smtp2go.com</code></td></tr>
+        <tr><td>Port</td><td><code>2525</code></td></tr>
+        <tr><td>Auth User</td><td><code>antonio.carbone@fivetran.com</code></td></tr>
+        <tr><td>Auth Password</td><td>Stored in vault key <code>smtp2go</code></td></tr>
+        <tr><td>Verified Domain</td><td><code>fivetran-internal-sales.com</code></td></tr>
+        <tr><td>TLS</td><td>Enabled (opportunistic)</td></tr>
+        <tr><td>Portal From</td><td><code>sap-skills@fivetran-internal-sales.com</code></td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      <strong>smtp2go dashboard:</strong> <a href="https://app.smtp2go.com" target="_blank" style="color:var(--primary);">https://app.smtp2go.com</a> &mdash; use to check delivery logs, verify senders, and manage account settings.
+    </div>
+  </div>
+</div>
+
+<!-- SERVER CONFIG -->
+<div class="section" id="servers">
+  <div class="section-title">Server Configuration</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Per-Server Email Setup</h3>
+    <p>Each Linux server in the SAP landscape is configured to relay email via smtp2go. Each uses <code>&lt;hostname&gt;@fivetran-internal-sales.com</code> as its from address.</p>
+    <table>
+      <thead><tr><th>Server</th><th>From Address</th><th>MTA</th><th>OS</th></tr></thead>
+      <tbody>
+        <tr><td><code>sapidesecc8</code></td><td><code>sapidesecc8@fivetran-internal-sales.com</code></td><td>Postfix (lmdb)</td><td>SUSE 15 SP5</td></tr>
+        <tr><td><code>sapidess4</code></td><td><code>sapidess4@fivetran-internal-sales.com</code></td><td>Postfix (lmdb)</td><td>SUSE 15 SP3</td></tr>
+        <tr><td><code>ts-sap-hana-s4-ssh-tunnel</code></td><td><code>sshtunnel@fivetran-internal-sales.com</code></td><td>Exim4</td><td>Debian 12</td></tr>
+        <tr><td><code>saprouter</code></td><td><code>saprouter@fivetran-internal-sales.com</code></td><td>Postfix (lmdb)</td><td>Rocky Linux 10</td></tr>
+        <tr><td><code>saphvrhub</code></td><td><code>hvrhub@fivetran-internal-sales.com</code></td><td>Postfix (hash)</td><td>Rocky Linux 8</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Configuration Files</h3>
+    <table>
+      <thead><tr><th>MTA</th><th>Config File</th><th>Credentials File</th></tr></thead>
+      <tbody>
+        <tr><td>Postfix (SUSE)</td><td><code>/etc/postfix/main.cf</code></td><td><code>/etc/postfix/sasl_passwd</code> (lmdb map)</td></tr>
+        <tr><td>Postfix (Rocky)</td><td><code>/etc/postfix/main.cf</code></td><td><code>/etc/postfix/sasl_passwd</code> (hash or lmdb map)</td></tr>
+        <tr><td>Exim4 (Debian)</td><td><code>/etc/exim4/update-exim4.conf.conf</code></td><td><code>/etc/exim4/passwd.client</code></td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      <strong>Map types:</strong> SUSE and Rocky Linux 10 use <code>lmdb</code> maps. Rocky Linux 8 uses <code>hash</code> (Berkeley DB). After editing <code>sasl_passwd</code>, regenerate the map: <code>postmap lmdb:/etc/postfix/sasl_passwd</code> or <code>postmap /etc/postfix/sasl_passwd</code>.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Test Commands</h3>
+    <p>Send a test email from any server:</p>
+    <pre># From sapidesecc8 (local)
+echo "Test" | mailx -s "Test from sapidesecc8" -r "sapidesecc8@fivetran-internal-sales.com" recipient@email.com
+
+# From sapidess4 (via SSH)
+ssh root@sapidess4 'echo "Test" | mailx -s "Test from sapidess4" -r "sapidess4@fivetran-internal-sales.com" recipient@email.com'
+
+# From sshtunnel (Exim4 uses different syntax)
+ssh root@10.142.0.37 'echo "Test" | mail -s "Test from sshtunnel" -a "From: sshtunnel@fivetran-internal-sales.com" recipient@email.com'
+
+# From saprouter
+ssh root@10.128.0.111 'echo "Test" | mailx -s "Test from saprouter" -r "saprouter@fivetran-internal-sales.com" recipient@email.com'
+
+# From hvrhub
+ssh root@10.128.15.240 'echo "Test" | mailx -s "Test from hvrhub" -r "hvrhub@fivetran-internal-sales.com" recipient@email.com'</pre>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Adding SMTP to a New Server</h3>
+    <p>To configure a new Linux server to relay email via smtp2go:</p>
+    <pre># For Postfix (RHEL/Rocky/SUSE):
+postconf -e "relayhost = [mail.smtp2go.com]:2525"
+postconf -e "smtp_sasl_auth_enable = yes"
+postconf -e "smtp_sasl_password_maps = lmdb:/etc/postfix/sasl_passwd"  # or hash: on older systems
+postconf -e "smtp_sasl_security_options = noanonymous"
+postconf -e "smtp_tls_security_level = may"
+echo "[mail.smtp2go.com]:2525 antonio.carbone@fivetran.com:PASSWORD" > /etc/postfix/sasl_passwd
+chmod 600 /etc/postfix/sasl_passwd
+postmap lmdb:/etc/postfix/sasl_passwd  # or: postmap /etc/postfix/sasl_passwd
+systemctl restart postfix
+
+# For Exim4 (Debian):
+# Edit /etc/exim4/update-exim4.conf.conf:
+#   dc_eximconfig_configtype='smarthost'
+#   dc_smarthost='mail.smtp2go.com::2525'
+# Add to /etc/exim4/passwd.client:
+#   mail.smtp2go.com:antonio.carbone@fivetran.com:PASSWORD
+update-exim4.conf
+systemctl restart exim4</pre>
+    <div class="info-box">
+      <strong>Password:</strong> Get the smtp2go password from the vault: key <code>smtp2go</code>. Do not hardcode it in documentation.
+    </div>
+  </div>
+</div>
+
+<!-- DISTRIBUTION LISTS -->
+<div class="section" id="distribution-lists">
+  <div class="section-title">Distribution Lists</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> How Distribution Lists Work</h3>
+    <p>Distribution lists are stored in a JSON file on the server: <code>/usr/sap/sap_skills/mailing_lists.json</code>. The web UI loads the lists dynamically on page load via the API. When a list is updated via the web UI:</p>
+    <ul>
+      <li>The browser calls <code>POST /sap_skills/api/update_mailing_list</code> with the list name and email array</li>
+      <li>The server writes the updated list to <code>/usr/sap/sap_skills/mailing_lists.json</code></li>
+      <li>Changes are reflected immediately in both the <a href="SAP_Monitoring.html" style="color:var(--primary);">Monitoring Cockpit</a> and the <a href="SAP_Skills_Portal_Server_Documentation.html#mailing-lists" style="color:var(--primary);">Server Documentation</a> page (loaded dynamically on each page load)</li>
+    </ul>
+    <table>
+      <thead><tr><th>List Name</th><th>Recipients</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td><code>SAPSpecialists</code></td><td><code>antonio.carbone@fivetran.com</code>, <code>richard.brouwer@fivetran.com</code></td><td>Alerts, notifications, reports</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- APIs -->
+<div class="section" id="apis">
+  <div class="section-title">APIs</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Monitoring API Endpoints</h3>
+    <table>
+      <thead><tr><th>Endpoint</th><th>Method</th><th>Auth</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>/sap_skills/api/get_mailing_list</code></td><td>POST</td><td>None</td><td>Read a distribution list by name. Body: <code>{"list_name": "SAPSpecialists"}</code></td></tr>
+        <tr><td><code>/sap_skills/api/update_mailing_list</code></td><td>POST</td><td>None</td><td>Update a distribution list. Body: <code>{"list_name": "...", "emails": [...]}</code></td></tr>
+        <tr><td><code>/sap_skills/api/send_test_email</code></td><td>POST</td><td>None</td><td>Send test email to a list. Body: <code>{"list_name": "...", "emails": [...]}</code></td></tr>
+        <tr><td><code>/sap_skills/api/alert_suspend</code></td><td>POST</td><td>Master pwd</td><td>Suspend or resume alerts for a server. Body: <code>{"server": "...", "action": "suspend|resume", "master_password": "..."}</code></td></tr>
+        <tr><td><code>/sap_skills/api/alert_suspended_list</code></td><td>POST</td><td>None</td><td>List all servers with suspended alerts</td></tr>
+        <tr><td><code>/sap_skills/api/view_activity_log</code></td><td>POST</td><td>None</td><td>Read last N entries from activity CSV log</td></tr>
+        <tr><td><code>/sap_skills/api/datalake_status</code></td><td>POST</td><td>None</td><td>Datalake Reader service status, PID, versions, log sizes</td></tr>
+        <tr><td><code>/sap_skills/api/datalake_control</code></td><td>POST</td><td>Master pwd (stop/restart)</td><td>Start/stop/restart the Datalake Reader</td></tr>
+        <tr><td><code>/sap_skills/api/datalake_view_log</code></td><td>POST</td><td>None</td><td>View app/portal_trace/duckdb_trace logs</td></tr>
+        <tr><td><code>/sap_skills/api/datalake_truncate_log</code></td><td>POST</td><td>Master pwd</td><td>Truncate a log file</td></tr>
+        <tr><td><code>/sap_skills/api/sap_cert_expiry</code></td><td>GET</td><td>None</td><td>SAP SSL certificate expiry on sapidess4</td></tr>
+        <tr><td><code>/sap_skills/api/ecc_cert_expiry</code></td><td>GET</td><td>None</td><td>Portal SSL certificate expiry on sapidesecc8</td></tr>
+      </tbody>
+    </table>
+    <p><strong>Example &mdash; read list via curl:</strong></p>
+    <pre>curl -sk -X POST -H "Content-Type: application/json" \
+  -d '{"list_name":"SAPSpecialists"}' \
+  https://sapidesecc8.fivetran-internal-sales.com/sap_skills/api/get_mailing_list</pre>
+    <p><strong>Example &mdash; send to list from Python:</strong></p>
+    <pre>import subprocess
+# Read list from API or hardcode
+recipients = ["antonio.carbone@fivetran.com", "richard.brouwer@fivetran.com"]
+for r in recipients:
+    subprocess.run(f'echo "Alert message" | mailx -s "SAP Alert" -r "sap-skills@fivetran-internal-sales.com" {r}', shell=True)</pre>
+  </div>
+</div>
+
+<!-- MAINTENANCE WINDOWS -->
+<div class="section" id="maintenance">
+  <div class="section-title">Maintenance Windows</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Suspend &amp; Resume Alerts</h3>
+    <p>During planned maintenance, you can suspend alerts for individual servers to avoid false notifications. Each server card in the <a href="SAP_Monitoring.html#service-monitor" style="color:var(--primary);">Service Monitor</a> has two buttons:</p>
+    <ul>
+      <li><strong>&#9940; Suspend Alerts</strong> &mdash; stops all email alerts for that server (requires master password). Sends a "monitoring suspended" email to the distribution list.</li>
+      <li><strong>&#128242; Resume Alerts</strong> &mdash; re-enables alerts (requires master password). Sends a "monitoring resumed" email to the distribution list.</li>
+    </ul>
+    <p>While suspended:</p>
+    <ul>
+      <li>Health check still runs and logs state changes to CSV + Parquet</li>
+      <li>No email alerts are sent for DOWN, UP, or persistent DOWN events on that server</li>
+      <li>The Suspend button is greyed out; the Resume button turns green</li>
+      <li>A flag file is created at <code>/var/run/sap_planned/&lt;server&gt;_suspended.json</code></li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> How It Works</h3>
+    <table>
+      <thead><tr><th>Step</th><th>Action</th></tr></thead>
+      <tbody>
+        <tr><td><strong>1. Suspend</strong></td><td>Click &#9940; Suspend Alerts &rarr; enter master password &rarr; flag file created &rarr; "monitoring suspended" email sent to SAPSpecialists</td></tr>
+        <tr><td><strong>2. Maintenance</strong></td><td>Perform your maintenance. Health check detects changes but skips alerting for this server.</td></tr>
+        <tr><td><strong>3. Resume</strong></td><td>Click &#128242; Resume Alerts &rarr; enter master password &rarr; flag file removed &rarr; "monitoring resumed" email sent to SAPSpecialists</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Certificate Monitoring</h3>
+    <p>The health check agent also monitors SSL certificate expiration:</p>
+    <table>
+      <thead><tr><th>Certificate</th><th>Server</th><th>Cockpit Page</th><th>Alert Threshold</th></tr></thead>
+      <tbody>
+        <tr><td>SAP SSL (STRUST)</td><td>sapidess4</td><td><a href="SAP_S4HANA_2023.html#sap-cert" style="color:var(--primary);">S/4HANA Cockpit</a></td><td>&le; 5 days</td></tr>
+        <tr><td>Portal SSL (ZeroSSL)</td><td>sapidesecc8</td><td><a href="SAP_ECC6_EHP8.html#portal-cert" style="color:var(--primary);">ECC Cockpit</a></td><td>&le; 5 days</td></tr>
+      </tbody>
+    </table>
+    <p>Certificate checks run once per hour (rate-limited). When &le; 5 days remaining, an alert email is sent to SAPSpecialists.</p>
+  </div>
+</div>
+
+<!-- TROUBLESHOOTING -->
+<div class="section" id="troubleshooting">
+  <div class="section-title">Troubleshooting</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Common Issues</h3>
+    <table>
+      <thead><tr><th>Issue</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>Email not delivered</td><td>Check mail log: <code>tail -20 /var/log/mail</code> (SUSE) or <code>journalctl -u postfix -n 20</code> (Rocky/Debian)</td></tr>
+        <tr><td><code>unsupported dictionary type: hash</code></td><td>Use <code>lmdb</code> instead: <code>postconf -e "smtp_sasl_password_maps = lmdb:/etc/postfix/sasl_passwd"</code> then <code>postmap lmdb:/etc/postfix/sasl_passwd</code></td></tr>
+        <tr><td><code>sender domain not verified</code></td><td>Only <code>fivetran-internal-sales.com</code> is verified. Use <code>*@fivetran-internal-sales.com</code> as from address.</td></tr>
+        <tr><td><code>TLS engine unavailable</code></td><td>Enable <code>tlsmgr</code> in <code>/etc/postfix/master.cf</code> (uncomment the line) and restart postfix</td></tr>
+        <tr><td><code>SASL authentication failed</code></td><td>Verify credentials in <code>/etc/postfix/sasl_passwd</code> match the vault. Regenerate map after editing.</td></tr>
+        <tr><td>Distribution list changes not saving</td><td>Check browser console for errors. Verify the API returns <code>{"status": "ok"}</code>. Check permissions on <code>/usr/sap/sap_skills/mailing_lists.json</code>.</td></tr>
+        <tr><td>Test email button does nothing</td><td>List may be empty. Add at least one recipient first.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Diagnostic Commands</h3>
+    <pre># Check postfix queue
+postqueue -p
+
+# Flush stuck mail
+postqueue -f
+
+# Check postfix config
+postconf relayhost smtp_sasl_auth_enable smtp_sasl_password_maps smtp_tls_security_level
+
+# Check Exim4 queue (sshtunnel)
+exim4 -bp
+
+# Check smtp2go delivery log
+# Go to https://app.smtp2go.com > Activity > Email Activity</pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- PORTAL WATCHDOG -->
+<!-- ============================================================ -->
+<div class="section" id="portal-watchdog">
+  <div class="section-title">Portal Watchdog</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> What is the Portal Watchdog?</h3>
+    <p>The Portal Watchdog runs on <code>sapidess4</code> and monitors the web server on <code>sapidesecc8</code>. If the portal goes down unexpectedly (without a planned maintenance flag), the watchdog sends email alerts to the SAP Specialists distribution list.</p>
+    <p>Because it runs on a separate server from the portal, it can detect and report outages even when sapidesecc8 is completely unreachable.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Configuration</h3>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Script</td><td><code>/usr/local/bin/portal_watchdog.py</code> on <strong>sapidess4</strong></td></tr>
+        <tr><td>Schedule</td><td>Every 5 minutes via cron (<code>*/5 * * * *</code>) on sapidess4</td></tr>
+        <tr><td>Check method</td><td>HTTPS to <code>https://sapidesecc8.fivetran-internal-sales.com/sap_skills/</code> + SSH fallback</td></tr>
+        <tr><td>State file</td><td><code>/var/run/portal_watchdog_state.json</code></td></tr>
+        <tr><td>Planned flag</td><td><code>/var/run/portal_planned_restart</code> (set by cockpit before restart)</td></tr>
+        <tr><td>Local log</td><td><code>/var/log/portal_watchdog.log</code></td></tr>
+        <tr><td>Activity CSV</td><td><code>/var/log/portal_watchdog_activity.csv</code></td></tr>
+        <tr><td>Parquet output</td><td><code>gs://sap_cds_dbt/portal_log/</code> (written directly from sapidess4)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> How It Works</h3>
+    <ul>
+      <li><strong>HTTPS check:</strong> Attempts to connect to the portal URL. If that fails, falls back to SSH to sapidesecc8 to check service status.</li>
+      <li><strong>Planned flag check:</strong> Before sending any alert, checks for <code>/var/run/portal_planned_restart</code>. If the flag exists, the outage is treated as planned and no alert is sent.</li>
+      <li><strong>State tracking:</strong> Compares current state against <code>/var/run/portal_watchdog_state.json</code> to detect transitions (up &rarr; down, down &rarr; up).</li>
+      <li><strong>Alerting:</strong> Emails are only sent on state changes (portal going down or coming back up), not on every check cycle.</li>
+      <li><strong>DL recipients:</strong> Recipients are hardcoded in the script as a fallback, because the watchdog cannot read from the portal API if the portal is down.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Independent Parquet Writes</h3>
+    <p>sapidess4 has <code>gsutil</code> and <code>PyArrow</code> installed, allowing the watchdog to write Parquet event files directly to <code>gs://sap_cds_dbt/portal_log/</code> even when sapidesecc8 is down. This ensures activity logging continuity during portal outages.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Manual Commands</h3>
+    <pre># Run watchdog manually
+ssh root@sapidess4 "/usr/local/bin/portal_watchdog.py"
+
+# View state
+ssh root@sapidess4 "cat /var/run/portal_watchdog_state.json"
+
+# View recent log
+ssh root@sapidess4 "tail -20 /var/log/portal_watchdog.log"
+
+# Check cron is active
+ssh root@sapidess4 "crontab -l | grep watchdog"
+
+# Set planned maintenance flag (prevents alerts)
+ssh root@sapidess4 "touch /var/run/portal_planned_restart"
+
+# Remove planned flag after maintenance
+ssh root@sapidess4 "rm -f /var/run/portal_planned_restart"</pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ACTIVITY LOGGING -->
+<!-- ============================================================ -->
+<div class="section" id="activity-logging">
+  <div class="section-title">Activity Logging</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Overview</h3>
+    <p>Every monitoring event across the SAP landscape is logged to both a local CSV file and individual Parquet files in GCS. This provides a durable audit trail for all service state changes, health checks, restarts, and watchdog events.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Storage Locations</h3>
+    <table>
+      <thead><tr><th>Format</th><th>Location</th><th>Retention</th></tr></thead>
+      <tbody>
+        <tr><td>CSV</td><td><code>/var/log/sap_portal_activity.csv</code></td><td>4-month retention (monthly cron cleanup)</td></tr>
+        <tr><td>Parquet</td><td><code>gs://sap_cds_dbt/portal_log/</code></td><td>Individual files per event</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Schema</h3>
+    <table>
+      <thead><tr><th>Column</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>date</code></td><td>Event date (YYYY-MM-DD)</td></tr>
+        <tr><td><code>time</code></td><td>Event time (HH:MM:SS, local)</td></tr>
+        <tr><td><code>timestamp_utc</code></td><td>UTC timestamp (ISO 8601)</td></tr>
+        <tr><td><code>source</code></td><td>Origin of the event (e.g., health_check, watchdog, cockpit)</td></tr>
+        <tr><td><code>type</code></td><td>Event type (e.g., state_change, startup, alert)</td></tr>
+        <tr><td><code>action</code></td><td>What happened (e.g., start, stop, restart, check)</td></tr>
+        <tr><td><code>server</code></td><td>Target server hostname</td></tr>
+        <tr><td><code>service</code></td><td>Target service name</td></tr>
+        <tr><td><code>result</code></td><td>Outcome (e.g., success, failure, running, stopped)</td></tr>
+        <tr><td><code>detail</code></td><td>Additional context or error message</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> What Gets Logged</h3>
+    <ul>
+      <li><strong>Server startups:</strong> Logged automatically when a web server restart is detected</li>
+      <li><strong>Service state changes:</strong> Start, stop, restart of SAP, HANA, Oracle, and other monitored services</li>
+      <li><strong>Health check alerts:</strong> State transitions detected by the health alert system</li>
+      <li><strong>Watchdog events:</strong> Portal up/down transitions detected by the Portal Watchdog on sapidess4</li>
+      <li><strong>Cockpit actions:</strong> Manual start/stop/restart operations from the Management Cockpits</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SERVICE MONITOR -->
+<!-- ============================================================ -->
+<div class="section" id="service-monitor">
+  <div class="section-title">Service Monitor</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> What is the Service Monitor?</h3>
+    <p>The Service Monitor is a real-time dashboard that checks the health of all 6 servers and their critical services every 5 minutes. It runs as a cron job on <code>sapidesecc8</code> and writes results to a JSON file that the web UI reads.</p>
+    <p>Access it at: <a href="SAP_Monitoring.html#service-monitor" style="color:var(--primary);">SAP_Monitoring.html &rarr; Service Monitor</a></p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Servers &amp; Services Monitored</h3>
+    <table>
+      <thead><tr><th>Server</th><th>Services Checked</th><th>Check Method</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>sapidess4</strong></td>
+          <td>SAP Dispatcher, Gateway, ICM, IGS<br>HANA FIV (Nameserver, Indexserver, XSEngine, Compileserver)<br>HANA PIT (Nameserver, Indexserver)</td>
+          <td>SSH + <code>sapcontrol -nr 03</code> (SAP)<br>SSH + <code>sapcontrol -nr 00</code> (FIV)<br>SSH + <code>sapcontrol -nr 96</code> (PIT)</td>
+        </tr>
+        <tr>
+          <td><strong>sapidesecc8</strong></td>
+          <td>SAP Dispatcher, Gateway, ICM<br>Oracle Database<br>Web Server (Portal)</td>
+          <td>Local <code>sapcontrol -nr 00</code><br><code>ps -ef | grep ora_pmon</code><br><code>curl https://localhost/sap_skills/</code></td>
+        </tr>
+        <tr>
+          <td><strong>saprouter</strong></td>
+          <td>Server reachability<br>SAPRouter systemd service</td>
+          <td>SSH to <code>saprouter-internal</code><br><code>systemctl is-active saprouter</code></td>
+        </tr>
+        <tr>
+          <td><strong>sap-sql-ides</strong></td>
+          <td>Server reachability<br>SAP Instance (SQ1)<br>SQL Server Database</td>
+          <td>Ping <code>10.128.0.51</code><br>SOAP to <code>http://10.128.0.51:50013/</code> (sapcontrol)<br>WinRM via <code>sq1_system_status</code> API</td>
+        </tr>
+        <tr>
+          <td><strong>saphvrhub</strong></td>
+          <td>Server reachability<br>HVR Hub Service<br>PostgreSQL 14</td>
+          <td>SSH to <code>saphvrhub</code><br><code>systemctl is-active hvrhubserver</code><br><code>systemctl is-active postgresql-14</code></td>
+        </tr>
+        <tr>
+          <td><strong>SSH Tunnel</strong></td>
+          <td>Server reachability</td>
+          <td>SSH to <code>10.142.0.37</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Status Indicators</h3>
+    <table>
+      <thead><tr><th>Color</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><span style="color:#27ae60; font-weight:bold;">Green</span></td><td>Service is running / server is reachable</td></tr>
+        <tr><td><span style="color:#e74c3c; font-weight:bold;">Red</span></td><td>Service is down / server is unreachable</td></tr>
+        <tr><td><span style="color:#95a5a6; font-weight:bold;">Gray</span></td><td>Initial state &mdash; check in progress</td></tr>
+      </tbody>
+    </table>
+    <p>Each server card also shows a <strong>REACHABLE</strong> or <strong>UNREACHABLE</strong> badge at the top right.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- HEALTH CHECK SCRIPT -->
+<!-- ============================================================ -->
+<div class="section" id="health-check">
+  <div class="section-title">Health Check Script</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Script Details</h3>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Script</td><td><code>/usr/local/bin/sap_health_check.sh</code></td></tr>
+        <tr><td>Runs on</td><td><code>sapidesecc8</code></td></tr>
+        <tr><td>Schedule</td><td>Every 5 minutes via cron (<code>*/5 * * * *</code>)</td></tr>
+        <tr><td>JSON Output</td><td><code>/usr/sap/sap_skills/health_status.json</code></td></tr>
+        <tr><td>History Log</td><td><code>/var/log/sap_health_check.log</code></td></tr>
+        <tr><td>Log Rotation</td><td>Auto-truncated to last 2000 lines</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> JSON Output Format</h3>
+    <pre>{
+  "timestamp": "2026-04-14T05:16:19Z",
+  "servers": {
+    "sapidess4": {
+      "reachable": true,
+      "sap_app_server": {"dispatcher":1,"gateway":1,"icm":1,"igs":1},
+      "hana_fiv": {"nameserver":1,"indexserver":1,"xsengine":3,"compileserver":1},
+      "hana_pit": {"nameserver":1,"indexserver":0}
+    },
+    "sapidesecc8": {
+      "reachable": true,
+      "sap_app_server": {"dispatcher":1,"gateway":1,"icm":1},
+      "oracle_db": true,
+      "web_server": true
+    },
+    "saprouter": {"reachable": true, "saprouter_service": true},
+    "sap_sql_ides": {"reachable": true, "sap_instance": true, "sql_server": true},
+    "saphvrhub": {"reachable": true, "hvr_hub_service": true, "postgresql": true},
+    "ssh_tunnel": {"reachable": true}
+  }
+}</pre>
+    <p>Values of <code>1</code> or <code>true</code> = running. Values of <code>0</code> or <code>false</code> = down.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> API Endpoints</h3>
+    <table>
+      <thead><tr><th>Endpoint</th><th>Method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>/sap_skills/health_status.json</code></td><td>GET</td><td>Current health status JSON (static file, updated by cron)</td></tr>
+        <tr><td><code>/sap_skills/api/admin/health_log</code></td><td>POST</td><td>Last 50 lines of the health check history log</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Health Alert System</h3>
+    <p>After each health check, <code>sap_health_alert.py</code> runs automatically to detect and report state changes:</p>
+    <ul>
+      <li><strong>State comparison:</strong> Compares the current health status against the previous state to detect transitions (running &rarr; stopped, stopped &rarr; running).</li>
+      <li><strong>Planned flag check:</strong> Before sending any alert, checks for planned maintenance flags. If a service or server is flagged as planned (via the cockpit or cron wrapper), no alert email is sent.</li>
+      <li><strong>Alert emails:</strong> Emails are only sent for actual state changes (start, stop, restart), never for routine health checks where the state is unchanged.</li>
+      <li><strong>Activity logging:</strong> Every state change is logged to CSV and Parquet (see <a href="#activity-logging" style="color:var(--primary);">Activity Logging</a>).</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Planned Cron Wrapper</h3>
+    <p>The planned cron wrapper (<code>/usr/local/bin/planned_cron_wrapper.py</code>) sets planned maintenance flags before running scheduled tasks, so the health alert system does not send false alerts during expected downtime.</p>
+    <p><strong><code>--also-flag</code> option:</strong> Used when a scheduled action has indirect consequences on other services. For example, an Oracle <code>offline_force</code> backup also stops SAP services on the same server:</p>
+    <pre># Oracle offline_force backup: flags both Oracle AND SAP as planned
+planned_cron_wrapper.py --also-flag sapidesecc8:sap sapidesecc8:oracle -- brbackup -t offline_force ...</pre>
+    <p>This prevents false alerts for both the directly stopped Oracle database and the indirectly affected SAP application server.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Manual Commands</h3>
+    <pre># Run health check manually
+ssh root@sapidesecc8 "/usr/local/bin/sap_health_check.sh"
+
+# View current status
+ssh root@sapidesecc8 "cat /usr/sap/sap_skills/health_status.json"
+
+# View health check history
+ssh root@sapidesecc8 "tail -20 /var/log/sap_health_check.log"
+
+# Check cron is active
+ssh root@sapidesecc8 "crontab -l | grep health"</pre>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
+</div>
+
+</body>
+</html>

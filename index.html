@@ -23,6 +23,7 @@
     --accent-gcs: #6b7280;
     --accent-portal: #d4a017;
     --accent-cockpit: #0d7377;
+    --accent-mar: #8B0000;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -625,10 +626,11 @@
       <div class="card">
         <h3>Quick Links</h3>
         <table>
-          <tr><td>Portal</td><td><a href="https://sapidesecc8.fivetran-internal-sales.com/sap_skills/" target="_blank">sap_skills/</a></td></tr>
           <tr><td>Datalake Reader</td><td><a href="https://sapidesecc8.fivetran-internal-sales.com/datalake_reader/" target="_blank">datalake_reader/</a></td></tr>
           <tr><td>Management Cockpit</td><td><a href="/sap_skills/docs/SAP_Management_Cockpit.html" target="_blank">SAP Management Cockpit</a></td></tr>
-          <tr><td>GitHub</td><td><a href="https://github.com/fivetran/SAPSkillsPortal" target="_blank">fivetran/SAPSkillsPortal</a></td></tr>
+          <tr><td>Service Monitor</td><td><a href="/sap_skills/docs/SAP_Monitoring.html" target="_blank">SAP Service Monitor</a></td></tr>
+          <tr><td>Fivetran Connector</td><td><span style="color:#6b7280; font-style:italic;">To be available soon</span></td></tr>
+          <tr><td>HVR Channels</td><td><span style="color:#6b7280; font-style:italic;">To be available soon</span></td></tr>
         </table>
       </div>
     </div>
@@ -781,6 +783,24 @@
         </div>
       </div>
 
+      <!-- SAP HANA MAR -->
+      <div class="skill-card">
+        <div class="skill-accent" style="background: var(--accent-mar)"></div>
+        <div class="skill-body">
+          <div class="skill-header">
+            <div class="skill-icon" style="background: var(--accent-mar)">&#128202;</div>
+            <div><div class="skill-name">SAP on HANA MAR Calculation</div><div class="skill-process">Monthly Activity Report</div></div>
+          </div>
+          <div class="skill-desc">Python tool suite for SAP HANA table activity analysis: MAR SQL generation, table metadata extraction, size categorization, and INSERT/UPDATE tracking by month.</div>
+          <div class="skill-links">
+            <a href="https://github.com/fivetran/sap-hana-mar" target="_blank" class="skill-link gh">GitHub</a>
+            <a href="/sap_skills/docs/SAP_HANA_MAR_Documentation.html" class="skill-link doc" target="_blank">Documentation</a>
+            <span class="skill-link setup" onclick="openSetup('mar')">Download &amp; Setup</span>
+          </div>
+
+        </div>
+      </div>
+
       <!-- Management Cockpit -->
       <div class="skill-card">
         <div class="skill-accent" style="background: var(--accent-cockpit)"></div>
@@ -791,6 +811,8 @@
           </div>
           <div class="skill-desc">Centralized dashboard for the full SAP landscape: servers, connections, databases, credentials, data generators, monitoring, and quick reference commands.</div>
           <div class="skill-links">
+            <a href="https://github.com/fivetran/SAPManagementCockpit" target="_blank" class="skill-link gh">GitHub</a>
+            <a href="/sap_skills/docs/SAP_Management_Cockpit_Documentation.html" class="skill-link doc" target="_blank">Documentation</a>
             <a href="/sap_skills/docs/SAP_Management_Cockpit.html" class="skill-link doc" target="_blank">Open Cockpit</a>
           </div>
         </div>
@@ -813,6 +835,7 @@
           <tr><td><span class="color-swatch" style="background: var(--accent-admin)"></span>Housekeeping</td><td>System Administration</td><td>MMPV, SM37, SNRO, CKMLCR</td><td><a href="https://github.com/fivetran/SAPHousekeeping">SAPHousekeeping</a></td></tr>
           <tr><td><span class="color-swatch" style="background: var(--accent-cds)"></span>CDS</td><td>Metadata Extraction</td><td>SE11, DDIC, SE80</td><td><a href="https://github.com/fivetran/CDS-metadata-retrieval-fr-custom-SDK">CDS-metadata-retrieval</a></td></tr>
           <tr><td><span class="color-swatch" style="background: var(--accent-gcs)"></span>GCS Explorer</td><td>Datalake Reader</td><td>DuckDB, PyArrow, Polaris</td><td><a href="https://github.com/fivetran-antoniocarbone/gcs-parquet-explorer">gcs-parquet-explorer</a></td></tr>
+          <tr><td><span class="color-swatch" style="background: var(--accent-mar)"></span>HANA MAR</td><td>Monthly Activity Report</td><td>HANA SQL, DD03L, DD09L</td><td><a href="https://github.com/fivetran/sap-hana-mar">sap-hana-mar</a></td></tr>
           <tr><td><span class="color-swatch" style="background: var(--accent-portal)"></span>Skills Portal</td><td>Server &amp; Docs</td><td>systemd, cron, gsutil, ZeroSSL</td><td><a href="https://github.com/fivetran/SAPSkillsPortal">SAPSkillsPortal</a></td></tr>
           <tr><td><span class="color-swatch" style="background: var(--accent-cockpit)"></span>Cockpit</td><td>System Landscape</td><td>Servers, DBs, Credentials, Monitoring</td><td>&mdash;</td></tr>
         </tbody>
@@ -917,6 +940,7 @@ var skills = {
   admin: { name:'Housekeeping', repo:'fivetran/SAPHousekeeping', dir:'SAPHousekeeping', color:'#922b21', java:'SAPJobScheduler.java', extra:'', run:'jobsched.sh', compile:'compile.sh', jcoLocal:false, skillDir:'skill', skill:'sap-housekeeping.md', cmds:['setup — schedule all jobs','status — health dashboard','list — show jobs','run-now &lt;job&gt; — run immediately','extend-ml — ML period script'], gson:false },
   cds: { name:'CDS View Extraction', repo:'fivetran/CDS-metadata-retrieval-fr-custom-SDK', dir:'CDS-metadata-retrieval-fr-custom-SDK', color:'#0073FF', java:null, run:null, compile:null, jcoLocal:false, skillDir:null, skill:null, cmds:[], gson:false, isCds:true },
   gcs: { name:'GCS Parquet Explorer', repo:'fivetran-antoniocarbone/gcs-parquet-explorer', dir:'gcs-parquet-explorer', color:'#6b7280', java:null, run:null, compile:null, jcoLocal:false, skillDir:null, skill:'gcs-parquet-explorer.md', cmds:[], gson:false, isGcs:true },
+  mar: { name:'SAP HANA MAR', repo:'fivetran/sap-hana-mar', dir:'sap-hana-mar', color:'#8B0000', java:null, run:'python3 main.py', compile:null, jcoLocal:false, skillDir:null, skill:null, cmds:[], gson:false, isPython:true },
   portal: { name:'Skills Portal', repo:'fivetran/SAPSkillsPortal', dir:'SAPSkillsPortal', color:'#d4a017', java:null, run:null, compile:null, jcoLocal:false, skillDir:'skill', skill:'sap-skills-portal.md', cmds:[], gson:false, isPortal:true }
 };
 
@@ -1212,20 +1236,79 @@ function showGuide(id, mode) {
   // STEP: Install Claude Code Skill
   // ──────────────────────────────────────────
   h += '<h3>' + sn(s, step++) + 'Install the Claude Code Skill</h3>';
-  if (s.isGcs) {
-    h += '<p>The GCS Parquet Explorer skill is a user-level Claude Code command. Ask the SAP Specialists (Antonio Carbone, Richard Brouwer) for the skill file, then:</p>';
-    h += '<pre>cp gcs-parquet-explorer.md ~/.claude/commands/</pre>';
-    h += '<p>Now in ' + (isVS ? 'the Claude Code panel' : 'Claude Code CLI') + ', type <code>/gcs-parquet-explorer</code> to activate the skill.</p>';
-  } else if (s.skill && s.skillDir) {
-    if (isVS) {
-      h += '<p>Open the VS Code terminal (<kbd>Ctrl</kbd>+<kbd>`</kbd>) and run:</p>';
-    } else {
-      h += '<p>Copy the skill file to your Claude Code configuration:</p>';
+
+  // Map skill keys to downloadable filenames
+  var skillDownloads = {
+    'otc': 'create-orders.md',
+    'p2p': 'procure-to-pay.md',
+    'pp': 'plan-to-produce.md',
+    'mrp': 'mrp-workflow.md',
+    'admin': 'sap-housekeeping.md',
+    'cds': 'sap-cds.md',
+    'gcs': 'gcs-parquet-explorer.md',
+    'portal': 'sap-skills-portal.md'
+  };
+  // Find which key we are
+  var skillFile = null;
+  var skillCmd = null;
+  for (var sk in skills) {
+    if (skills[sk] === s) {
+      skillFile = skillDownloads[sk];
+      break;
     }
-    h += '<pre>mkdir -p ~/.claude/commands/' + s.dir + '\ncp ' + s.skillDir + '/' + s.skill + ' ~/.claude/commands/' + s.dir + '/</pre>';
-    h += '<p>Now in ' + (isVS ? 'the Claude Code panel' : 'Claude Code CLI') + ', type <code>/' + s.skill.replace('.md','') + '</code> to activate the skill.</p>';
+  }
+  if (!skillFile && s.skill) skillFile = s.skill;
+
+  // Skills that need SAP JCo (Java-based SAP connection)
+  var needsJco = ['otc', 'p2p', 'pp', 'mrp', 'admin'];
+  // Skills that need HANA connection (Python hdbcli)
+  var needsHana = ['mar', 'cds'];
+  var currentKey = null;
+  for (var sk in skills) { if (skills[sk] === s) { currentKey = sk; break; } }
+
+  if (skillFile || s.isPython) {
+    var stepNum = 1;
+
+    // Skill file download
+    if (skillFile) {
+      var downloadUrl = '/sap_skills/downloads/skills/' + skillFile;
+      var cmdName = '/' + skillFile.replace('.md', '');
+      h += '<p><strong>' + stepNum++ + '.</strong> Download the Claude Code skill:</p>';
+      h += '<div style="margin:10px 0;display:flex;gap:8px;flex-wrap:wrap;">';
+      h += '<a href="' + downloadUrl + '" download="' + skillFile + '" style="display:inline-block;padding:8px 20px;background:' + s.color + ';color:white;text-decoration:none;border-radius:6px;font-weight:600;font-size:0.88rem;">&#11015; ' + skillFile + '</a>';
+      h += '</div>';
+      h += '<pre>mkdir -p ~/.claude/commands\nmv ~/Downloads/' + skillFile + ' ~/.claude/commands/</pre>';
+      h += '<p>Activate in Claude Code with <code>' + cmdName + '</code></p>';
+    }
+
+    // SAP JCo downloads for Java-based skills
+    if (needsJco.indexOf(currentKey) !== -1) {
+      h += '<p><strong>' + stepNum++ + '.</strong> Download SAP JCo libraries (required for SAP connection):</p>';
+      h += '<div style="margin:10px 0;display:flex;gap:8px;flex-wrap:wrap;">';
+      h += '<a href="/sap_skills/downloads/sapjco3.jar" download style="display:inline-block;padding:6px 16px;background:#1a5c8a;color:white;text-decoration:none;border-radius:6px;font-weight:600;font-size:0.82rem;">&#11015; sapjco3.jar</a>';
+      h += '<a href="/sap_skills/downloads/libsapjco3.dylib" download style="display:inline-block;padding:6px 16px;background:#1a5c8a;color:white;text-decoration:none;border-radius:6px;font-weight:600;font-size:0.82rem;">&#11015; libsapjco3.dylib</a>';
+      h += '<a href="/sap_skills/downloads/gson.jar" download style="display:inline-block;padding:6px 16px;background:#1a5c8a;color:white;text-decoration:none;border-radius:6px;font-weight:600;font-size:0.82rem;">&#11015; gson.jar</a>';
+      h += '<a href="/sap_skills/downloads/SAPjcoDestination.template" download style="display:inline-block;padding:6px 16px;background:#6b7280;color:white;text-decoration:none;border-radius:6px;font-weight:600;font-size:0.82rem;">&#11015; JCo Config Template</a>';
+      h += '</div>';
+      h += '<p style="font-size:0.85rem;color:#6c757d;">Place <code>sapjco3.jar</code> and <code>gson.jar</code> in the project directory. Copy <code>libsapjco3.dylib</code> to <code>~/lib/</code> or set <code>DYLD_LIBRARY_PATH</code>. Edit the JCo config template with your SAP credentials.</p>';
+    }
+
+    // HANA connection config for Python/HANA skills
+    if (needsHana.indexOf(currentKey) !== -1) {
+      h += '<p><strong>' + stepNum++ + '.</strong> Download HANA connection template:</p>';
+      h += '<div style="margin:10px 0;display:flex;gap:8px;flex-wrap:wrap;">';
+      h += '<a href="/sap_skills/downloads/hana_config.template.json" download style="display:inline-block;padding:6px 16px;background:#c0392b;color:white;text-decoration:none;border-radius:6px;font-weight:600;font-size:0.82rem;">&#11015; hana_config.template.json</a>';
+      h += '</div>';
+      h += '<pre>cp hana_config.template.json hana_config.json\n# Edit with your HANA credentials (host, port, user, password)\n# Ask SAP Specialists for the password or check the vault</pre>';
+    }
+
+    // Python note
+    if (s.isPython && !skillFile) {
+      h += '<p><strong>' + stepNum++ + '.</strong> Run directly with Python:</p>';
+      h += '<pre>cd ' + s.dir + '\npython3 main.py</pre>';
+    }
   } else {
-    h += '<p>The CDS skill is configured in your Claude Code user settings. See the sap-cds skill documentation.</p>';
+    h += '<p>No Claude Code skill available for this tool. Check the documentation for usage instructions.</p>';
   }
 
   // ──────────────────────────────────────────

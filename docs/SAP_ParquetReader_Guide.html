@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parquet &amp; Polaris Reader &mdash; User Guide</title>
+<style>
+  :root {
+    --primary: #6b7280;
+    --primary-light: #9ca3af;
+    --primary-dark: #374151;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --code-bg: #f1f3f5;
+    --accent-bg: #f3f4f6;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+  .header { background: linear-gradient(135deg, #6b7280 0%, #374151 100%); color: white; padding: 40px 0; text-align: center; }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  .nav { background: white; border-bottom: 1px solid var(--border); padding: 12px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+  .nav-inner { max-width: 900px; margin: 0 auto; padding: 0 20px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .nav a { text-decoration: none; color: var(--primary-dark); padding: 6px 14px; border-radius: 6px; font-size: 0.88rem; font-weight: 500; transition: background 0.2s; }
+  .nav a:hover { background: var(--accent-bg); }
+  .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+  .section { margin-bottom: 40px; }
+  .section-title { font-size: 1.5rem; font-weight: 700; color: var(--primary-dark); border-bottom: 3px solid var(--primary); padding-bottom: 8px; margin-bottom: 20px; }
+  .card { background: var(--card-bg); border-radius: 10px; border: 1px solid var(--border); padding: 24px; margin-bottom: 20px; }
+  .card h3 { font-size: 1.15rem; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; color: var(--primary-dark); }
+  .card h3 .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  p { margin-bottom: 12px; }
+  ul { margin: 10px 0 10px 20px; }
+  li { margin-bottom: 6px; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 12px 0; }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: var(--accent-bg); font-weight: 600; color: var(--primary-dark); font-size: 0.85rem; text-transform: uppercase; }
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.88rem; color: #374151; }
+  pre { background: #1e293b; color: #e2e8f0; padding: 16px 20px; border-radius: 8px; font-size: 0.85rem; overflow-x: auto; margin: 12px 0; line-height: 1.6; }
+  .info-box { background: var(--accent-bg); border-left: 4px solid var(--primary); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 14px 0; font-size: 0.9rem; }
+  .footer { text-align: center; padding: 20px; color: var(--text-light); font-size: 0.82rem; border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Parquet &amp; Polaris Reader &mdash; User Guide</h1>
+  <div class="subtitle">How DuckDB Powers the SAP Data Lake Explorer</div>
+</div>
+
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#architecture">Architecture</a>
+    <a href="#duckdb">DuckDB Engine</a>
+    <a href="#pyarrow">PyArrow</a>
+    <a href="#parquet">Parquet Files</a>
+    <a href="#polaris">Polaris Catalog</a>
+    <a href="#datasources">Data Sources</a>
+    <a href="#operations">Operations</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+    <a href="SAP_ParquetReader.html">Back to Cockpit</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- OVERVIEW -->
+<div class="section" id="overview">
+  <div class="section-title">Overview</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> What is the Parquet &amp; Polaris Reader?</h3>
+    <p>The Parquet &amp; Polaris Reader (also called <strong>Datalake Reader</strong> or <strong>GCS Parquet Explorer</strong>) is a web-based SQL interface for querying SAP data stored in cloud data lakes. It allows users to run SQL queries against Parquet files in Google Cloud Storage, Azure Blob Storage, and AWS S3 (via Polaris/Iceberg catalogs) &mdash; all without installing any local tools.</p>
+    <p>It is built on:</p>
+    <ul>
+      <li><strong>DuckDB</strong> &mdash; an in-process analytical SQL engine optimized for columnar data</li>
+      <li><strong>PyArrow</strong> &mdash; Apache Arrow implementation for Python, used for Parquet file I/O</li>
+      <li><strong>Python HTTPS server</strong> &mdash; the same web server that hosts the SAP Skills Portal</li>
+    </ul>
+    <div class="info-box">
+      <strong>URL:</strong> <a href="https://sapidesecc8.fivetran-internal-sales.com/datalake_reader/" style="color:var(--primary-dark);">https://sapidesecc8.fivetran-internal-sales.com/datalake_reader/</a> &mdash; Login with your Fivetran email + password.
+    </div>
+  </div>
+</div>
+
+<!-- ARCHITECTURE -->
+<div class="section" id="architecture">
+  <div class="section-title">Architecture</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> How It Works</h3>
+    <p>The system has three layers:</p>
+    <table>
+      <thead><tr><th>Layer</th><th>Component</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Web Server</strong></td><td><code>gcs_explorer_server.py</code></td><td>Python HTTPS server (port 443), handles authentication, serves UI, routes API calls</td></tr>
+        <tr><td><strong>SQL Engine</strong></td><td>DuckDB subprocess</td><td>Executes SQL queries in a separate process, communicates via stdin/stdout JSON protocol</td></tr>
+        <tr><td><strong>Data Access</strong></td><td>DuckDB extensions (httpfs, iceberg, azure)</td><td>Reads Parquet/Iceberg data directly from cloud storage over HTTPS</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      <strong>Stateless design:</strong> DuckDB runs in-memory with no persistent local database. Tables are loaded on-demand from cloud storage when queried. If the process restarts, tables are re-loaded transparently.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Request Flow</h3>
+    <ol style="margin:10px 0 10px 20px;">
+      <li>User types SQL in the browser UI</li>
+      <li>Browser sends POST to <code>/datalake_reader/api/query</code></li>
+      <li>Web server authenticates the session cookie</li>
+      <li>Server calls <code>run_sql(query)</code> which sends the query to the DuckDB subprocess</li>
+      <li>DuckDB executes the query &mdash; if a table is missing, it auto-loads from GCS</li>
+      <li>Results (columns + rows) are returned as JSON to the browser</li>
+      <li>Browser renders the results as a table with pagination</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Server Details</h3>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Host</td><td><code>sapidesecc8.fivetran-internal-sales.com</code></td></tr>
+        <tr><td>Port</td><td>443 (HTTPS)</td></tr>
+        <tr><td>Service</td><td><code>gcs-explorer.service</code> (systemd)</td></tr>
+        <tr><td>Server Script</td><td><code>/usr/sap/gcs_explorer_server.py</code></td></tr>
+        <tr><td>Python</td><td><code>/root/miniconda/bin/python3</code> (3.13.9)</td></tr>
+        <tr><td>SSL Certificate</td><td><code>/usr/sap/gcs_explorer_cert.pem</code> (ZeroSSL, expires Jun 25 2026)</td></tr>
+        <tr><td>Authentication</td><td>Email + password, session cookies</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DUCKDB ENGINE -->
+<div class="section" id="duckdb">
+  <div class="section-title">DuckDB Engine</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> What is DuckDB?</h3>
+    <p><a href="https://duckdb.org" target="_blank" style="color:var(--primary-dark);">DuckDB</a> is an in-process OLAP (Online Analytical Processing) database engine. Unlike traditional databases (PostgreSQL, MySQL), DuckDB:</p>
+    <ul>
+      <li><strong>Runs in-memory</strong> &mdash; no separate server process, no disk-based storage needed</li>
+      <li><strong>Columnar storage</strong> &mdash; optimized for analytical queries (aggregations, scans, joins on large tables)</li>
+      <li><strong>Reads Parquet natively</strong> &mdash; can query Parquet files directly without importing data</li>
+      <li><strong>Supports remote files</strong> &mdash; reads from GCS, S3, Azure via the <code>httpfs</code> extension</li>
+      <li><strong>Standard SQL</strong> &mdash; PostgreSQL-compatible SQL dialect</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> How DuckDB Runs in the Reader</h3>
+    <p>DuckDB runs as a <strong>subprocess</strong> managed by the web server:</p>
+    <ol style="margin:10px 0 10px 20px;">
+      <li>At server startup, a <code>DuckDBWorker</code> subprocess is spawned</li>
+      <li>The subprocess loads extensions: <code>httpfs</code> (GCS/S3), <code>iceberg</code> (Polaris catalogs), <code>azure</code> (Azure Blob)</li>
+      <li>The web server sends SQL commands via JSON over stdin/stdout pipes</li>
+      <li>The subprocess executes queries and returns column names + row data</li>
+      <li>If a table doesn't exist, the server auto-loads it from cloud storage (<code>auto_load_table</code>)</li>
+    </ol>
+    <div class="info-box">
+      <strong>Auto-loading:</strong> When you query <code>SELECT * FROM MARA</code> and the table doesn't exist in DuckDB, the server searches GCS for a matching Parquet file (e.g., <code>gs://bucket/MARA/*.parquet</code>), creates a view pointing to it, and re-runs the query. This is transparent to the user.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> DuckDB Extensions</h3>
+    <table>
+      <thead><tr><th>Extension</th><th>Purpose</th><th>Loaded At</th></tr></thead>
+      <tbody>
+        <tr><td><code>httpfs</code></td><td>Read files from HTTP/HTTPS, GCS (<code>gs://</code>), S3 (<code>s3://</code>)</td><td>Startup</td></tr>
+        <tr><td><code>iceberg</code></td><td>Read Apache Iceberg tables (used by Polaris catalog)</td><td>Startup</td></tr>
+        <tr><td><code>azure</code></td><td>Read from Azure Blob Storage (<code>az://</code>)</td><td>Startup</td></tr>
+        <tr><td><code>parquet</code></td><td>Native Parquet file reader (built-in)</td><td>Always</td></tr>
+        <tr><td><code>json</code></td><td>JSON file reader (built-in)</td><td>Always</td></tr>
+        <tr><td><code>icu</code></td><td>International Components for Unicode (collation, date formatting)</td><td>Always</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Version &amp; Installation</h3>
+    <table>
+      <thead><tr><th>Component</th><th>Version</th><th>Install Path</th></tr></thead>
+      <tbody>
+        <tr><td>DuckDB</td><td>1.5.1</td><td><code>/root/miniconda/lib/python3.13/site-packages/duckdb/</code></td></tr>
+        <tr><td>PyArrow</td><td>23.0.1</td><td><code>/root/miniconda/lib/python3.13/site-packages/pyarrow/</code></td></tr>
+        <tr><td>Python</td><td>3.13.9</td><td><code>/root/miniconda/bin/python3</code></td></tr>
+      </tbody>
+    </table>
+    <p><strong>Upgrade command:</strong></p>
+    <pre>/root/miniconda/bin/pip install --upgrade duckdb pyarrow
+systemctl restart gcs-explorer</pre>
+    <p>Or use the <strong>Upgrade DuckDB</strong> button on the <a href="SAP_ParquetReader.html" style="color:var(--primary-dark);">cockpit page</a>.</p>
+  </div>
+</div>
+
+<!-- PYARROW -->
+<div class="section" id="pyarrow">
+  <div class="section-title">PyArrow</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> What is PyArrow?</h3>
+    <p><a href="https://arrow.apache.org/docs/python/" target="_blank" style="color:var(--primary-dark);">PyArrow</a> is the Python implementation of <strong>Apache Arrow</strong>, an in-memory columnar data format designed for high-performance analytics. It serves as the bridge between DuckDB and the Parquet file format.</p>
+    <ul>
+      <li><strong>Apache Arrow</strong> &mdash; a language-independent columnar memory format for flat and hierarchical data. It enables zero-copy data sharing between processes and languages (Python, Java, C++, R).</li>
+      <li><strong>PyArrow</strong> &mdash; the Python bindings for Arrow. Provides fast Parquet read/write, IPC (inter-process communication), and integration with pandas, NumPy, and DuckDB.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> How We Use PyArrow</h3>
+    <p>In the Parquet &amp; Polaris Reader, PyArrow serves several critical roles:</p>
+    <table>
+      <thead><tr><th>Role</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Parquet I/O</strong></td><td>Reads and writes Parquet files. When DuckDB uses <code>read_parquet()</code>, it relies on PyArrow's Parquet implementation under the hood for file format parsing, column decoding, and decompression.</td></tr>
+        <tr><td><strong>Schema inference</strong></td><td>Automatically detects column names and data types from Parquet file metadata without reading the full dataset. This enables the Reader to show table schemas instantly.</td></tr>
+        <tr><td><strong>Data type mapping</strong></td><td>Maps Parquet data types (INT32, INT64, BYTE_ARRAY, TIMESTAMP, DECIMAL) to Python/DuckDB types. Handles SAP-specific types like packed decimals and date formats.</td></tr>
+        <tr><td><strong>Compression</strong></td><td>Supports all Parquet compression codecs: Snappy (default for Fivetran output), Gzip, Zstd, LZ4, and uncompressed. Decompression is done natively in C++ for maximum speed.</td></tr>
+        <tr><td><strong>Predicate pushdown</strong></td><td>Reads Parquet row group statistics (min/max values) to skip irrelevant data blocks. When DuckDB pushes a WHERE filter, PyArrow uses these statistics to avoid reading unnecessary row groups.</td></tr>
+        <tr><td><strong>Column pruning</strong></td><td>Only reads the columns referenced in the SQL query. A <code>SELECT MATNR, MAKTX FROM MARA</code> on a 50-column table only downloads 2 columns from cloud storage.</td></tr>
+        <tr><td><strong>Activity logging</strong></td><td>The activity logger uses PyArrow to write individual Parquet files to <code>gs://sap_cds_dbt/portal_log/</code> for the activity audit trail.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> PyArrow vs DuckDB Native Parquet</h3>
+    <p>DuckDB has its own built-in Parquet reader (<code>parquet</code> extension), but PyArrow provides additional capabilities:</p>
+    <table>
+      <thead><tr><th>Feature</th><th>DuckDB Native</th><th>PyArrow</th></tr></thead>
+      <tbody>
+        <tr><td>Parquet read</td><td>Yes (fast, native C++)</td><td>Yes (fast, native C++)</td></tr>
+        <tr><td>Parquet write</td><td>Yes</td><td>Yes (more format options)</td></tr>
+        <tr><td>Cloud storage</td><td>Via httpfs extension</td><td>Via fsspec/gcsfs/s3fs</td></tr>
+        <tr><td>Iceberg support</td><td>Via iceberg extension</td><td>Via pyiceberg library</td></tr>
+        <tr><td>Pandas integration</td><td>Via Arrow conversion</td><td>Native zero-copy</td></tr>
+        <tr><td>Schema evolution</td><td>Limited</td><td>Full (merge schemas across files)</td></tr>
+        <tr><td>Encryption</td><td>No</td><td>Yes (Parquet modular encryption)</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      <strong>In practice:</strong> DuckDB uses its native Parquet reader for SQL queries (faster for analytical workloads), while PyArrow is used for metadata inspection, schema discovery, and writing activity log Parquet files.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Key PyArrow Concepts</h3>
+    <table>
+      <thead><tr><th>Concept</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>pa.Table</code></td><td>An immutable, columnar table in Arrow format. The primary data structure for query results and Parquet I/O.</td></tr>
+        <tr><td><code>pa.Schema</code></td><td>Defines column names and types. Embedded in every Parquet file footer.</td></tr>
+        <tr><td><code>pq.read_table()</code></td><td>Reads a Parquet file (local or remote) into a <code>pa.Table</code>.</td></tr>
+        <tr><td><code>pq.write_table()</code></td><td>Writes a <code>pa.Table</code> to a Parquet file. Used by the activity logger.</td></tr>
+        <tr><td><code>pq.ParquetFile</code></td><td>Low-level reader. Provides access to metadata, row groups, and column statistics without reading data.</td></tr>
+        <tr><td>Row Group</td><td>A horizontal partition of a Parquet file (typically 128MB). Each row group has independent column chunks and statistics.</td></tr>
+        <tr><td>Column Chunk</td><td>A single column's data within a row group. Independently compressed and encoded.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Version &amp; Links</h3>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Current Version</td><td><strong>23.0.1</strong></td></tr>
+        <tr><td>Install Path</td><td><code>/root/miniconda/lib/python3.13/site-packages/pyarrow/</code></td></tr>
+        <tr><td>Documentation</td><td><a href="https://arrow.apache.org/docs/python/" target="_blank" style="color:var(--primary-dark);">arrow.apache.org/docs/python</a></td></tr>
+        <tr><td>PyPI</td><td><a href="https://pypi.org/project/pyarrow/" target="_blank" style="color:var(--primary-dark);">pypi.org/project/pyarrow</a></td></tr>
+        <tr><td>GitHub</td><td><a href="https://github.com/apache/arrow" target="_blank" style="color:var(--primary-dark);">github.com/apache/arrow</a></td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- PARQUET FILES -->
+<div class="section" id="parquet">
+  <div class="section-title">Parquet Files</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> What is Parquet?</h3>
+    <p><a href="https://parquet.apache.org/" target="_blank" style="color:var(--primary-dark);">Apache Parquet</a> is a columnar file format designed for efficient data storage and retrieval. Key properties:</p>
+    <ul>
+      <li><strong>Columnar</strong> &mdash; data is stored by column, not by row. This makes analytical queries (SELECT specific columns, aggregations) extremely fast because only the needed columns are read from disk/network.</li>
+      <li><strong>Compressed</strong> &mdash; columns are compressed individually using Snappy, Gzip, or Zstd. Typical compression ratios are 5-10x vs CSV.</li>
+      <li><strong>Schema-embedded</strong> &mdash; the file contains its own schema (column names, types), so no external schema definition is needed.</li>
+      <li><strong>Partitioned</strong> &mdash; large datasets are split into multiple Parquet files (partitions), enabling parallel reads and predicate pushdown.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> How the Reader Queries Parquet</h3>
+    <p>When DuckDB queries a Parquet file from GCS:</p>
+    <ol style="margin:10px 0 10px 20px;">
+      <li>DuckDB's <code>httpfs</code> extension makes HTTPS range requests to GCS</li>
+      <li>It reads only the <strong>Parquet metadata footer</strong> first (column names, row groups, statistics)</li>
+      <li>Based on the query's WHERE clause, it applies <strong>predicate pushdown</strong> &mdash; skipping row groups that don't match</li>
+      <li>Only the required <strong>columns</strong> are downloaded (column pruning)</li>
+      <li>Data is decompressed and processed in-memory</li>
+    </ol>
+    <p>This means querying <code>SELECT COUNT(*) FROM large_table WHERE date &gt; '2026-01-01'</code> on a 10GB Parquet file might only download a few MB of data.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> GCS Parquet Structure</h3>
+    <p>SAP CDS View extraction writes Parquet files to GCS in this structure:</p>
+    <pre>gs://&lt;bucket&gt;/&lt;connector_id&gt;/&lt;schema&gt;/&lt;table_name&gt;/
+    part-00000-XXXXX.parquet
+    part-00001-XXXXX.parquet
+    ...</pre>
+    <p>The reader creates a DuckDB view that reads all partitions:</p>
+    <pre>CREATE VIEW "TABLE_NAME" AS
+SELECT * FROM read_parquet('gs://bucket/path/TABLE_NAME/*.parquet');</pre>
+  </div>
+</div>
+
+<!-- POLARIS CATALOG -->
+<div class="section" id="polaris">
+  <div class="section-title">Polaris Catalog Integration</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> What is Polaris?</h3>
+    <p><a href="https://www.snowflake.com/en/data-cloud/polaris/" target="_blank" style="color:var(--primary-dark);">Polaris</a> is an open-source catalog service for <strong>Apache Iceberg</strong> tables. It provides a REST API that manages table metadata, enabling tools like DuckDB to discover and query Iceberg tables without knowing the underlying file paths.</p>
+    <p>Fivetran uses Polaris as the metadata catalog for SAP data delivered to cloud data lakes. When Fivetran extracts data from SAP, it writes Iceberg tables to S3/GCS/Azure and registers them in a Polaris catalog.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> How the Polaris Integration Works</h3>
+    <ol style="margin:10px 0 10px 20px;">
+      <li><strong>OAuth authentication</strong> &mdash; The reader authenticates to the Polaris catalog using OAuth2 client credentials (stored in the encrypted vault on sapidesecc8 and in <code>/usr/sap/gcs_explorer.env</code>)</li>
+      <li><strong>Catalog discovery</strong> &mdash; The reader calls the Polaris REST API to list available namespaces and tables</li>
+      <li><strong>Iceberg metadata</strong> &mdash; For each table, Polaris returns the Iceberg metadata location (a JSON file pointing to the actual data files)</li>
+      <li><strong>Vended credentials</strong> &mdash; Polaris provides short-lived S3/GCS/Azure credentials (<strong>vended credentials</strong>) so DuckDB can access the data files directly</li>
+      <li><strong>Query rewriting</strong> &mdash; The reader's <code>_rewrite_aws_query()</code> function translates user SQL into DuckDB's <code>iceberg_scan()</code> function with the vended credentials</li>
+    </ol>
+    <div class="info-box">
+      <strong>Vended credentials</strong> are temporary, scoped access tokens that Polaris generates on-the-fly. They grant read-only access to specific S3/GCS paths for a limited time. This means no long-lived cloud credentials are stored on the server &mdash; access is always proxied through Polaris.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Polaris Query Flow</h3>
+    <pre>User SQL:     SELECT * FROM aws.namespace.table_name LIMIT 10
+
+Rewritten to: SELECT * FROM iceberg_scan(
+                's3://bucket/path/metadata/v1.metadata.json',
+                access_key_id = 'ASIA...',        -- vended credential
+                secret_access_key = '...',         -- vended credential
+                session_token = '...',             -- vended credential
+                region = 'us-east-1'
+              ) LIMIT 10</pre>
+    <p>The user never sees the rewritten query &mdash; they just use standard SQL table names.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Supported Polaris Backends</h3>
+    <table>
+      <thead><tr><th>Backend</th><th>Prefix</th><th>Storage</th><th>Credentials</th></tr></thead>
+      <tbody>
+        <tr><td>AWS (S3)</td><td><code>aws.</code></td><td>Amazon S3</td><td>OAuth2 &rarr; Polaris &rarr; Vended S3 STS tokens</td></tr>
+        <tr><td>GCS</td><td><code>gcs.</code></td><td>Google Cloud Storage</td><td>OAuth2 &rarr; Polaris &rarr; Vended GCS tokens</td></tr>
+        <tr><td>Azure</td><td><code>azure.</code></td><td>Azure Blob Storage</td><td>OAuth2 &rarr; Polaris &rarr; Vended Azure SAS tokens</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      <strong>Credentials management:</strong> The OAuth2 client ID and secret for each Polaris backend are stored in <code>/usr/sap/gcs_explorer.env</code> (environment file loaded by systemd). They can be updated via the Polaris Credentials panel in the <a href="https://sapidesecc8.fivetran-internal-sales.com/datalake_reader/" target="_blank" style="color:var(--primary-dark);">Datalake Reader UI</a>.
+    </div>
+  </div>
+</div>
+
+<!-- DATA SOURCES -->
+<div class="section" id="datasources">
+  <div class="section-title">Data Sources</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> GCS (Google Cloud Storage)</h3>
+    <p>Direct access to Parquet files in GCS buckets using application default credentials configured on sapidesecc8.</p>
+    <pre>-- Browse a GCS bucket
+SELECT * FROM read_parquet('gs://bucket-name/path/*.parquet');
+
+-- Or use auto-loaded tables (just query by name)
+SELECT * FROM MARA LIMIT 10;</pre>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> AWS S3 (via Polaris/Iceberg)</h3>
+    <p>Access Iceberg tables in S3 through the Polaris catalog. Credentials are vended automatically.</p>
+    <pre>-- List tables in an AWS namespace
+SELECT * FROM aws.my_namespace.my_table LIMIT 10;</pre>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Azure Blob Storage</h3>
+    <p>Access Iceberg tables in Azure through the Polaris catalog, or direct Parquet reads via the <code>azure</code> extension.</p>
+    <pre>-- Via Polaris
+SELECT * FROM azure.my_namespace.my_table LIMIT 10;
+
+-- Direct (requires credentials)
+SELECT * FROM read_parquet('az://container/path/*.parquet');</pre>
+  </div>
+</div>
+
+<!-- OPERATIONS -->
+<div class="section" id="operations">
+  <div class="section-title">Operations</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Start / Stop / Restart</h3>
+    <p>The Parquet Reader runs as part of the <code>gcs-explorer.service</code> systemd unit (the same process that serves the SAP Skills Portal).</p>
+    <pre># Check status
+systemctl status gcs-explorer
+
+# Restart (also restarts the portal)
+systemctl restart gcs-explorer
+
+# View logs
+tail -50 /var/log/gcs_explorer.log</pre>
+    <p>Or use the <strong>Start/Stop/Restart</strong> buttons on the <a href="SAP_ParquetReader.html" style="color:var(--primary-dark);">cockpit page</a> or the <a href="SAP_Monitoring.html#datalake" style="color:var(--primary-dark);">Monitoring page</a>.</p>
+    <div class="info-box">
+      <strong>Note:</strong> Stopping the service also stops the SAP Skills Portal. They are the same process.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Upgrade</h3>
+    <pre># Upgrade DuckDB + PyArrow
+/root/miniconda/bin/pip install --upgrade duckdb pyarrow
+
+# Restart to load new versions
+systemctl restart gcs-explorer
+
+# Verify
+/root/miniconda/bin/python3 -c "import duckdb; print(duckdb.__version__)"</pre>
+    <p>Or use the <strong>Upgrade DuckDB</strong> button on the cockpit page.</p>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Trace Logs</h3>
+    <table>
+      <thead><tr><th>Log</th><th>Path</th><th>Content</th></tr></thead>
+      <tbody>
+        <tr><td>Application Log</td><td><code>/var/log/gcs_explorer.log</code></td><td>Server startup, errors, warnings, login events</td></tr>
+        <tr><td>Portal Trace</td><td><code>/var/log/portal_trace.log</code></td><td>All POST API calls with timestamp and path</td></tr>
+        <tr><td>DuckDB Trace</td><td><code>/var/log/duckdb_trace.log</code></td><td>All SQL queries with timestamp (first 300 chars)</td></tr>
+      </tbody>
+    </table>
+    <p>Logs can be viewed and truncated from the <a href="SAP_Monitoring.html#datalake" style="color:var(--primary-dark);">Monitoring page</a>.</p>
+  </div>
+</div>
+
+<!-- TROUBLESHOOTING -->
+<div class="section" id="troubleshooting">
+  <div class="section-title">Troubleshooting</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Common Issues</h3>
+    <table>
+      <thead><tr><th>Issue</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr><td>Query returns "Table not found"</td><td>The table hasn't been auto-loaded yet. Browse the GCS bucket in the UI first, or use <code>read_parquet('gs://...')</code> directly.</td></tr>
+        <tr><td>Slow query</td><td>Add <code>LIMIT</code> to avoid scanning entire datasets. Use <code>WHERE</code> clauses on partitioned columns. Check DuckDB trace log for query details.</td></tr>
+        <tr><td>Polaris table access denied</td><td>Check OAuth credentials in the Polaris settings panel. Vended credentials may have expired &mdash; retry the query.</td></tr>
+        <tr><td>"httpfs extension not loaded"</td><td>Restart the service: <code>systemctl restart gcs-explorer</code>. Extensions are loaded at startup.</td></tr>
+        <tr><td>Server not responding</td><td>Check <code>systemctl status gcs-explorer</code>. View <code>/var/log/gcs_explorer.log</code> for errors. The DuckDB subprocess may have crashed &mdash; restart resolves this.</td></tr>
+        <tr><td>After DuckDB upgrade, queries fail</td><td>Clear cached tables by restarting. If extension API changed, check DuckDB release notes for breaking changes.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
+</div>
+
+</body>
+</html>

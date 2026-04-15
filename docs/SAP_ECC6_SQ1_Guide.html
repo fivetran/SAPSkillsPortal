@@ -233,6 +233,7 @@
     <a href="#security">Security</a>
     <a href="#troubleshooting">Troubleshooting</a>
     <a href="#architecture">Architecture</a>
+    <a href="#sql-console">SQL Console</a>
     <a href="SAP_ECC6_SQ1.html">Back to Cockpit</a>
   </div>
 </div>
@@ -685,6 +686,71 @@ WITH COMPRESSION, INIT, STATS = 10</div>
 
     <div class="info-box">
       <strong>Cross-platform architecture:</strong> The web server runs on Linux (sapidesecc8), while the SAP system runs on Windows (sap-sql-ides). WinRM bridges the two platforms for database and OS-level operations. The sapcontrol SOAP API provides a platform-independent way to manage SAP processes directly over HTTP.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SQL CONSOLE -->
+<!-- ============================================================ -->
+<div class="section" id="sql-console">
+  <div class="section-title">SQL Console</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Overview</h3>
+    <p>The SQL Console provides an interactive web-based interface for executing SQL queries directly against the <strong>Microsoft SQL Server</strong> database on the SQ1 system. Queries are executed remotely via SSH from the web server (sapidesecc8) to the Windows VM (<code>sap-sql-ides</code>, IP <code>10.128.0.51</code>) using <code>sqlcmd</code>.</p>
+    <div class="info-box">
+      <strong>How it works:</strong> The web server connects via SSH to <code>sq1adm@10.128.0.51</code> and runs <code>sqlcmd</code> against instance <code>localhost\SQ1</code>. Results are returned as pipe-delimited text, parsed into table format, and displayed in the browser. No database ports are exposed to the network.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Available Databases &amp; Users</h3>
+    <table>
+      <thead>
+        <tr><th>Database</th><th>User</th><th>Auth Method</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>SQ1</code></td><td><code>sq1adm</code></td><td>Windows Auth (<code>-E</code>)</td><td>SAP system admin &mdash; full access to SAP schema</td></tr>
+        <tr><td><code>SQ1</code></td><td><code>sq1</code></td><td>SQL Auth (<code>-U/-P</code>)</td><td>SAP schema owner &mdash; direct access to SAP tables</td></tr>
+        <tr><td><code>SQ1</code></td><td><code>fivetran</code></td><td>SQL Auth (<code>-U/-P</code>)</td><td>Read-only user for data extraction</td></tr>
+        <tr><td><code>master</code></td><td><code>sq1adm</code></td><td>Windows Auth (<code>-E</code>)</td><td>SQL Server system database</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      <strong>Credentials:</strong> SQL Auth passwords are stored in the encrypted vault under key <code>sapidessq1_db</code>. Windows Auth users (<code>sq1adm</code>) authenticate via the OS &mdash; no password needed.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Features</h3>
+    <ul>
+      <li><strong>Auto-uppercase:</strong> All SQL is automatically converted to uppercase before execution. SQL Server's case-sensitive collation requires table and column names in uppercase (e.g., <code>T000</code> not <code>t000</code>).</li>
+      <li><strong>Schema support:</strong> When a schema is specified, the console wraps queries with <code>EXECUTE AS USER = 'schema'; ... ; REVERT</code> to set the execution context.</li>
+      <li><strong>Keyboard shortcut:</strong> Press <code>Ctrl+Enter</code> to execute queries instantly.</li>
+      <li><strong>Copy results:</strong> One-click copy button exports results as tab-separated values for pasting into spreadsheets.</li>
+      <li><strong>No master password:</strong> Credentials are retrieved from the server-side vault automatically &mdash; no authentication prompt.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Example Queries</h3>
+    <table>
+      <thead>
+        <tr><th>Query</th><th>Description</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>SELECT * FROM T000</code></td><td>List all SAP clients</td></tr>
+        <tr><td><code>SELECT TOP 10 * FROM USR02</code></td><td>First 10 SAP users with lock/validity info</td></tr>
+        <tr><td><code>SELECT NAME, CREAT_DB FROM TADIR WHERE PGMID = 'R3TR' AND OBJECT = 'TABL'</code></td><td>List tables in the repository</td></tr>
+        <tr><td><code>SELECT @@VERSION</code></td><td>SQL Server version info</td></tr>
+        <tr><td><code>SELECT NAME, STATE_DESC FROM SYS.DATABASES</code></td><td>List all databases and their state</td></tr>
+        <tr><td><code>SELECT DB_NAME() AS CURRENT_DB, SCHEMA_NAME() AS CURRENT_SCHEMA</code></td><td>Current database and schema context</td></tr>
+        <tr><td><code>EXEC SP_SPACEUSED</code></td><td>Database space usage summary</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      <strong>T-SQL syntax:</strong> Use <code>TOP N</code> instead of <code>LIMIT N</code>. Use <code>SYS.</code> prefix for system views. Stored procedures are called with <code>EXEC</code>.
     </div>
   </div>
 </div>

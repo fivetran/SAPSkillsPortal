@@ -308,7 +308,7 @@
 
 <!-- HEADER -->
 <div class="header">
-  <a href="/sap_skills/" class="back-link">Go back to the main page</a>
+  <a href="javascript:window.close()" class="back-link" onclick="window.close(); return false;">Close this Page</a>
   <h1>SAP MRP Automated Data Generator</h1>
   <div class="subtitle">S/4HANA IDES &mdash; Material Requirements Planning via JCo RFC</div>
   <span class="badge">MRP / Demand Planning</span>
@@ -855,79 +855,86 @@ WHERE PLNUM = '0004000XXXXX';</code></pre>
 <!-- CDS VIEWS -->
 <div class="section" id="cds">
   <h2 class="section-title">CDS Views Reference</h2>
+  <p style="margin:0 0 16px 0; color:#64748b; font-size:13px;">Verified against DDDDLSRC on S/4HANA IDES (SID: S4H, Release: 758) — 2026-04-15. Views marked <span style="color:#dc2626;">&#10007;</span> do not exist on this IDES instance.</p>
 
   <div class="card">
     <h3>Planned Independent Requirements (PIR) CDS Views</h3>
     <table>
-      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
-      <tr><td><code>I_PlannedIndepRqmt</code></td><td>PIR header</td><td>PBIM</td></tr>
-      <tr><td><code>I_PlannedIndepRqmtItem</code></td><td>PIR schedule lines</td><td>PBHI</td></tr>
-      <tr><td><code>I_PlndIndepRqmtAPI01</code></td><td>PIR header (API)</td><td>PBIM</td></tr>
-      <tr><td><code>I_PlndIndepRqmtItemAPI01</code></td><td>PIR schedule line (API)</td><td>PBHI</td></tr>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_PlndIndepRqmt</code></td><td>PIR header</td><td>PBIM</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_PlndIndepRqmtItem</code></td><td>PIR schedule lines</td><td>PBHI</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ActivePlndIndepRqmt</code></td><td>Active PIR header</td><td>PBIM</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ActivePlndIndepRqmtItem</code></td><td>Active PIR schedule lines</td><td>PBHI</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_PlndIndepRqmtAPI01</code></td><td>PIR header (API)</td><td>PBIM</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_PlndIndepRqmtItemAPI01</code></td><td>PIR schedule line (API)</td><td>PBHI</td><td style="color:#dc2626;">&#10007;</td></tr>
     </table>
   </div>
 
   <div class="card">
     <h3>Planned Order CDS Views</h3>
     <table>
-      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
-      <tr><td><code>I_PlannedOrder</code></td><td>Planned order header</td><td>PLAF</td></tr>
-      <tr><td><code>I_PlannedOrderAPI01</code></td><td>Planned order header (API)</td><td>PLAF</td></tr>
-      <tr><td><code>I_PlannedOrderComponent</code></td><td>Planned order components</td><td>RESB</td></tr>
-      <tr><td><code>C_PlannedOrder</code></td><td>Consumption: Manage Planned Orders</td><td>PLAF</td></tr>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_PlannedOrder</code></td><td>Planned order header</td><td>PLAF</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_PlannedOrderComponent</code></td><td>Planned order components</td><td>RESB</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_PlannedOrderAPI01</code></td><td>Planned order header (API)</td><td>PLAF</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>C_PlannedOrder</code></td><td>Consumption: Manage Planned Orders</td><td>PLAF</td><td style="color:#dc2626;">&#10007;</td></tr>
     </table>
   </div>
 
   <div class="card">
     <h3>MRP CDS Views</h3>
     <table>
-      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
-      <tr><td><code>I_MRPDocument</code></td><td>MRP document header</td><td>MDKP</td></tr>
-      <tr><td><code>I_MRPElement</code></td><td>MRP element (stock/requirements list)</td><td>MDTB</td></tr>
-      <tr><td><code>I_MRPMaterial</code></td><td>Material MRP data</td><td>MARC</td></tr>
-      <tr><td><code>C_MRPStockRequirementList</code></td><td>Consumption: Stock/Requirements List (MD04)</td><td>MDTB</td></tr>
-      <tr><td><code>C_MRPMaterial</code></td><td>Consumption: MRP material overview</td><td>MARC</td></tr>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_MRPMaterial</code></td><td>Material MRP data</td><td>MARC</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_MRPDocument</code></td><td>MRP document header</td><td>MDKP</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_MRPElement</code></td><td>MRP element (stock/requirements list)</td><td>MDTB</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>C_MRPStockRequirementList</code></td><td>Consumption: Stock/Requirements List (MD04)</td><td>MDTB</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>C_MRPMaterial</code></td><td>Consumption: MRP material overview</td><td>MARC</td><td style="color:#dc2626;">&#10007;</td></tr>
     </table>
   </div>
 
   <div class="card">
     <h3>Purchase Requisition CDS Views (from MRP)</h3>
     <table>
-      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
-      <tr><td><code>I_PurchaseRequisition</code></td><td>PR header composite</td><td>EBAN</td></tr>
-      <tr><td><code>I_PurchaseRequisitionItem</code></td><td>PR item with all fields</td><td>EBAN</td></tr>
-      <tr><td><code>I_PurReqnItemPurOrdRef</code></td><td>PR item to PO reference</td><td>EBAN</td></tr>
-      <tr><td><code>C_PurchaseReqnHeader</code></td><td>Consumption: Manage PRs</td><td>EBAN</td></tr>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_PurchaseRequisition</code></td><td>PR header composite</td><td>EBAN</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_PurchaseRequisitionItem</code></td><td>PR item with all fields</td><td>EBAN</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>C_PurchaseReqnHeader</code></td><td>Consumption: Manage PRs</td><td>EBAN</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_PurReqnItemPurOrdRef</code></td><td>PR item to PO reference</td><td>EBAN</td><td style="color:#dc2626;">&#10007;</td></tr>
     </table>
   </div>
 
   <div class="card">
     <h3>Production Order CDS Views (from Conversion)</h3>
     <table>
-      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
-      <tr><td><code>I_ProductionOrder</code></td><td>Production order header</td><td>AUFK, AFKO</td></tr>
-      <tr><td><code>I_ProductionOrderAPI01</code></td><td>Production order (API)</td><td>AUFK, AFKO</td></tr>
-      <tr><td><code>I_ProductionOrderItem</code></td><td>Production order item</td><td>AFPO</td></tr>
-      <tr><td><code>I_ProductionOrderComponent</code></td><td>Order BOM components</td><td>RESB</td></tr>
-      <tr><td><code>I_ProductionOrderOperation</code></td><td>Order routing operations</td><td>AFVV</td></tr>
-      <tr><td><code>C_ProdOrdConfirmation</code></td><td>Consumption: Order confirmations</td><td>AFRU</td></tr>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_ProductionOrder</code></td><td>Production order header</td><td>AUFK, AFKO</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductionOrderOperation</code></td><td>Order routing operations</td><td>AFVV</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_ProductionOrderAPI01</code></td><td>Production order (API)</td><td>AUFK, AFKO</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_ProductionOrderItem</code></td><td>Production order item</td><td>AFPO</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>I_ProductionOrderComponent</code></td><td>Order BOM components</td><td>RESB</td><td style="color:#dc2626;">&#10007;</td></tr>
+      <tr style="color:#94a3b8;"><td><code>C_ProdOrdConfirmation</code></td><td>Consumption: Order confirmations</td><td>AFRU</td><td style="color:#dc2626;">&#10007;</td></tr>
     </table>
   </div>
 
   <div class="card">
     <h3>Master Data CDS Views</h3>
     <table>
-      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th></tr>
-      <tr><td><code>I_Product</code></td><td>Product/material general</td><td>MARA</td></tr>
-      <tr><td><code>I_ProductPlantBasic</code></td><td>Product plant data (MRP params)</td><td>MARC</td></tr>
-      <tr><td><code>I_ProductPlantMRPArea</code></td><td>MRP area data</td><td>MARC</td></tr>
-      <tr><td><code>I_ProductPlantProcurement</code></td><td>Product procurement data</td><td>MARC</td></tr>
-      <tr><td><code>I_ProductValuation</code></td><td>Product valuation</td><td>MBEW</td></tr>
-      <tr><td><code>I_MaterialStock</code></td><td>Material stock overview</td><td>MARD</td></tr>
-      <tr><td><code>I_BillOfMaterial</code></td><td>BOM header</td><td>STKO</td></tr>
-      <tr><td><code>I_BillOfMaterialItem</code></td><td>BOM components</td><td>STPO</td></tr>
-      <tr><td><code>I_ProductionRoutingHeader</code></td><td>Routing header</td><td>PLKO</td></tr>
-      <tr><td><code>I_ProductionRoutingOperation</code></td><td>Routing operations</td><td>PLPO</td></tr>
+      <tr><th>CDS View</th><th>Description</th><th>Base Tables</th><th>IDES</th></tr>
+      <tr><td><code>I_Product</code></td><td>Product/material general</td><td>MARA</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductDescription</code></td><td>Product descriptions</td><td>MAKT</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductPlantBasic</code></td><td>Product plant data (MRP params)</td><td>MARC</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductPlantMRP</code></td><td>MRP planning data</td><td>MARC</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductPlantMRPArea</code></td><td>MRP area data</td><td>MARC</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductPlantProcurement</code></td><td>Product procurement data</td><td>MARC</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductValuation</code></td><td>Product valuation</td><td>MBEW</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_MaterialStock</code></td><td>Material stock overview</td><td>MARD</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_BillOfMaterial</code></td><td>BOM header</td><td>STKO</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_BillOfMaterialItem</code></td><td>BOM components</td><td>STPO</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductionRouting</code></td><td>Production routing</td><td>PLKO</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_ProductionRoutingOperation</code></td><td>Routing operations</td><td>PLPO</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_RoutingHeader</code></td><td>Routing header</td><td>PLKO</td><td style="color:#16a34a;">&#10003;</td></tr>
+      <tr><td><code>I_RoutingOperation</code></td><td>Routing operation steps</td><td>PLPO</td><td style="color:#16a34a;">&#10003;</td></tr>
     </table>
   </div>
 </div>

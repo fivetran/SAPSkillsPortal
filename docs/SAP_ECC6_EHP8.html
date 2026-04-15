@@ -240,7 +240,7 @@
 
 <!-- HEADER -->
 <div class="header">
-  <a href="/sap_skills/" class="back-link">Go back to the main page</a>
+  <a href="javascript:window.close()" class="back-link" onclick="window.close(); return false;">Close this Page</a>
   <h1>ECC 6.0 EHP8</h1>
   <div class="subtitle">SAP ECC IDES Application Server on Oracle 19c</div>
 </div>
@@ -250,6 +250,9 @@
   <div class="nav-inner">
     <a href="#system">System Info</a>
     <a href="#status">Status</a>
+    <a href="#portal-cert">Certificate</a>
+    <a href="#hva-agent">HVA Agent</a>
+    <a href="#oracle-sql">SQL Console</a>
     <a href="#links">Links</a>
     <a href="SAP_ECC6_EHP8_Guide.html">Documentation</a>
     <a href="SAP_Management_Cockpit.html">Back to Cockpit</a>
@@ -286,6 +289,8 @@
           <tr><td>MOPatch</td><td id="mopatch-version">2.13</td></tr>
           <tr><td>OS</td><td><span id="os-version">SUSE Linux Enterprise Server 15 SP5</span> <button onclick="sshConnect()" id="ssh-btn" style="display:inline-block; margin-left:12px; padding:3px 12px; background:#0284C7; color:white; border:none; border-radius:5px; font-size:0.78rem; font-weight:600; cursor:pointer;">SSH</button></td></tr>
           <tr><td>IP Addresses</td><td>Private <code>10.128.15.241</code> &mdash; Public <code>35.226.121.169</code></td></tr>
+          <tr><td>GCP Zone</td><td>us-central1-a</td></tr>
+          <tr><td>GCP Instance</td><td><code>antonio-carbone-sap-idesecc8-oracle-2024-10-02</code></td></tr>
           <tr><td>CPUs</td><td id="hw-cpus">4 vCPUs</td></tr>
           <tr><td>Memory</td><td id="hw-memory">23 GB RAM</td></tr>
         </tbody>
@@ -348,6 +353,160 @@
   </div>
 </div>
 
+<!-- PORTAL CERTIFICATE -->
+<!-- ============================================================ -->
+<div class="section" id="portal-cert">
+  <div class="section-title" style="display:flex; justify-content:space-between; align-items:center;">
+    Portal Certificate
+    <button onclick="loadPortalCert()" id="pcert-btn" style="font-size:0.8rem; padding:6px 14px; background:#27ae60; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Check</button>
+  </div>
+  <div class="card">
+    <div id="pcert-content" style="color:var(--text-light); font-size:0.9rem;">Loading certificate info...</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- HVA AGENT -->
+<!-- ============================================================ -->
+<div class="section" id="hva-agent">
+  <div class="section-title">
+    HVA Agent
+    <button onclick="loadHvaAgent()" id="hva-refresh-btn" style="font-size:0.8rem; padding:6px 14px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; margin-left:12px;">Refresh</button>
+  </div>
+
+  <!-- Agent Status Card -->
+  <div class="card">
+    <h3><span class="dot" id="hva-dot" style="background: var(--text-light)"></span> Agent Status</h3>
+    <table>
+      <tr><td style="width:200px; font-weight:600;">Service</td><td><code>agentListener.service</code> (systemd)</td></tr>
+      <tr><td style="font-weight:600;">Status</td><td id="hva-status" style="font-weight:600;">Checking...</td></tr>
+      <tr><td style="font-weight:600;">Running Version</td><td id="hva-version">—</td></tr>
+      <tr><td style="font-weight:600;">Port</td><td><code>4360</code></td></tr>
+      <tr><td style="font-weight:600;">User</td><td><code>abaadm</code></td></tr>
+      <tr><td style="font-weight:600;">HVR_HOME</td><td><code>/opt/fivetran/hvr_home</code></td></tr>
+      <tr><td style="font-weight:600;">HVR_CONFIG</td><td><code>/opt/fivetran/hvr_config</code></td></tr>
+      <tr><td style="font-weight:600;">Uptime</td><td id="hva-uptime">—</td></tr>
+      <tr><td style="font-weight:600;">PID</td><td id="hva-pid">—</td></tr>
+      <tr><td style="font-weight:600;">Memory</td><td id="hva-memory">—</td></tr>
+    </table>
+    <div style="margin-top:14px; display:flex; gap:8px;">
+      <button onclick="hvaControl('start')" style="padding:6px 16px; background:#27ae60; color:white; border:none; border-radius:6px; font-size:0.82rem; font-weight:600; cursor:pointer;">Start</button>
+      <button onclick="hvaControl('stop')" style="padding:6px 16px; background:#e74c3c; color:white; border:none; border-radius:6px; font-size:0.82rem; font-weight:600; cursor:pointer;">Stop</button>
+      <button onclick="hvaControl('restart')" style="padding:6px 16px; background:#e67e22; color:white; border:none; border-radius:6px; font-size:0.82rem; font-weight:600; cursor:pointer;">Restart</button>
+    </div>
+  </div>
+
+  <!-- Upload New Agent -->
+  <div class="card">
+    <h3><span class="dot" style="background: #3498db"></span> Upload New Agent</h3>
+    <p style="font-size:0.88rem; color:var(--text-light); margin-bottom:12px;">
+      Upload a Fivetran HVR agent package (<code>.tar.gz</code>) from your local machine. The file will be staged on the server for upgrade.
+    </p>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <input type="file" id="hva-upload-file" accept=".tar.gz,.gz" style="font-size:0.88rem;">
+      <button onclick="uploadHvaAgent()" id="hva-upload-btn" style="padding:6px 18px; background:#3498db; color:white; border:none; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">Upload to Server</button>
+    </div>
+    <div id="hva-upload-progress" style="display:none; margin-top:12px;">
+      <div style="background:#e9ecef; border-radius:6px; height:22px; overflow:hidden;">
+        <div id="hva-upload-bar" style="background:#3498db; height:100%; width:0%; transition:width 0.3s; border-radius:6px;"></div>
+      </div>
+      <div id="hva-upload-text" style="font-size:0.82rem; color:var(--text-light); margin-top:4px;"></div>
+    </div>
+  </div>
+
+  <!-- Staged Package & Update -->
+  <div class="card">
+    <h3><span class="dot" style="background: #e67e22"></span> Agent Update</h3>
+
+    <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:14px;">
+      <div style="flex:1; min-width:180px; background:#fdf2e9; border-radius:8px; padding:16px; text-align:center;">
+        <div style="font-size:0.78rem; text-transform:uppercase; font-weight:600; color:#a04000; margin-bottom:6px;">Running Version</div>
+        <div id="hva-running-ver" style="font-size:1rem; font-weight:700; color:var(--text);">—</div>
+      </div>
+      <div style="flex:0 0 40px; display:flex; align-items:center; justify-content:center;">
+        <span id="hva-arrow" style="font-size:1.8rem; color:#bbb;">&rarr;</span>
+      </div>
+      <div style="flex:1; min-width:180px; background:#f1f3f5; border-radius:8px; padding:16px; text-align:center;">
+        <div style="font-size:0.78rem; text-transform:uppercase; font-weight:600; color:var(--text-light); margin-bottom:6px;">Staged Version</div>
+        <div id="hva-staged-ver" style="font-size:1rem; font-weight:700; color:var(--text);">—</div>
+        <div id="hva-staged" style="font-size:0.78rem; color:var(--text-light); margin-top:4px;">None</div>
+      </div>
+      <div style="flex:1; min-width:180px; background:#f1f3f5; border-radius:8px; padding:16px; text-align:center;">
+        <div style="font-size:0.78rem; text-transform:uppercase; font-weight:600; color:var(--text-light); margin-bottom:6px;">Action</div>
+        <div id="hva-action" style="font-size:1rem; font-weight:700; color:var(--text-light);">&mdash;</div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button onclick="applyHvaUpdate()" id="hva-apply-btn" style="padding:6px 18px; background:#e67e22; color:white; border:none; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;" disabled>Apply Update</button>
+      <button onclick="deleteHvaStaged()" id="hva-delete-btn" style="padding:6px 18px; background:#95a5a6; color:white; border:none; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;" disabled>Delete Staged Package</button>
+    </div>
+  </div>
+
+  <!-- Live Log -->
+  <div class="card" id="hva-log-card" style="display:none; background:#1e1e2e; color:#cdd6f4; border:2px solid #e67e22;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <span id="hva-log-dot" style="width:10px; height:10px; border-radius:50%; background:#e67e22; display:inline-block;"></span>
+        <span style="font-weight:600; font-size:0.95rem;">Live Log</span>
+        <span id="hva-log-timer" style="font-size:0.8rem; color:#a6adc8;"></span>
+      </div>
+      <div style="display:flex; gap:6px;">
+        <button onclick="stopHvaLog()" style="padding:4px 12px; background:#e74c3c; color:white; border:none; border-radius:5px; font-size:0.78rem; cursor:pointer; font-weight:600;">Stop</button>
+        <button onclick="closeHvaLog()" style="padding:4px 12px; background:#6c757d; color:white; border:none; border-radius:5px; font-size:0.78rem; cursor:pointer; font-weight:600;">Close</button>
+      </div>
+    </div>
+    <div id="hva-log-output" style="font-family:monospace; font-size:0.82rem; white-space:pre-wrap; max-height:400px; overflow-y:auto; line-height:1.6; padding:8px;">Waiting for log output...</div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ORACLE SQL CONSOLE -->
+<!-- ============================================================ -->
+<div class="section" id="oracle-sql">
+  <div class="section-title">Oracle SQL Console</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: #c0392b"></span> Interactive Query</h3>
+
+    <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px; align-items:flex-end;">
+      <div style="flex:0 0 auto;">
+        <label style="display:block; font-size:0.82rem; font-weight:600; color:var(--text-light); margin-bottom:4px;">Connect As</label>
+        <select id="ora-user" style="padding:7px 12px; border:1px solid var(--border); border-radius:6px; font-size:0.88rem; background:white; min-width:180px;">
+          <option value="sysdba">/ as sysdba</option>
+          <option value="SYSTEM">SYSTEM</option>
+          <option value="SAPSR3">SAPSR3</option>
+        </select>
+      </div>
+      <div style="flex:0 0 auto;">
+        <label style="display:block; font-size:0.82rem; font-weight:600; color:var(--text-light); margin-bottom:4px;">Schema (optional)</label>
+        <input id="ora-schema" type="text" placeholder="e.g. SAPSR3" style="padding:7px 12px; border:1px solid var(--border); border-radius:6px; font-size:0.88rem; width:160px;">
+      </div>
+      <div style="flex:0 0 auto; display:flex; gap:8px;">
+        <button onclick="executeOraSql()" id="ora-exec-btn" style="padding:7px 18px; background:#c0392b; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.88rem;">Execute</button>
+        <button onclick="clearOraResults()" style="padding:7px 14px; background:#6c757d; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.82rem;">Clear</button>
+      </div>
+    </div>
+
+    <textarea id="ora-query" rows="5" placeholder="SELECT * FROM V$INSTANCE" style="width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:6px; font-family:'SF Mono','Fira Code',Consolas,monospace; font-size:0.85rem; resize:vertical; background:var(--code-bg); color:var(--text); line-height:1.5;" spellcheck="false"></textarea>
+
+    <div id="ora-status" style="font-size:0.82rem; color:var(--text-light); margin-top:8px; display:none;"></div>
+
+    <div id="ora-results" style="margin-top:14px; display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span id="ora-row-count" style="font-size:0.82rem; color:var(--text-light);"></span>
+        <button onclick="copyOraResults()" style="font-size:0.75rem; padding:4px 10px; background:var(--code-bg); color:var(--text-light); border:1px solid var(--border); border-radius:4px; cursor:pointer;">Copy</button>
+      </div>
+      <div id="ora-table-wrap" style="overflow-x:auto; border:1px solid var(--border); border-radius:6px; max-height:500px; overflow-y:auto;">
+        <table id="ora-table" style="width:100%; border-collapse:collapse; font-size:0.82rem; font-family:'SF Mono','Fira Code',Consolas,monospace;">
+        </table>
+      </div>
+    </div>
+
+    <div id="ora-error" style="margin-top:14px; display:none; padding:12px 16px; background:#fef2f2; border:1px solid #fecaca; border-radius:6px; color:#dc2626; font-size:0.85rem; font-family:'SF Mono','Fira Code',Consolas,monospace; white-space:pre-wrap;"></div>
+  </div>
+</div>
+
 <!-- LINKS -->
 <!-- ============================================================ -->
 <div class="section" id="links">
@@ -356,6 +515,17 @@
   <div class="card">
     <h3><span class="dot" style="background: var(--primary)"></span> Resources</h3>
     <ul class="link-list">
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://sapidesecc8.fivetran-internal-sales.com:4300/sap/bc/gui/sap/its/webgui?sap-client=800&sap-language=EN" target="_blank" style="flex-shrink:0;">
+            <img src="sap_icon.svg" alt="SAP" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://sapidesecc8.fivetran-internal-sales.com:4300/sap/bc/gui/sap/its/webgui?sap-client=800&sap-language=EN" target="_blank">SAP WebGUI</a>
+            <div class="link-desc">SAP ECC 6.0 EHP8 &mdash; Web Access via SAP Transaction Server (port 4300)</div>
+          </div>
+        </div>
+      </li>
       <li>
         <div style="display:flex; align-items:center; gap:12px;">
           <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-central1-a/instances/antonio-carbone-sap-idesecc8-oracle-2024-10-02?project=internal-sales" target="_blank" style="flex-shrink:0;">
@@ -375,6 +545,28 @@
           <div>
             <a href="https://console.cloud.google.com/net-services/dns/zones/fivetran-internal-sales-com/details?project=internal-sales" target="_blank">DNS Registration</a>
             <div class="link-desc">Google Cloud DNS</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/details/antonio-carbone-home-ip2?project=internal-sales" target="_blank" style="flex-shrink:0;">
+            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/details/antonio-carbone-home-ip2?project=internal-sales" target="_blank">Set GCP Firewall</a>
+            <div class="link-desc">Google Cloud Firewall Manager &mdash; Network security policies</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://ssh.cloud.google.com/v2/ssh/projects/internal-sales/zones/us-east1-b/instances/ts-sap-hana-s4-ssh-tunnel?authuser=0&amp;hl=en_US&amp;projectNumber=354793711235&amp;useAdminProxy=true" target="_blank" style="flex-shrink:0;">
+            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://ssh.cloud.google.com/v2/ssh/projects/internal-sales/zones/us-east1-b/instances/ts-sap-hana-s4-ssh-tunnel?authuser=0&amp;hl=en_US&amp;projectNumber=354793711235&amp;useAdminProxy=true" target="_blank">SSH Server for Fivetran Connectors</a>
+            <div class="link-desc">GCP SSH Tunnel &mdash; Fivetran connector access to SAP systems</div>
           </div>
         </div>
       </li>
@@ -680,7 +872,7 @@ function sshConnect() {
       navigator.clipboard.writeText(data.password).then(function() {
         btn.textContent = 'Password copied!';
         btn.style.background = '#27ae60';
-        window.open('ssh://root@sapidesecc8', '_self');
+        window.open('ssh://root@35.226.121.169', '_self');
       });
     } else {
       btn.textContent = 'Error';
@@ -817,11 +1009,427 @@ function loadLicense() {
     });
 }
 
+// ===================== Portal Certificate =====================
+function loadPortalCert() {
+  var el = document.getElementById('pcert-content');
+  var btn = document.getElementById('pcert-btn');
+  btn.textContent = 'Checking...'; btn.disabled = true;
+  el.textContent = 'Loading...';
+  fetch('/sap_skills/api/ecc_cert_expiry')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.textContent = 'Check'; btn.disabled = false;
+    if (data.status === 'ok') {
+      var color = '#27ae60';
+      var badge = data.days_remaining + ' days remaining';
+      if (data.cert_status === 'critical') { color = '#e74c3c'; badge = 'EXPIRING SOON'; }
+      else if (data.cert_status === 'warning') { color = '#f39c12'; badge = 'Expiring in ' + data.days_remaining + ' days'; }
+      else if (data.cert_status === 'expired') { color = '#e74c3c'; badge = 'EXPIRED'; }
+      var html = '<table style="width:100%; font-size:0.88rem;">';
+      html += '<tr><td style="padding:6px 10px; border-bottom:1px solid var(--border); font-weight:600; width:130px;">Status</td>';
+      html += '<td style="padding:6px 10px; border-bottom:1px solid var(--border);"><span style="padding:3px 10px; border-radius:12px; font-size:0.78rem; font-weight:600; background:' + color + '20; color:' + color + ';">' + badge + '</span></td></tr>';
+      html += '<tr><td style="padding:6px 10px; border-bottom:1px solid var(--border); font-weight:600;">Subject</td><td style="padding:6px 10px; border-bottom:1px solid var(--border);"><code>' + data.subject + '</code></td></tr>';
+      html += '<tr><td style="padding:6px 10px; border-bottom:1px solid var(--border); font-weight:600;">Issuer</td><td style="padding:6px 10px; border-bottom:1px solid var(--border);">' + data.issuer + '</td></tr>';
+      html += '<tr><td style="padding:6px 10px; border-bottom:1px solid var(--border); font-weight:600;">Valid From</td><td style="padding:6px 10px; border-bottom:1px solid var(--border);">' + data.not_before + '</td></tr>';
+      html += '<tr><td style="padding:6px 10px; border-bottom:1px solid var(--border); font-weight:600;">Expires</td><td style="padding:6px 10px; border-bottom:1px solid var(--border); font-weight:600; color:' + color + ';">' + data.expiry_date + ' (' + data.days_remaining + ' days)</td></tr>';
+      html += '<tr><td style="padding:6px 10px; font-weight:600;">Serial</td><td style="padding:6px 10px; font-size:0.8rem;">' + data.serial + '</td></tr>';
+      html += '</table>';
+      el.innerHTML = html;
+    } else { el.textContent = data.message || 'Error'; }
+  })
+  .catch(function() { btn.textContent = 'Check'; btn.disabled = false; el.textContent = 'Connection error'; });
+}
+
+// ===================== HVA Agent =====================
+
+function loadHvaAgent() {
+  var btn = document.getElementById('hva-refresh-btn');
+  btn.textContent = 'Loading...'; btn.disabled = true;
+  fetch('/sap_skills/api/ecc_hva_status')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.textContent = 'Refresh'; btn.disabled = false;
+    if (data.status !== 'ok') {
+      document.getElementById('hva-status').textContent = 'Error: ' + (data.message || 'Unknown');
+      document.getElementById('hva-dot').style.background = '#e74c3c';
+      return;
+    }
+    var svc = data.service_status || 'unknown';
+    var dot = document.getElementById('hva-dot');
+    var statusEl = document.getElementById('hva-status');
+    if (svc === 'active') {
+      dot.style.background = '#27ae60';
+      statusEl.innerHTML = '<span style="color:#27ae60;">Active (running)</span>';
+    } else {
+      dot.style.background = '#e74c3c';
+      statusEl.innerHTML = '<span style="color:#e74c3c;">' + svc + '</span>';
+    }
+    document.getElementById('hva-version').textContent = data.version || '—';
+    document.getElementById('hva-uptime').textContent = data.uptime || '—';
+    document.getElementById('hva-pid').textContent = data.pid || '—';
+    document.getElementById('hva-memory').textContent = data.memory || '—';
+    document.getElementById('hva-running-ver').textContent = data.version || '—';
+    var arrow = document.getElementById('hva-arrow');
+    // Staged package
+    if (data.staged_file) {
+      document.getElementById('hva-staged').textContent = data.staged_file;
+      document.getElementById('hva-staged-ver').textContent = data.staged_version || 'Unknown';
+      var running = data.version || '';
+      var staged = data.staged_version || '';
+      if (staged && staged !== running) {
+        // Compare versions: parse "6.3.5/2" into numeric parts
+        function parseVer(v) {
+          return v.replace(/\//g, '.').split('.').map(function(n) { return parseInt(n, 10) || 0; });
+        }
+        var rParts = parseVer(running.replace(/^.*?(\d)/, '$1'));
+        var sParts = parseVer(staged);
+        var isUpgrade = false;
+        for (var vi = 0; vi < Math.max(rParts.length, sParts.length); vi++) {
+          var rv = rParts[vi] || 0, sv = sParts[vi] || 0;
+          if (sv > rv) { isUpgrade = true; break; }
+          if (sv < rv) { isUpgrade = false; break; }
+        }
+        if (isUpgrade) {
+          arrow.innerHTML = '&uarr;'; arrow.style.color = '#27ae60';
+          document.getElementById('hva-action').innerHTML = '<span style="color:#27ae60;">Upgrade</span>';
+        } else {
+          arrow.innerHTML = '&darr;'; arrow.style.color = '#e74c3c';
+          document.getElementById('hva-action').innerHTML = '<span style="color:#e74c3c;">Downgrade</span>';
+        }
+        document.getElementById('hva-apply-btn').disabled = false;
+        document.getElementById('hva-apply-btn').style.background = '#e67e22';
+        document.getElementById('hva-apply-btn').style.cursor = 'pointer';
+      } else if (staged === running) {
+        arrow.innerHTML = '='; arrow.style.color = '#27ae60';
+        document.getElementById('hva-action').innerHTML = '<span style="color:#27ae60;">Same version</span>';
+        document.getElementById('hva-apply-btn').disabled = true;
+        document.getElementById('hva-apply-btn').style.background = '#6c757d';
+        document.getElementById('hva-apply-btn').style.cursor = 'not-allowed';
+      } else {
+        arrow.innerHTML = '&rarr;'; arrow.style.color = '#e67e22';
+        document.getElementById('hva-action').textContent = 'Ready';
+        document.getElementById('hva-apply-btn').disabled = false;
+        document.getElementById('hva-apply-btn').style.background = '#e67e22';
+        document.getElementById('hva-apply-btn').style.cursor = 'pointer';
+      }
+      document.getElementById('hva-delete-btn').disabled = false;
+    } else {
+      document.getElementById('hva-staged').textContent = '';
+      document.getElementById('hva-staged-ver').textContent = 'None';
+      arrow.innerHTML = '&rarr;'; arrow.style.color = '#bbb';
+      document.getElementById('hva-action').innerHTML = '<span style="color:var(--text-light);">No package</span>';
+      document.getElementById('hva-apply-btn').disabled = true;
+      document.getElementById('hva-apply-btn').style.background = '#6c757d';
+      document.getElementById('hva-apply-btn').style.cursor = 'not-allowed';
+      document.getElementById('hva-delete-btn').disabled = true;
+    }
+  })
+  .catch(function() {
+    btn.textContent = 'Refresh'; btn.disabled = false;
+    document.getElementById('hva-status').textContent = 'Connection error';
+    document.getElementById('hva-dot').style.background = '#e74c3c';
+  });
+}
+
+function hvaControl(action) {
+  var label = action.charAt(0).toUpperCase() + action.slice(1);
+  function doFetch(payload) {
+    fetch('/sap_skills/api/ecc_hva_control', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        alert(data.message || 'Done');
+        setTimeout(loadHvaAgent, 2000);
+      } else {
+        alert('Error: ' + (data.message || 'Unknown'));
+      }
+    })
+    .catch(function() { alert('Connection error'); });
+  }
+  if (action === 'stop' || action === 'restart') {
+    askPassword('Enter master password to ' + label + ' HVA Agent').then(function(pwd) {
+      if (!pwd) return;
+      doFetch({action: action, master_password: pwd});
+    });
+  } else {
+    if (!confirm(label + ' the HVA Agent?')) return;
+    doFetch({action: action});
+  }
+}
+
+function uploadHvaAgent() {
+  var fileInput = document.getElementById('hva-upload-file');
+  var file = fileInput.files[0];
+  if (!file) { alert('Please select a .tar.gz file'); return; }
+  if (!file.name.endsWith('.tar.gz') && !file.name.endsWith('.gz')) {
+    alert('Only .tar.gz files are accepted'); return;
+  }
+  var btn = document.getElementById('hva-upload-btn');
+  var progress = document.getElementById('hva-upload-progress');
+  var bar = document.getElementById('hva-upload-bar');
+  var text = document.getElementById('hva-upload-text');
+  btn.textContent = 'Uploading...'; btn.disabled = true;
+  btn.style.background = '#6c757d';
+  progress.style.display = 'block';
+  bar.style.width = '0%';
+  bar.style.background = '#3498db';
+  text.textContent = 'Uploading ' + file.name + '...';
+
+  var formData = new FormData();
+  formData.append('file', file);
+
+  var xhr = new XMLHttpRequest();
+  xhr.open('POST', '/sap_skills/api/ecc_hva_upload');
+  xhr.upload.onprogress = function(e) {
+    if (e.lengthComputable) {
+      var pct = Math.round((e.loaded / e.total) * 100);
+      bar.style.width = pct + '%';
+      text.textContent = 'Uploading... ' + pct + '% (' + (e.loaded / (1024*1024)).toFixed(0) + ' / ' + (e.total / (1024*1024)).toFixed(0) + ' MB)';
+    }
+  };
+  xhr.onload = function() {
+    btn.textContent = 'Upload to Server'; btn.disabled = false;
+    btn.style.background = '#3498db';
+    try {
+      var data = JSON.parse(xhr.responseText);
+      if (data.status === 'ok') {
+        bar.style.width = '100%';
+        bar.style.background = '#27ae60';
+        text.textContent = 'Upload complete — ' + data.filename + (data.version ? ' (v' + data.version + ')' : '');
+        setTimeout(loadHvaAgent, 1000);
+      } else {
+        bar.style.background = '#e74c3c';
+        text.textContent = 'Error: ' + (data.message || 'Upload failed');
+      }
+    } catch(e) {
+      bar.style.background = '#e74c3c';
+      text.textContent = 'Upload failed — unexpected response';
+    }
+  };
+  xhr.onerror = function() {
+    btn.textContent = 'Upload to Server'; btn.disabled = false;
+    btn.style.background = '#3498db';
+    bar.style.background = '#e74c3c';
+    text.textContent = 'Connection error — check server logs';
+  };
+  xhr.send(formData);
+}
+
+function applyHvaUpdate() {
+  askPassword('Enter master password to apply HVA Agent update').then(function(pwd) {
+    if (!pwd) return;
+    if (!confirm('Apply the staged HVA agent update?\n\nThis will:\n1. Stop the agent\n2. Backup the current install\n3. Extract the new package\n4. Restart the agent')) return;
+    var btn = document.getElementById('hva-apply-btn');
+    btn.textContent = 'Updating...'; btn.disabled = true;
+    fetch('/sap_skills/api/ecc_hva_apply_update', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({master_password: pwd})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        btn.textContent = 'Update in progress...';
+        startHvaLog();
+      } else {
+        alert('Error: ' + (data.message || 'Unknown'));
+        btn.textContent = 'Apply Update'; btn.disabled = false;
+      }
+    })
+    .catch(function() {
+      alert('Connection error');
+      btn.textContent = 'Apply Update'; btn.disabled = false;
+    });
+  });
+}
+
+function deleteHvaStaged() {
+  if (!confirm('Delete the staged package?')) return;
+  fetch('/sap_skills/api/ecc_hva_delete_staged', {method: 'POST'})
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      loadHvaAgent();
+    } else {
+      alert('Error: ' + (data.message || 'Unknown'));
+    }
+  })
+  .catch(function() { alert('Connection error'); });
+}
+
+var hvaLogInterval = null;
+function startHvaLog() {
+  var card = document.getElementById('hva-log-card');
+  card.style.display = 'block';
+  document.getElementById('hva-log-output').textContent = 'Connecting to update log...\n';
+  document.getElementById('hva-log-dot').style.background = '#e67e22';
+  card.scrollIntoView({behavior: 'smooth', block: 'start'});
+  tailHvaLog();
+  hvaLogInterval = setInterval(tailHvaLog, 8000);
+}
+
+function stopHvaLog() {
+  if (hvaLogInterval) { clearInterval(hvaLogInterval); hvaLogInterval = null; }
+  document.getElementById('hva-log-dot').style.background = '#6c757d';
+  document.getElementById('hva-log-timer').textContent = 'Stopped';
+}
+
+function closeHvaLog() {
+  stopHvaLog();
+  document.getElementById('hva-log-card').style.display = 'none';
+}
+
+function tailHvaLog() {
+  var timerEl = document.getElementById('hva-log-timer');
+  timerEl.textContent = 'Refreshing...';
+  fetch('/sap_skills/api/ecc_hva_tail_log')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status !== 'ok') return;
+    var now = new Date();
+    timerEl.textContent = 'Last: ' + now.toLocaleTimeString('en-GB', {hour:'2-digit', minute:'2-digit', second:'2-digit'}) + ' (every 8s)';
+    var logEl = document.getElementById('hva-log-output');
+    var content = '';
+    if (data.log) {
+      content = data.log.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      // Colorize
+      content = content.replace(/\[(DONE)\]/g, '<span style="color:#27ae60; font-weight:600;">[$1]</span>');
+      content = content.replace(/\[(ERROR|FAIL)\]/g, '<span style="color:#e74c3c; font-weight:600;">[$1]</span>');
+      content = content.replace(/\[(BACKUP|EXTRACT|INSTALL|UPDATE)\]/g, '<span style="color:#3498db;">[$1]</span>');
+      content = content.replace(/\[(STOP|START|RESTART)\]/g, '<span style="color:#e67e22;">[$1]</span>');
+    }
+    logEl.innerHTML = content || 'No log output yet...';
+    logEl.scrollTop = logEl.scrollHeight;
+    // Auto-stop on done
+    if (data.log && data.log.indexOf('[DONE]') !== -1) {
+      clearInterval(hvaLogInterval); hvaLogInterval = null;
+      document.getElementById('hva-log-dot').style.background = '#27ae60';
+      timerEl.textContent = 'Update complete';
+      var btn = document.getElementById('hva-apply-btn');
+      btn.textContent = 'Apply Update'; btn.disabled = true;
+      setTimeout(loadHvaAgent, 2000);
+    }
+  })
+  .catch(function() { timerEl.textContent = 'Connection error — retrying...'; });
+}
+
+// ---- Oracle SQL Console ----
+function oraEscapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function executeOraSql() {
+  var sql = document.getElementById('ora-query').value.trim();
+  if (!sql) return;
+  var user = document.getElementById('ora-user').value;
+  var schema = document.getElementById('ora-schema').value.trim();
+  var btn = document.getElementById('ora-exec-btn');
+  var statusEl = document.getElementById('ora-status');
+  var resultsEl = document.getElementById('ora-results');
+  var errorEl = document.getElementById('ora-error');
+
+  btn.textContent = 'Executing...';
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  statusEl.style.display = 'block';
+  statusEl.textContent = 'Running query as ' + (user === 'sysdba' ? '/ as sysdba' : user) + '...';
+  resultsEl.style.display = 'none';
+  errorEl.style.display = 'none';
+
+  fetch('/sap_skills/api/oracle_sql_execute', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({user: user, sql: sql, schema: schema})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.textContent = 'Execute';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    if (data.status === 'ok') {
+      statusEl.textContent = data.rows.length + ' row(s) returned in ' + (data.elapsed_ms || 0) + ' ms';
+      errorEl.style.display = 'none';
+      if (data.headers && data.headers.length > 0) {
+        resultsEl.style.display = 'block';
+        document.getElementById('ora-row-count').textContent = data.rows.length + ' row(s)';
+        var tbl = document.getElementById('ora-table');
+        var html = '<thead><tr>';
+        data.headers.forEach(function(c) {
+          html += '<th style="padding:8px 12px; text-align:left; background:#f8f9fa; border-bottom:2px solid var(--border); white-space:nowrap; position:sticky; top:0;">' + c + '</th>';
+        });
+        html += '</tr></thead><tbody>';
+        data.rows.forEach(function(row, i) {
+          html += '<tr style="background:' + (i % 2 === 0 ? 'white' : '#f8f9fa') + ';">';
+          row.forEach(function(val) {
+            html += '<td style="padding:6px 12px; border-bottom:1px solid #eee; white-space:nowrap;">' + (val === null ? '<span style=\'color:#aaa;\'>NULL</span>' : oraEscapeHtml(String(val))) + '</td>';
+          });
+          html += '</tr>';
+        });
+        html += '</tbody>';
+        tbl.innerHTML = html;
+      } else {
+        resultsEl.style.display = 'none';
+        statusEl.textContent = 'Statement executed successfully' + (data.message ? ': ' + data.message : '');
+      }
+    } else {
+      statusEl.textContent = 'Error';
+      errorEl.style.display = 'block';
+      errorEl.textContent = data.message || 'Unknown error';
+    }
+  })
+  .catch(function(e) {
+    btn.textContent = 'Execute';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    statusEl.textContent = 'Error';
+    errorEl.style.display = 'block';
+    errorEl.textContent = 'Network error: ' + e.message;
+  });
+}
+
+function clearOraResults() {
+  document.getElementById('ora-results').style.display = 'none';
+  document.getElementById('ora-error').style.display = 'none';
+  document.getElementById('ora-status').style.display = 'none';
+  document.getElementById('ora-table').innerHTML = '';
+}
+
+function copyOraResults() {
+  var tbl = document.getElementById('ora-table');
+  var rows = tbl.querySelectorAll('tr');
+  var lines = [];
+  rows.forEach(function(tr) {
+    var cells = tr.querySelectorAll('th, td');
+    var vals = [];
+    cells.forEach(function(c) { vals.push(c.textContent); });
+    lines.push(vals.join('\t'));
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(function() {
+    var btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+  });
+}
+
+// Ctrl+Enter for Oracle SQL Console
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && document.activeElement && document.activeElement.id === 'ora-query') {
+    e.preventDefault();
+    executeOraSql();
+  }
+});
+
 // Auto-load on page open
 document.addEventListener('DOMContentLoaded', function() {
   refreshStatus();
   loadLicense();
+  loadPortalCert();
   loadDiskSpace();
+  loadHvaAgent();
   setInterval(function() { refreshStatus(); loadLicense(); }, 300000);
 });
 </script>

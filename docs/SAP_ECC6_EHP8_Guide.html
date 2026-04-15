@@ -232,6 +232,8 @@
     <a href="#security">Security</a>
     <a href="#troubleshooting">Troubleshooting</a>
     <a href="#architecture">Architecture</a>
+    <a href="#email">Email</a>
+    <a href="#sql-console">SQL Console</a>
     <a href="SAP_ECC6_EHP8.html">Back to Cockpit</a>
   </div>
 </div>
@@ -651,6 +653,30 @@ su - abaadm -c 'brarchive -u / -p /oracle/ABA/sapprof/initABA_archlog.sap -d dis
 </div>
 
 <!-- ============================================================ -->
+<!-- EMAIL -->
+<!-- ============================================================ -->
+<div class="section" id="email">
+  <div class="section-title">Email Relay</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> SMTP Configuration</h3>
+    <p>This server is configured to send email via <strong>smtp2go</strong> relay using Postfix.</p>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>MTA</td><td>Postfix (SUSE, lmdb maps)</td></tr>
+        <tr><td>Relay</td><td><code>mail.smtp2go.com:2525</code></td></tr>
+        <tr><td>From Address</td><td><code>sapidesecc8@fivetran-internal-sales.com</code></td></tr>
+        <tr><td>Auth</td><td>SASL (credentials in vault key <code>smtp2go</code>)</td></tr>
+        <tr><td>TLS</td><td>Enabled (opportunistic)</td></tr>
+        <tr><td>Config</td><td><code>/etc/postfix/main.cf</code>, <code>/etc/postfix/sasl_passwd</code></td></tr>
+      </tbody>
+    </table>
+    <p><strong>Send a test email:</strong></p>
+    <pre>echo "Test" | mailx -s "Test from sapidesecc8" -r "sapidesecc8@fivetran-internal-sales.com" recipient@email.com</pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
 <!-- TROUBLESHOOTING -->
 <!-- ============================================================ -->
 <div class="section" id="troubleshooting">
@@ -786,6 +812,80 @@ su - abaadm -c 'brarchive -u / -p /oracle/ABA/sapprof/initABA_archlog.sap -d dis
     <div class="info-box">
       <strong>Local execution:</strong> All API endpoints execute commands directly on sapidesecc8 &mdash; no SSH connections to remote servers are involved. The web server and SAP/Oracle all run on the same machine.
     </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ORACLE SQL CONSOLE -->
+<!-- ============================================================ -->
+<div class="section" id="sql-console">
+  <div class="section-title">Oracle SQL Console</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Overview</h3>
+    <p>The Oracle SQL Console provides an interactive query interface directly from the cockpit. Queries are executed on the Oracle 19c database via <code>sqlplus</code> on <code>sapidesecc8</code> (local execution, no SSH).</p>
+
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Tool</td><td><code>sqlplus</code> (via <code>su - abaadm</code>)</td></tr>
+        <tr><td>Execution Host</td><td>sapidesecc8 (local)</td></tr>
+        <tr><td>Database SID</td><td>ABA</td></tr>
+        <tr><td>Output Format</td><td>Pipe-delimited (<code>COLSEP '|'</code>)</td></tr>
+        <tr><td>Query Timeout</td><td>120 seconds</td></tr>
+        <tr><td>API Endpoint</td><td><code>POST /sap_skills/api/oracle_sql_execute</code></td></tr>
+        <tr><td>Authentication</td><td>No master password required &mdash; credentials retrieved from server-side vault</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Available Users</h3>
+    <table>
+      <thead><tr><th>Connect As</th><th>Authentication</th><th>Default Schema</th><th>Vault Key</th></tr></thead>
+      <tbody>
+        <tr><td><code>/ as sysdba</code></td><td>OS authentication (no password)</td><td>SYS</td><td><code>sapidesecc8_oracle</code></td></tr>
+        <tr><td>SYSTEM</td><td>Password from vault</td><td>SYSTEM</td><td><code>sapidesecc8_oracle</code></td></tr>
+        <tr><td>SAPSR3</td><td>Password from vault</td><td>SAPSR3 (SAP application data)</td><td><code>sapidesecc8_oracle</code></td></tr>
+      </tbody>
+    </table>
+    <div class="info-box">
+      All connections run as OS user <code>abaadm</code> via <code>su - abaadm -c "sqlplus ..."</code>. The SQL script is written to a temporary file to avoid shell escaping issues, then piped to sqlplus. The temp file is deleted after execution.
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Features</h3>
+    <ul style="margin-top:8px; padding-left:20px;">
+      <li><strong>User selector</strong> &mdash; <code>/ as sysdba</code>, SYSTEM, or SAPSR3</li>
+      <li><strong>Optional schema</strong> &mdash; sets <code>ALTER SESSION SET CURRENT_SCHEMA</code></li>
+      <li><strong>Ctrl+Enter</strong> &mdash; keyboard shortcut to execute</li>
+      <li><strong>Results table</strong> &mdash; parsed from pipe-delimited sqlplus output with row count and elapsed time</li>
+      <li><strong>Copy button</strong> &mdash; copies results as tab-separated text</li>
+      <li><strong>Error display</strong> &mdash; ORA- and SP2- error messages shown in red box</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Example Queries</h3>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button><pre><code>-- Instance status
+SELECT INSTANCE_NAME, STATUS, HOST_NAME FROM V$INSTANCE
+
+-- Database size
+SELECT TABLESPACE_NAME, ROUND(SUM(BYTES)/1024/1024/1024, 2) AS SIZE_GB
+FROM DBA_DATA_FILES GROUP BY TABLESPACE_NAME ORDER BY SIZE_GB DESC
+
+-- SAP client list (connect as SAPSR3)
+SELECT MANDT, MTEXT FROM T000 ORDER BY MANDT
+
+-- Active sessions
+SELECT SID, SERIAL#, USERNAME, STATUS, PROGRAM
+FROM V$SESSION WHERE USERNAME IS NOT NULL
+
+-- Top 10 largest SAP tables (connect as SAPSR3)
+SELECT TABLE_NAME, NUM_ROWS, ROUND(NUM_ROWS * AVG_ROW_LEN / 1024 / 1024, 2) AS SIZE_MB
+FROM USER_TABLES ORDER BY NUM_ROWS DESC NULLS LAST
+FETCH FIRST 10 ROWS ONLY</code></pre></div>
   </div>
 </div>
 

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Parquet &amp; Polaris Reader &mdash; SAP Management Cockpit</title>
+<style>
+  :root {
+    --primary: #6b7280;
+    --primary-light: #9ca3af;
+    --primary-dark: #374151;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .header { background: linear-gradient(135deg, #6b7280 0%, #374151 100%); color: white; padding: 40px 0; text-align: center; }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  .nav { background: white; border-bottom: 1px solid var(--border); padding: 12px 0; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+  .nav-inner { max-width: 900px; margin: 0 auto; padding: 0 20px; display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .nav a { text-decoration: none; color: var(--primary-dark); padding: 6px 14px; border-radius: 6px; font-size: 0.88rem; font-weight: 500; transition: background 0.2s; }
+  .nav a:hover { background: #f3f4f6; }
+  .container { max-width: 900px; margin: 0 auto; padding: 30px 20px; }
+  .section { margin-bottom: 40px; }
+  .section-title { font-size: 1.5rem; font-weight: 700; color: var(--primary-dark); border-bottom: 3px solid var(--primary); padding-bottom: 8px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+  .card { background: var(--card-bg); border-radius: 10px; border: 1px solid var(--border); padding: 24px; margin-bottom: 20px; }
+  .card h3 { font-size: 1.15rem; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; color: var(--primary-dark); }
+  .card h3 .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 12px 0; }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+  th { background: #f3f4f6; font-weight: 600; color: var(--primary-dark); font-size: 0.85rem; }
+  code { background: var(--code-bg); padding: 2px 6px; border-radius: 4px; font-size: 0.88rem; color: #374151; }
+  .badge { display: inline-block; padding: 3px 10px; border-radius: 12px; font-size: 0.78rem; font-weight: 600; }
+  .badge-green { background: #d4edda; color: #155724; }
+  .badge-red { background: #f8d7da; color: #721c24; }
+  .footer { text-align: center; padding: 20px; color: var(--text-light); font-size: 0.82rem; border-top: 1px solid var(--border); margin-top: 40px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Parquet &amp; Polaris Reader</h1>
+  <div class="subtitle">DuckDB SQL Engine &mdash; GCS, Azure &amp; AWS Data Sources</div>
+</div>
+
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#system">System Info</a>
+    <a href="#status">Status</a>
+    <a href="#extensions">Extensions</a>
+    <a href="#datasources">Data Sources</a>
+    <a href="#links">Links</a>
+    <a href="SAP_ParquetReader_Guide.html">Guide</a>
+    <a href="SAP_Management_Cockpit.html">Back to Cockpit</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- SYSTEM INFO -->
+<div class="section" id="system">
+  <div class="section-title">
+    System Info
+    <button onclick="loadInfo()" id="refresh-btn" style="font-size:0.8rem; padding:6px 14px; background:#27ae60; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Refresh</button>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: #6c757d" id="status-dot"></span> Parquet Reader</h3>
+    <table>
+      <tbody>
+        <tr><td style="font-weight:600; width:160px;">DuckDB Version</td><td id="info-duckdb">Loading...</td></tr>
+        <tr><td style="font-weight:600;">PyArrow Version</td><td id="info-pyarrow">Loading...</td></tr>
+        <tr><td style="font-weight:600;">Python Version</td><td id="info-python">Loading...</td></tr>
+        <tr><td style="font-weight:600;">Install Path</td><td id="info-path">Loading...</td></tr>
+        <tr><td style="font-weight:600;">Server Script</td><td id="info-script">Loading...</td></tr>
+        <tr><td style="font-weight:600;">SSL Certificate</td><td id="info-ssl">Loading...</td></tr>
+        <tr><td style="font-weight:600;">Port</td><td id="info-port">Loading...</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- STATUS -->
+<div class="section" id="status">
+  <div class="section-title">Service Status</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: #6c757d" id="svc-dot"></span> gcs-explorer.service</h3>
+    <table>
+      <tbody>
+        <tr><td style="font-weight:600; width:160px;">Status</td><td id="svc-active">Loading...</td></tr>
+        <tr><td style="font-weight:600;">PID</td><td id="svc-pid">-</td></tr>
+        <tr><td style="font-weight:600;">Started</td><td id="svc-started">-</td></tr>
+        <tr><td style="font-weight:600;">DuckDB</td><td id="svc-duckdb">-</td></tr>
+        <tr><td style="font-weight:600;">PyArrow</td><td id="svc-pyarrow">-</td></tr>
+        <tr><td style="font-weight:600;">App Log Size</td><td><span id="svc-log">-</span> <button onclick="viewAppLog()" style="margin-left:8px; padding:2px 10px; background:var(--primary); color:white; border:none; border-radius:4px; cursor:pointer; font-size:0.74rem; font-weight:600;">View</button> <button onclick="purgeAppLog()" style="padding:2px 10px; background:#e74c3c; color:white; border:none; border-radius:4px; cursor:pointer; font-size:0.74rem; font-weight:600;">Purge</button></td></tr>
+      </tbody>
+    </table>
+    <div style="margin-top:14px; display:flex; gap:8px;">
+      <button onclick="readerControl('start')" id="ctl-start" style="font-size:0.78rem; padding:5px 14px; background:#27ae60; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Start</button>
+      <button onclick="readerControl('stop')" id="ctl-stop" style="font-size:0.78rem; padding:5px 14px; background:#e74c3c; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Stop</button>
+      <button onclick="readerControl('restart')" id="ctl-restart" style="font-size:0.78rem; padding:5px 14px; background:#7c3aed; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Restart</button>
+      <button onclick="upgradeReader()" id="ctl-upgrade" style="font-size:0.78rem; padding:5px 14px; background:#0284C7; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600;">Upgrade DuckDB</button>
+    </div>
+    <div id="ctl-status" style="font-size:0.82rem; margin-top:8px; display:none;"></div>
+    <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border); font-size:0.82rem; color:var(--text-light);">
+      Release notes: <a href="https://github.com/duckdb/duckdb/releases" target="_blank" style="color:#0284C7; font-weight:600;">DuckDB Releases</a> &nbsp;|&nbsp;
+      <a href="https://github.com/apache/arrow/releases" target="_blank" style="color:#0284C7; font-weight:600;">PyArrow Releases</a> &nbsp;|&nbsp;
+      <a href="https://pypi.org/project/duckdb/#history" target="_blank" style="color:#0284C7; font-weight:600;">DuckDB on PyPI</a> &nbsp;|&nbsp;
+      <a href="https://pypi.org/project/pyarrow/#history" target="_blank" style="color:#0284C7; font-weight:600;">PyArrow on PyPI</a>
+    </div>
+  </div>
+</div>
+
+<!-- EXTENSIONS -->
+<div class="section" id="extensions">
+  <div class="section-title">DuckDB Extensions</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Loaded Extensions</h3>
+    <div id="ext-list" style="display:flex; flex-wrap:wrap; gap:8px;">Loading...</div>
+  </div>
+</div>
+
+<!-- DATA SOURCES -->
+<div class="section" id="datasources">
+  <div class="section-title">Data Sources</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Supported Backends</h3>
+    <div id="ds-list">Loading...</div>
+  </div>
+</div>
+
+<!-- LINKS -->
+<div class="section" id="links">
+  <div class="section-title">Links</div>
+  <div class="card">
+    <ul style="list-style:none; padding:0;">
+      <li style="padding:10px 0; border-bottom:1px solid var(--border);"><a href="https://sapidesecc8.fivetran-internal-sales.com/datalake_reader/" target="_blank" style="color:var(--primary-dark); font-weight:600;">Open Datalake Reader</a> &mdash; Login and query data</li>
+      <li style="padding:10px 0; border-bottom:1px solid var(--border);"><a href="https://duckdb.org/docs/" target="_blank" style="color:var(--primary-dark); font-weight:600;">DuckDB Documentation</a> &mdash; SQL reference and guides</li>
+      <li style="padding:10px 0; border-bottom:1px solid var(--border);"><a href="https://github.com/fivetran-antoniocarbone/gcs-parquet-explorer" target="_blank" style="color:var(--primary-dark); font-weight:600;">GitHub Repository</a> &mdash; Source code</li>
+      <li style="padding:10px 0;"><a href="SAP_GCS_Explorer_Documentation.html" style="color:var(--primary-dark); font-weight:600;">Documentation</a> &mdash; Full user guide</li>
+    </ul>
+  </div>
+</div>
+
+</div>
+
+<!-- LOG VIEWER MODAL -->
+<div id="log-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9998; justify-content:center; align-items:center;">
+  <div style="background:white; border-radius:12px; padding:24px; max-width:800px; width:95%; max-height:85vh; display:flex; flex-direction:column; box-shadow:0 8px 30px rgba(0,0,0,0.3);">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <strong style="font-size:1rem;">Application Log</strong>
+      <button onclick="closeLogModal()" style="background:none; border:none; font-size:1.3rem; cursor:pointer; color:var(--text-light);">&times;</button>
+    </div>
+    <pre id="log-modal-content" style="background:#1e293b; color:#e2e8f0; padding:14px; border-radius:8px; font-size:0.76rem; flex:1; overflow:auto; white-space:pre-wrap; word-break:break-all; margin:0;">Loading...</pre>
+  </div>
+</div>
+
+<!-- PASSWORD MODAL -->
+<div id="pwd-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; justify-content:center; align-items:center;">
+  <div style="background:white; border-radius:12px; padding:28px; max-width:360px; width:90%; box-shadow:0 8px 30px rgba(0,0,0,0.3);">
+    <div id="pwd-title" style="font-size:1rem; font-weight:700; color:var(--text); margin-bottom:14px;">Enter master password</div>
+    <input id="pwd-input" type="password" placeholder="Master password" style="width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:6px; font-size:0.95rem; outline:none; box-sizing:border-box;" onkeydown="if(event.key==='Enter')document.getElementById('pwd-ok').click();">
+    <div style="display:flex; gap:10px; margin-top:16px; justify-content:flex-end;">
+      <button onclick="closePwdModal(null)" style="padding:7px 18px; background:#e9ecef; color:var(--text); border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85rem;">Cancel</button>
+      <button id="pwd-ok" onclick="closePwdModal(document.getElementById('pwd-input').value)" style="padding:7px 18px; background:var(--primary); color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.85rem;">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
+</div>
+
+<script>
+var _pwdResolve = null;
+function askPassword(title) {
+  return new Promise(function(resolve) {
+    _pwdResolve = resolve;
+    document.getElementById('pwd-title').textContent = title || 'Enter master password';
+    document.getElementById('pwd-input').value = '';
+    document.getElementById('pwd-overlay').style.display = 'flex';
+    setTimeout(function() { document.getElementById('pwd-input').focus(); }, 100);
+  });
+}
+function closePwdModal(val) {
+  document.getElementById('pwd-overlay').style.display = 'none';
+  if (_pwdResolve) { _pwdResolve(val); _pwdResolve = null; }
+}
+
+function fmtSize(b) { return b > 1048576 ? (b/1048576).toFixed(1)+' MB' : b > 1024 ? (b/1024).toFixed(0)+' KB' : b+' B'; }
+
+function loadInfo() {
+  var btn = document.getElementById('refresh-btn');
+  btn.textContent = 'Loading...'; btn.disabled = true;
+  fetch('/sap_skills/api/parquet_reader_status')
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    btn.textContent = 'Refresh'; btn.disabled = false;
+    if (d.status !== 'ok') return;
+    document.getElementById('status-dot').style.background = d.active ? '#27ae60' : '#e74c3c';
+    document.getElementById('svc-dot').style.background = d.active ? '#27ae60' : '#e74c3c';
+    document.getElementById('info-duckdb').innerHTML = '<strong>' + d.duckdb_version + '</strong>';
+    document.getElementById('info-pyarrow').textContent = d.pyarrow_version;
+    document.getElementById('info-python').textContent = d.python_version;
+    document.getElementById('info-path').innerHTML = '<code>' + d.install_path + '</code>';
+    document.getElementById('info-script').innerHTML = '<code>' + d.server_script + '</code>';
+    document.getElementById('info-ssl').innerHTML = '<code>' + d.ssl_cert + '</code>';
+    document.getElementById('info-port').textContent = d.port;
+    document.getElementById('svc-active').innerHTML = d.active ? '<span class="badge badge-green">Running</span>' : '<span class="badge badge-red">Stopped</span>';
+    document.getElementById('svc-pid').textContent = d.pid || '-';
+    document.getElementById('svc-started').textContent = d.started || '-';
+    document.getElementById('svc-duckdb').innerHTML = '<strong>' + d.duckdb_version + '</strong>';
+    document.getElementById('svc-pyarrow').innerHTML = '<strong>' + d.pyarrow_version + '</strong>';
+    document.getElementById('svc-log').textContent = fmtSize(d.app_log_size);
+    // Extensions
+    var extHtml = '';
+    (d.extensions || []).forEach(function(e) {
+      extHtml += '<span style="padding:4px 12px; background:#f3f4f6; border-radius:16px; font-size:0.82rem; font-weight:500;">' + e + '</span>';
+    });
+    var re = d.runtime_extensions || [];
+    re.forEach(function(e) {
+      extHtml += '<span style="padding:4px 12px; background:#dbeafe; color:#1e40af; border-radius:16px; font-size:0.82rem; font-weight:500;">' + e + ' (runtime)</span>';
+    });
+    document.getElementById('ext-list').innerHTML = extHtml || 'None';
+    // Data sources
+    var dsHtml = '<ul style="list-style:none; padding:0;">';
+    (d.data_sources || []).forEach(function(s) {
+      dsHtml += '<li style="padding:6px 0; display:flex; align-items:center; gap:8px;"><span style="color:#27ae60;">&#9679;</span> ' + s + '</li>';
+    });
+    dsHtml += '</ul>';
+    document.getElementById('ds-list').innerHTML = dsHtml;
+  })
+  .catch(function() { btn.textContent = 'Refresh'; btn.disabled = false; });
+}
+
+function readerControl(action) {
+  var labels = {start:'Start', stop:'Stop', restart:'Restart'};
+  var colors = {start:'#27ae60', stop:'#e74c3c', restart:'#7c3aed'};
+  var btn = document.getElementById('ctl-' + action);
+  var status = document.getElementById('ctl-status');
+
+  function doAction(pwd) {
+    btn.textContent = action === 'start' ? 'Starting...' : action === 'stop' ? 'Stopping...' : 'Restarting...';
+    btn.disabled = true;
+    var payload = {action: action};
+    if (pwd) payload.master_password = pwd;
+    fetch('/sap_skills/api/datalake_control', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)})
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      status.style.display = 'block';
+      status.style.color = d.status === 'ok' ? '#27ae60' : '#e74c3c';
+      status.textContent = d.message || 'Done';
+      setTimeout(function() { btn.textContent = labels[action]; btn.style.background = colors[action]; btn.disabled = false; }, 3000);
+        setTimeout(loadInfo, 6000); setTimeout(loadInfo, 10000);
+    })
+    .catch(function() { btn.textContent = labels[action]; btn.disabled = false; });
+  }
+
+  if (action === 'start') { doAction(null); }
+  else {
+    if (!confirm(action === 'stop' ? 'Stop the Datalake Reader?' : 'Restart the Datalake Reader?')) return;
+    askPassword('Enter master password to ' + action).then(function(pwd) { if (pwd) doAction(pwd); });
+  }
+}
+
+function upgradeReader() {
+  var btn = document.getElementById('ctl-upgrade');
+  var status = document.getElementById('ctl-status');
+  btn.textContent = 'Checking...'; btn.disabled = true;
+  status.style.display = 'block'; status.style.color = '#6c757d';
+  status.textContent = 'Checking latest versions from PyPI...';
+
+  fetch('/sap_skills/api/datalake_check_versions', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({})})
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    btn.textContent = 'Upgrade DuckDB'; btn.disabled = false;
+    if (d.status !== 'ok') { status.style.color = '#e74c3c'; status.textContent = d.message || 'Error'; return; }
+
+    var msg = 'Version comparison:\n\n';
+    msg += 'DuckDB:  ' + d.duckdb_current + (d.duckdb_up_to_date ? ' (up to date)' : '  →  ' + d.duckdb_latest + ' available') + '\n';
+    msg += 'PyArrow: ' + d.pyarrow_current + (d.pyarrow_up_to_date ? ' (up to date)' : '  →  ' + d.pyarrow_latest + ' available') + '\n';
+
+    if (d.duckdb_up_to_date && d.pyarrow_up_to_date) {
+      status.style.color = '#27ae60';
+      status.innerHTML = '<strong>DuckDB ' + d.duckdb_current + '</strong> and <strong>PyArrow ' + d.pyarrow_current + '</strong> are up to date.';
+      return;
+    }
+
+    var changes = [];
+    if (!d.duckdb_up_to_date) changes.push('DuckDB ' + d.duckdb_current + ' → ' + d.duckdb_latest);
+    if (!d.pyarrow_up_to_date) changes.push('PyArrow ' + d.pyarrow_current + ' → ' + d.pyarrow_latest);
+    status.innerHTML = 'Available: <strong>' + changes.join(', ') + '</strong>';
+    status.style.color = '#0284C7';
+
+    if (!confirm(msg + '\nProceed with upgrade?\nThis will restart the service.')) return;
+
+    askPassword('Enter master password to upgrade').then(function(pwd) {
+      if (!pwd) return;
+      btn.textContent = 'Upgrading...'; btn.disabled = true;
+      status.style.color = '#6c757d';
+      status.textContent = 'Running pip install --upgrade duckdb pyarrow...';
+      fetch('/sap_skills/api/datalake_upgrade', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({master_password: pwd, action: 'upgrade'})})
+      .then(function(r) { return r.json(); })
+      .then(function(d2) {
+        btn.textContent = 'Upgrade DuckDB'; btn.disabled = false;
+        if (d2.status === 'ok') {
+          status.style.color = '#27ae60';
+          status.textContent = d2.message || 'Done';
+          setTimeout(loadInfo, 6000); setTimeout(loadInfo, 10000);
+        } else {
+          status.style.color = '#e74c3c';
+          status.innerHTML = (d2.message || 'Upgrade failed');
+          if (d2.rollback_available) {
+            status.innerHTML += ' <button onclick="rollbackDuckDB()" id="rollback-btn" style="margin-left:10px; padding:4px 14px; background:#f39c12; color:white; border:none; border-radius:5px; cursor:pointer; font-size:0.78rem; font-weight:600;">Rollback to previous version</button>';
+          }
+        }
+      })
+      .catch(function() { btn.textContent = 'Upgrade DuckDB'; btn.disabled = false; status.textContent = 'Error'; });
+    });
+  })
+  .catch(function() { btn.textContent = 'Upgrade DuckDB'; btn.disabled = false; status.textContent = 'Network error'; });
+}
+
+function rollbackDuckDB() {
+  if (!confirm('Rollback DuckDB and PyArrow to the previous version?')) return;
+  askPassword('Enter master password to rollback').then(function(pwd) {
+    if (!pwd) return;
+    var status = document.getElementById('ctl-status');
+    status.style.color = '#6c757d'; status.textContent = 'Rolling back...';
+    fetch('/sap_skills/api/datalake_upgrade', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({master_password: pwd, action: 'rollback'})})
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      status.style.color = d.status === 'ok' ? '#27ae60' : '#e74c3c';
+      status.textContent = d.message || 'Done';
+      if (d.status === 'ok') setTimeout(loadInfo, 6000); setTimeout(loadInfo, 10000);
+    })
+    .catch(function() { status.style.color = '#e74c3c'; status.textContent = 'Rollback error'; });
+  });
+}
+
+function viewAppLog() {
+  document.getElementById('log-overlay').style.display = 'flex';
+  document.getElementById('log-modal-content').textContent = 'Loading...';
+  fetch('/sap_skills/api/datalake_view_log', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({log:'app', lines:300})})
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    var el = document.getElementById('log-modal-content');
+    el.textContent = d.status === 'ok' ? (d.content || '(empty)') : (d.message || 'Error');
+    el.scrollTop = el.scrollHeight;
+  })
+  .catch(function() { document.getElementById('log-modal-content').textContent = 'Network error'; });
+}
+
+function closeLogModal() {
+  document.getElementById('log-overlay').style.display = 'none';
+}
+
+function purgeAppLog() {
+  if (!confirm('Purge the application log? This cannot be undone.')) return;
+  askPassword('Enter master password to purge log').then(function(pwd) {
+    if (!pwd) return;
+    fetch('/sap_skills/api/datalake_truncate_log', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({log:'app', master_password:pwd})})
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      if (d.status === 'ok') { alert('Log purged'); loadInfo(); }
+      else alert(d.message || 'Error');
+    })
+    .catch(function() { alert('Network error'); });
+  });
+}
+
+document.addEventListener('DOMContentLoaded', loadInfo);
+</script>
+</body>
+</html>

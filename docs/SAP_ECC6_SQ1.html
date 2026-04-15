@@ -229,6 +229,8 @@
   <div class="nav-inner">
     <a href="#system">System Info</a>
     <a href="#status">Status</a>
+    <a href="#hva-agent">HVA Agent</a>
+    <a href="#mssql-console">SQL Console</a>
     <a href="#links">Links</a>
     <a href="SAP_ECC6_SQ1_Guide.html">Documentation</a>
     <a href="SAP_Management_Cockpit.html">Back to Cockpit</a>
@@ -260,7 +262,11 @@
         <tr><td>Database</td><td>Microsoft SQL Server 2012 SP1 (11.0.3393.0) &mdash; <code>SAP-SQL-IDES\SQ1</code></td></tr>
         <tr><td>DB Name</td><td><code>SQ1</code></td></tr>
         <tr><td>OS</td><td>Windows Server 2022 Datacenter</td></tr>
+        <tr><td>CPUs</td><td id="hw-cpus" style="color:var(--text-light);">Loading...</td></tr>
+        <tr><td>Memory</td><td id="hw-memory" style="color:var(--text-light);">Loading...</td></tr>
         <tr><td>IP Addresses</td><td>Private <code>10.128.0.51</code> &mdash; Public <code>104.154.109.8</code></td></tr>
+        <tr><td>GCP Zone</td><td>us-central1-a</td></tr>
+        <tr><td>GCP Instance</td><td><code>sap-sql</code></td></tr>
       </tbody>
     </table>
   </div>
@@ -318,6 +324,148 @@
 </div>
 
 <!-- ============================================================ -->
+<!-- HVA AGENT -->
+<!-- ============================================================ -->
+<div class="section" id="hva-agent">
+  <div class="section-title">HVA Agent</div>
+
+  <!-- Agent Status Card -->
+  <div class="card">
+    <h3><span class="dot" id="hva-dot" style="background: var(--text-light)"></span> Agent Status
+      <button onclick="loadHvaAgent()" id="hva-refresh-btn" style="float:right; padding:4px 14px; background:var(--primary); color:white; border:none; border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer;">Refresh</button>
+    </h3>
+    <table>
+      <tr><td style="width:200px; font-weight:600;">Service</td><td><code>hvragentlistener_4343</code> (Windows service)</td></tr>
+      <tr><td style="font-weight:600;">Status</td><td id="hva-status" style="font-weight:600;">Checking...</td></tr>
+      <tr><td style="font-weight:600;">Running Version</td><td id="hva-version">&mdash;</td></tr>
+      <tr><td style="font-weight:600;">Port</td><td><code>4343</code></td></tr>
+      <tr><td style="font-weight:600;">User</td><td><code>LocalSystem</code></td></tr>
+      <tr><td style="font-weight:600;">HVR_HOME</td><td><code>C:\Fivetran\hvr_home</code></td></tr>
+      <tr><td style="font-weight:600;">HVR_CONFIG</td><td><code>C:\Fivetran\hvr_config</code></td></tr>
+      <tr><td style="font-weight:600;">Uptime</td><td id="hva-uptime">&mdash;</td></tr>
+      <tr><td style="font-weight:600;">PID</td><td id="hva-pid">&mdash;</td></tr>
+      <tr><td style="font-weight:600;">Memory</td><td id="hva-memory">&mdash;</td></tr>
+    </table>
+    <div style="margin-top:14px; display:flex; gap:8px;">
+      <button onclick="hvaControl('start')" style="padding:6px 16px; background:#27ae60; color:white; border:none; border-radius:6px; font-size:0.82rem; font-weight:600; cursor:pointer;">Start</button>
+      <button onclick="hvaControl('stop')" style="padding:6px 16px; background:#e74c3c; color:white; border:none; border-radius:6px; font-size:0.82rem; font-weight:600; cursor:pointer;">Stop</button>
+      <button onclick="hvaControl('restart')" style="padding:6px 16px; background:#e67e22; color:white; border:none; border-radius:6px; font-size:0.82rem; font-weight:600; cursor:pointer;">Restart</button>
+    </div>
+  </div>
+
+  <!-- Upload New Agent -->
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Upload New Agent</h3>
+    <p style="color:var(--text-light); font-size:0.85rem; margin-bottom:12px;">Upload a Fivetran HVR agent package ( <code>.tar.gz</code> or <code>.exe</code> ) from your local machine. The file will be staged on the server for upgrade.</p>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <input type="file" id="hva-upload-file" accept=".tar.gz,.gz,.exe">
+      <button onclick="uploadHvaAgent()" id="hva-upload-btn" style="padding:6px 18px; background:var(--primary); color:white; border:none; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;">Upload to Server</button>
+    </div>
+    <div id="hva-upload-progress" style="display:none; margin-top:10px;">
+      <div style="background:#e9ecef; border-radius:6px; overflow:hidden; height:22px;">
+        <div id="hva-upload-bar" style="background:#27ae60; height:100%; width:0%; transition:width 0.3s;"></div>
+      </div>
+      <div id="hva-upload-status" style="font-size:0.82rem; color:var(--text-light); margin-top:4px;"></div>
+    </div>
+  </div>
+
+  <!-- Staged Package & Update -->
+  <div class="card">
+    <h3><span class="dot" style="background: #e67e22"></span> Agent Update</h3>
+
+    <div style="display:flex; gap:20px; flex-wrap:wrap; margin-bottom:14px;">
+      <div style="flex:1; min-width:180px; background:#fdf2e9; border-radius:8px; padding:16px; text-align:center;">
+        <div style="font-size:0.78rem; text-transform:uppercase; font-weight:600; color:#a04000; margin-bottom:6px;">Running Version</div>
+        <div id="hva-running-ver" style="font-size:1rem; font-weight:700; color:var(--text);">&mdash;</div>
+      </div>
+      <div style="flex:0 0 40px; display:flex; align-items:center; justify-content:center;">
+        <span id="hva-arrow" style="font-size:1.8rem; color:#bbb;">&rarr;</span>
+      </div>
+      <div style="flex:1; min-width:180px; background:#f1f3f5; border-radius:8px; padding:16px; text-align:center;">
+        <div style="font-size:0.78rem; text-transform:uppercase; font-weight:600; color:var(--text-light); margin-bottom:6px;">Staged Version</div>
+        <div id="hva-staged-ver" style="font-size:1rem; font-weight:700; color:var(--text);">&mdash;</div>
+        <div id="hva-staged" style="font-size:0.78rem; color:var(--text-light); margin-top:4px;">None</div>
+      </div>
+      <div style="flex:1; min-width:180px; background:#f1f3f5; border-radius:8px; padding:16px; text-align:center;">
+        <div style="font-size:0.78rem; text-transform:uppercase; font-weight:600; color:var(--text-light); margin-bottom:6px;">Action</div>
+        <div id="hva-action" style="font-size:1rem; font-weight:700; color:var(--text-light);">&mdash;</div>
+      </div>
+    </div>
+
+    <div style="display:flex; gap:8px; flex-wrap:wrap;">
+      <button onclick="applyHvaUpdate()" id="hva-apply-btn" style="padding:6px 18px; background:#e67e22; color:white; border:none; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;" disabled>Apply Update</button>
+      <button onclick="deleteHvaStaged()" id="hva-delete-btn" style="padding:6px 18px; background:#95a5a6; color:white; border:none; border-radius:6px; font-size:0.85rem; font-weight:600; cursor:pointer;" disabled>Delete Staged Package</button>
+    </div>
+  </div>
+
+  <!-- Live Log -->
+  <div class="card" id="hva-log-card" style="display:none; background:#1e1e2e; color:#cdd6f4; border:2px solid #e67e22;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <h3 style="color:#cdd6f4; margin:0;"><span class="dot" style="background:#e67e22;"></span> Live Log</h3>
+      <div style="display:flex; gap:6px;">
+        <button onclick="stopHvaLog()" id="hva-log-stop-btn" style="padding:4px 12px; background:#e74c3c; color:white; border:none; border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer;">Stop Tail</button>
+        <button onclick="closeHvaLog()" style="padding:4px 12px; background:#6c757d; color:white; border:none; border-radius:6px; font-size:0.78rem; font-weight:600; cursor:pointer;">Close</button>
+      </div>
+    </div>
+    <pre id="hva-log-output" style="background:#181825; color:#a6e3a1; padding:12px; border-radius:8px; font-size:0.78rem; max-height:400px; overflow-y:auto; white-space:pre-wrap; word-break:break-all; margin:0;"></pre>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SQL SERVER CONSOLE -->
+<!-- ============================================================ -->
+<div class="section" id="mssql-console">
+  <div class="section-title">SQL Server Console</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: #1a5c8a"></span> Interactive Query</h3>
+
+    <div style="display:flex; gap:16px; flex-wrap:wrap; margin-bottom:14px; align-items:flex-end;">
+      <div style="flex:0 0 auto;">
+        <label style="display:block; font-size:0.82rem; font-weight:600; color:var(--text-light); margin-bottom:4px;">Database</label>
+        <select id="mssql-db" style="padding:7px 12px; border:1px solid var(--border); border-radius:6px; font-size:0.88rem; background:white; min-width:120px;">
+          <option value="SQ1">SQ1</option>
+          <option value="master">master</option>
+        </select>
+      </div>
+      <div style="flex:0 0 auto;">
+        <label style="display:block; font-size:0.82rem; font-weight:600; color:var(--text-light); margin-bottom:4px;">User</label>
+        <select id="mssql-user" style="padding:7px 12px; border:1px solid var(--border); border-radius:6px; font-size:0.88rem; background:white; min-width:180px;">
+          <option value="sq1adm">sq1adm (Windows Auth)</option>
+          <option value="sq1">sq1</option>
+          <option value="fivetran">fivetran</option>
+        </select>
+      </div>
+      <div style="flex:0 0 auto;">
+        <label style="display:block; font-size:0.82rem; font-weight:600; color:var(--text-light); margin-bottom:4px;">Schema (optional)</label>
+        <input id="mssql-schema" type="text" placeholder="e.g. dbo" style="padding:7px 12px; border:1px solid var(--border); border-radius:6px; font-size:0.88rem; width:140px;">
+      </div>
+      <div style="flex:0 0 auto; display:flex; gap:8px;">
+        <button onclick="executeMssql()" id="mssql-exec-btn" style="padding:7px 18px; background:#1a5c8a; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.88rem;">Execute</button>
+        <button onclick="clearMssqlResults()" style="padding:7px 14px; background:#6c757d; color:white; border:none; border-radius:6px; cursor:pointer; font-weight:600; font-size:0.82rem;">Clear</button>
+      </div>
+    </div>
+
+    <textarea id="mssql-query" rows="5" placeholder="SELECT TOP 10 name, type_desc FROM sys.tables ORDER BY name" style="width:100%; padding:10px 14px; border:1px solid var(--border); border-radius:6px; font-family:'SF Mono','Fira Code',Consolas,monospace; font-size:0.85rem; resize:vertical; background:var(--code-bg); color:var(--text); line-height:1.5;" spellcheck="false"></textarea>
+
+    <div id="mssql-status" style="font-size:0.82rem; color:var(--text-light); margin-top:8px; display:none;"></div>
+
+    <div id="mssql-results" style="margin-top:14px; display:none;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+        <span id="mssql-row-count" style="font-size:0.82rem; color:var(--text-light);"></span>
+        <button onclick="copyMssqlResults()" style="font-size:0.75rem; padding:4px 10px; background:var(--code-bg); color:var(--text-light); border:1px solid var(--border); border-radius:4px; cursor:pointer;">Copy</button>
+      </div>
+      <div id="mssql-table-wrap" style="overflow-x:auto; border:1px solid var(--border); border-radius:6px; max-height:500px; overflow-y:auto;">
+        <table id="mssql-table" style="width:100%; border-collapse:collapse; font-size:0.82rem; font-family:'SF Mono','Fira Code',Consolas,monospace;">
+        </table>
+      </div>
+    </div>
+
+    <div id="mssql-error" style="margin-top:14px; display:none; padding:12px 16px; background:#fef2f2; border:1px solid #fecaca; border-radius:6px; color:#dc2626; font-size:0.85rem; font-family:'SF Mono','Fira Code',Consolas,monospace; white-space:pre-wrap;"></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
 <!-- LINKS -->
 <!-- ============================================================ -->
 <div class="section" id="links">
@@ -334,6 +482,28 @@
           <div>
             <a href="https://console.cloud.google.com/compute/instancesDetail/zones/us-central1-a/instances/sap-sql?project=internal-sales" target="_blank">VM Settings</a>
             <div class="link-desc">Google Cloud Compute Engine &mdash; sap-sql</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://ssh.cloud.google.com/v2/ssh/projects/internal-sales/zones/us-east1-b/instances/ts-sap-hana-s4-ssh-tunnel?authuser=0&amp;hl=en_US&amp;projectNumber=354793711235&amp;useAdminProxy=true" target="_blank" style="flex-shrink:0;">
+            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://ssh.cloud.google.com/v2/ssh/projects/internal-sales/zones/us-east1-b/instances/ts-sap-hana-s4-ssh-tunnel?authuser=0&amp;hl=en_US&amp;projectNumber=354793711235&amp;useAdminProxy=true" target="_blank">SSH Server for Fivetran Connectors</a>
+            <div class="link-desc">GCP SSH Tunnel &mdash; Fivetran connector access to SAP systems</div>
+          </div>
+        </div>
+      </li>
+      <li>
+        <div style="display:flex; align-items:center; gap:12px;">
+          <a href="https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/details/antonio-carbone-home-ip2?project=internal-sales" target="_blank" style="flex-shrink:0;">
+            <img src="gcp_icon.svg" alt="GCP" width="42" height="42" style="border-radius:8px; display:block;">
+          </a>
+          <div>
+            <a href="https://console.cloud.google.com/net-security/firewall-manager/firewall-policies/details/antonio-carbone-home-ip2?project=internal-sales" target="_blank">Set GCP Firewall</a>
+            <div class="link-desc">Google Cloud Firewall Manager &mdash; Network security policies</div>
           </div>
         </div>
       </li>
@@ -568,6 +738,19 @@ function doSapControl(action, pwd, btn) {
   });
 }
 
+function loadHardwareInfo() {
+  fetch('/sap_skills/api/sq1_hardware')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      document.getElementById('hw-cpus').textContent = data.cpus + ' vCPUs — ' + data.cpu_model;
+      document.getElementById('hw-cpus').style.color = 'var(--text)';
+      document.getElementById('hw-memory').textContent = data.memory;
+      document.getElementById('hw-memory').style.color = 'var(--text)';
+    }
+  }).catch(function() {});
+}
+
 function loadDiskSpace() {
   var container = document.getElementById('disk-space-content');
   var btn = document.getElementById('disk-refresh-btn');
@@ -645,11 +828,377 @@ function loadLicense() {
     });
 }
 
+// ============ HVA AGENT ============
+
+function loadHvaAgent() {
+  var btn = document.getElementById('hva-refresh-btn');
+  btn.textContent = 'Loading...'; btn.disabled = true;
+  fetch('/sap_skills/api/sq1_hva_status')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.textContent = 'Refresh'; btn.disabled = false;
+    if (data.status !== 'ok') {
+      document.getElementById('hva-status').textContent = 'Error: ' + (data.message || 'Unknown');
+      document.getElementById('hva-dot').style.background = '#e74c3c';
+      return;
+    }
+    var svc = data.service_status || 'unknown';
+    var dot = document.getElementById('hva-dot');
+    var statusEl = document.getElementById('hva-status');
+    if (svc === 'Running' || svc === 'RUNNING') {
+      dot.style.background = '#27ae60';
+      statusEl.innerHTML = '<span style="color:#27ae60;">Running</span>';
+    } else {
+      dot.style.background = '#e74c3c';
+      statusEl.innerHTML = '<span style="color:#e74c3c;">' + svc + '</span>';
+    }
+    document.getElementById('hva-version').textContent = data.version || '—';
+    document.getElementById('hva-uptime').textContent = data.uptime || '—';
+    document.getElementById('hva-pid').textContent = data.pid || '—';
+    document.getElementById('hva-memory').textContent = data.memory || '—';
+    document.getElementById('hva-running-ver').textContent = data.version || '—';
+    var arrow = document.getElementById('hva-arrow');
+    if (data.staged_file) {
+      document.getElementById('hva-staged').textContent = data.staged_file;
+      document.getElementById('hva-staged-ver').textContent = data.staged_version || 'Unknown';
+      var running = data.version || '';
+      var staged = data.staged_version || '';
+      if (staged && staged !== running) {
+        function parseVer(v) {
+          return v.replace(/\//g, '.').split('.').map(function(n) { return parseInt(n, 10) || 0; });
+        }
+        var rParts = parseVer(running.replace(/^.*?(\d)/, '$1'));
+        var sParts = parseVer(staged);
+        var isUpgrade = false;
+        for (var vi = 0; vi < Math.max(rParts.length, sParts.length); vi++) {
+          var rv = rParts[vi] || 0, sv = sParts[vi] || 0;
+          if (sv > rv) { isUpgrade = true; break; }
+          if (sv < rv) { isUpgrade = false; break; }
+        }
+        if (isUpgrade) {
+          arrow.innerHTML = '&uarr;'; arrow.style.color = '#27ae60';
+          document.getElementById('hva-action').innerHTML = '<span style="color:#27ae60;">Upgrade</span>';
+        } else {
+          arrow.innerHTML = '&darr;'; arrow.style.color = '#e74c3c';
+          document.getElementById('hva-action').innerHTML = '<span style="color:#e74c3c;">Downgrade</span>';
+        }
+        document.getElementById('hva-apply-btn').disabled = false;
+        document.getElementById('hva-apply-btn').style.background = '#e67e22';
+        document.getElementById('hva-apply-btn').style.cursor = 'pointer';
+      } else if (staged === running) {
+        arrow.innerHTML = '='; arrow.style.color = '#27ae60';
+        document.getElementById('hva-action').innerHTML = '<span style="color:#27ae60;">Same version</span>';
+        document.getElementById('hva-apply-btn').disabled = true;
+        document.getElementById('hva-apply-btn').style.background = '#6c757d';
+        document.getElementById('hva-apply-btn').style.cursor = 'not-allowed';
+      } else {
+        arrow.innerHTML = '&rarr;'; arrow.style.color = '#e67e22';
+        document.getElementById('hva-action').textContent = 'Ready';
+        document.getElementById('hva-apply-btn').disabled = false;
+        document.getElementById('hva-apply-btn').style.background = '#e67e22';
+        document.getElementById('hva-apply-btn').style.cursor = 'pointer';
+      }
+      document.getElementById('hva-delete-btn').disabled = false;
+    } else {
+      document.getElementById('hva-staged').textContent = '';
+      document.getElementById('hva-staged-ver').textContent = 'None';
+      arrow.innerHTML = '&rarr;'; arrow.style.color = '#bbb';
+      document.getElementById('hva-action').innerHTML = '<span style="color:var(--text-light);">No package</span>';
+      document.getElementById('hva-apply-btn').disabled = true;
+      document.getElementById('hva-apply-btn').style.background = '#6c757d';
+      document.getElementById('hva-apply-btn').style.cursor = 'not-allowed';
+      document.getElementById('hva-delete-btn').disabled = true;
+    }
+  })
+  .catch(function() {
+    btn.textContent = 'Refresh'; btn.disabled = false;
+    document.getElementById('hva-status').textContent = 'Connection error';
+    document.getElementById('hva-dot').style.background = '#e74c3c';
+  });
+}
+
+function hvaControl(action) {
+  var label = action.charAt(0).toUpperCase() + action.slice(1);
+  function doFetch(payload) {
+    fetch('/sap_skills/api/sq1_hva_control', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        alert(data.message || 'Done');
+        setTimeout(loadHvaAgent, 3000);
+      } else {
+        alert('Error: ' + (data.message || 'Unknown'));
+      }
+    })
+    .catch(function() { alert('Connection error'); });
+  }
+  if (action === 'stop' || action === 'restart') {
+    askPassword('Enter master password to ' + label + ' HVA Agent').then(function(pwd) {
+      if (!pwd) return;
+      doFetch({action: action, master_password: pwd});
+    });
+  } else {
+    if (!confirm(label + ' the HVA Agent?')) return;
+    doFetch({action: action});
+  }
+}
+
+function uploadHvaAgent() {
+  var fileInput = document.getElementById('hva-upload-file');
+  if (!fileInput.files || !fileInput.files[0]) { alert('Select a file first'); return; }
+  var file = fileInput.files[0];
+  if (!file.name.endsWith('.tar.gz') && !file.name.endsWith('.gz') && !file.name.endsWith('.exe')) { alert('File must be a .tar.gz or .exe package'); return; }
+  var btn = document.getElementById('hva-upload-btn');
+  btn.textContent = 'Uploading...'; btn.disabled = true;
+  var progress = document.getElementById('hva-upload-progress');
+  var bar = document.getElementById('hva-upload-bar');
+  var statusEl = document.getElementById('hva-upload-status');
+  progress.style.display = 'block';
+  bar.style.width = '0%';
+  statusEl.textContent = 'Uploading ' + file.name + ' (' + (file.size / 1048576).toFixed(1) + ' MB)...';
+  var formData = new FormData();
+  formData.append('file', file);
+  var xhr = new XMLHttpRequest();
+  xhr.upload.addEventListener('progress', function(e) {
+    if (e.lengthComputable) {
+      var pct = Math.round((e.loaded / e.total) * 100);
+      bar.style.width = pct + '%';
+      statusEl.textContent = 'Uploading... ' + pct + '%';
+    }
+  });
+  xhr.addEventListener('load', function() {
+    btn.textContent = 'Upload to Server'; btn.disabled = false;
+    try {
+      var data = JSON.parse(xhr.responseText);
+      if (data.status === 'ok') {
+        bar.style.width = '100%';
+        bar.style.background = '#27ae60';
+        statusEl.textContent = 'Upload complete — ' + data.filename + ' (v' + (data.version || '?') + ')';
+        setTimeout(loadHvaAgent, 1000);
+      } else {
+        bar.style.background = '#e74c3c';
+        statusEl.textContent = 'Error: ' + (data.message || 'Unknown');
+      }
+    } catch(e) {
+      bar.style.background = '#e74c3c';
+      statusEl.textContent = 'Error parsing response';
+    }
+  });
+  xhr.addEventListener('error', function() {
+    btn.textContent = 'Upload to Server'; btn.disabled = false;
+    bar.style.background = '#e74c3c';
+    statusEl.textContent = 'Connection error';
+  });
+  xhr.open('POST', '/sap_skills/api/sq1_hva_upload');
+  xhr.send(formData);
+}
+
+function applyHvaUpdate() {
+  askPassword('Enter master password to apply HVA Agent update').then(function(pwd) {
+    if (!pwd) return;
+    if (!confirm('Apply the staged HVA agent update?\n\nThis will:\n1. Stop the agent service\n2. Backup the current install\n3. Extract the new package\n4. Restart the agent service')) return;
+    var btn = document.getElementById('hva-apply-btn');
+    btn.textContent = 'Updating...'; btn.disabled = true;
+    fetch('/sap_skills/api/sq1_hva_apply_update', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({master_password: pwd})
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.status === 'ok') {
+        btn.textContent = 'Update in progress...';
+        startHvaLog();
+      } else {
+        alert('Error: ' + (data.message || 'Unknown'));
+        btn.textContent = 'Apply Update'; btn.disabled = false;
+      }
+    })
+    .catch(function() {
+      alert('Connection error');
+      btn.textContent = 'Apply Update'; btn.disabled = false;
+    });
+  });
+}
+
+function deleteHvaStaged() {
+  if (!confirm('Delete the staged package?')) return;
+  fetch('/sap_skills/api/sq1_hva_delete_staged', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') { loadHvaAgent(); }
+    else { alert('Error: ' + (data.message || 'Unknown')); }
+  })
+  .catch(function() { alert('Connection error'); });
+}
+
+var _hvaLogTimer = null;
+function startHvaLog() {
+  var card = document.getElementById('hva-log-card');
+  var output = document.getElementById('hva-log-output');
+  card.style.display = 'block';
+  output.textContent = 'Waiting for log output...\n';
+  card.scrollIntoView({behavior: 'smooth'});
+  _hvaLogTimer = setInterval(tailHvaLog, 2000);
+  setTimeout(tailHvaLog, 500);
+}
+function stopHvaLog() {
+  if (_hvaLogTimer) { clearInterval(_hvaLogTimer); _hvaLogTimer = null; }
+  document.getElementById('hva-log-stop-btn').textContent = 'Stopped';
+  loadHvaAgent();
+}
+function closeHvaLog() {
+  stopHvaLog();
+  document.getElementById('hva-log-card').style.display = 'none';
+  document.getElementById('hva-log-stop-btn').textContent = 'Stop Tail';
+}
+function tailHvaLog() {
+  fetch('/sap_skills/api/sq1_hva_tail_log')
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.log) {
+      var el = document.getElementById('hva-log-output');
+      var colorized = data.log
+        .replace(/\[ERROR\]/g, '<span style="color:#f38ba8;">[ERROR]</span>')
+        .replace(/\[STOP\]/g, '<span style="color:#fab387;">[STOP]</span>')
+        .replace(/\[START\]/g, '<span style="color:#a6e3a1;">[START]</span>')
+        .replace(/\[BACKUP\]/g, '<span style="color:#89b4fa;">[BACKUP]</span>')
+        .replace(/\[EXTRACT\]/g, '<span style="color:#cba6f7;">[EXTRACT]</span>')
+        .replace(/\[UPDATE\]/g, '<span style="color:#f9e2af;">[UPDATE]</span>')
+        .replace(/\[INSTALL\]/g, '<span style="color:#94e2d5;">[INSTALL]</span>')
+        .replace(/\[DONE\]/g, '<span style="color:#a6e3a1; font-weight:bold;">[DONE]</span>');
+      el.innerHTML = colorized;
+      el.scrollTop = el.scrollHeight;
+      if (data.log.indexOf('[DONE]') !== -1) {
+        stopHvaLog();
+        setTimeout(loadHvaAgent, 2000);
+      }
+    }
+  })
+  .catch(function() {});
+}
+
+// ---- SQL Server Console ----
+function mssqlEscapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function executeMssql() {
+  var sql = document.getElementById('mssql-query').value.trim();
+  if (!sql) return;
+  var db = document.getElementById('mssql-db').value;
+  var user = document.getElementById('mssql-user').value;
+  var schema = document.getElementById('mssql-schema').value.trim();
+  var btn = document.getElementById('mssql-exec-btn');
+  var statusEl = document.getElementById('mssql-status');
+  var resultsEl = document.getElementById('mssql-results');
+  var errorEl = document.getElementById('mssql-error');
+
+  btn.textContent = 'Executing...';
+  btn.disabled = true;
+  btn.style.opacity = '0.6';
+  statusEl.style.display = 'block';
+  statusEl.textContent = 'Running query on ' + db + ' as ' + user + '...';
+  resultsEl.style.display = 'none';
+  errorEl.style.display = 'none';
+
+  fetch('/sap_skills/api/sq1_sql_execute', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({database: db, user: user, sql: sql, schema: schema})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    btn.textContent = 'Execute';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    if (data.status === 'ok') {
+      statusEl.textContent = data.rows.length + ' row(s) returned in ' + (data.elapsed_ms || 0) + ' ms';
+      errorEl.style.display = 'none';
+      if (data.headers && data.headers.length > 0) {
+        resultsEl.style.display = 'block';
+        document.getElementById('mssql-row-count').textContent = data.rows.length + ' row(s)';
+        var tbl = document.getElementById('mssql-table');
+        var html = '<thead><tr>';
+        data.headers.forEach(function(c) {
+          html += '<th style="padding:8px 12px; text-align:left; background:#f8f9fa; border-bottom:2px solid var(--border); white-space:nowrap; position:sticky; top:0;">' + c + '</th>';
+        });
+        html += '</tr></thead><tbody>';
+        data.rows.forEach(function(row, i) {
+          html += '<tr style="background:' + (i % 2 === 0 ? 'white' : '#f8f9fa') + ';">';
+          row.forEach(function(val) {
+            html += '<td style="padding:6px 12px; border-bottom:1px solid #eee; white-space:nowrap;">' + (val === null ? '<span style=\'color:#aaa;\'>NULL</span>' : mssqlEscapeHtml(String(val))) + '</td>';
+          });
+          html += '</tr>';
+        });
+        html += '</tbody>';
+        tbl.innerHTML = html;
+      } else {
+        resultsEl.style.display = 'none';
+        statusEl.textContent = 'Statement executed successfully' + (data.message ? ': ' + data.message : '');
+      }
+    } else {
+      statusEl.textContent = 'Error';
+      errorEl.style.display = 'block';
+      errorEl.textContent = data.message || 'Unknown error';
+    }
+  })
+  .catch(function(e) {
+    btn.textContent = 'Execute';
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    statusEl.textContent = 'Error';
+    errorEl.style.display = 'block';
+    errorEl.textContent = 'Network error: ' + e.message;
+  });
+}
+
+function clearMssqlResults() {
+  document.getElementById('mssql-results').style.display = 'none';
+  document.getElementById('mssql-error').style.display = 'none';
+  document.getElementById('mssql-status').style.display = 'none';
+  document.getElementById('mssql-table').innerHTML = '';
+}
+
+function copyMssqlResults() {
+  var tbl = document.getElementById('mssql-table');
+  var rows = tbl.querySelectorAll('tr');
+  var lines = [];
+  rows.forEach(function(tr) {
+    var cells = tr.querySelectorAll('th, td');
+    var vals = [];
+    cells.forEach(function(c) { vals.push(c.textContent); });
+    lines.push(vals.join('\t'));
+  });
+  navigator.clipboard.writeText(lines.join('\n')).then(function() {
+    var btn = event.target;
+    btn.textContent = 'Copied!';
+    setTimeout(function() { btn.textContent = 'Copy'; }, 2000);
+  });
+}
+
+document.addEventListener('keydown', function(e) {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && document.activeElement && document.activeElement.id === 'mssql-query') {
+    e.preventDefault();
+    executeMssql();
+  }
+});
+
 // Auto-load on page open + refresh every 5 minutes
 document.addEventListener('DOMContentLoaded', function() {
   refreshStatus();
+  loadHardwareInfo();
   loadDiskSpace();
   loadLicense();
+  loadHvaAgent();
   setInterval(function() { refreshStatus(); loadLicense(); }, 300000);
 });
 </script>

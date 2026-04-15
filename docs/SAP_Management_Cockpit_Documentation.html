@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP Management Cockpit — Documentation</title>
+<style>
+  :root {
+    --primary: #0d7377;
+    --primary-light: #12999e;
+    --primary-dark: #095456;
+    --accent: #0d7377;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #0d7377 0%, #095456 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+    position: relative;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  .back-link { position: absolute; top: 16px; right: 24px; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .back-link:hover { color: #fff; text-decoration: underline; }
+
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary-dark);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #e6f5f5; }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: #e6f5f5;
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  tr:hover td { background: #f0fafa; }
+
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    margin: 12px 0;
+  }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: #c0392b;
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+
+  .info-box {
+    background: #e6f5f5;
+    border: 1px solid #b2dfdb;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+  .warn-box {
+    background: #fff3cd;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    padding: 14px 18px;
+    margin: 12px 0;
+    font-size: 0.9rem;
+  }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.88rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  .footer a { color: var(--primary); text-decoration: none; }
+  .footer a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <a href="javascript:void(0)" class="back-link" onclick="window.close()">Close this Page</a>
+  <h1>SAP Management Cockpit</h1>
+  <div class="subtitle">Complete Technical Documentation</div>
+</div>
+
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#reachability">Reachability API</a>
+    <a href="#links">External Links</a>
+    <a href="#cockpit-pages">Cockpit Pages</a>
+    <a href="#github">GitHub</a>
+    <a href="#deployment">Deployment</a>
+    <a href="#monitoring">Monitoring</a>
+    <a href="#service-monitor">Service Monitor</a>
+    <a href="SAP_Management_Cockpit.html">Back to Cockpit</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- OVERVIEW -->
+<div class="section" id="overview">
+  <div class="section-title">Overview</div>
+  <div class="card">
+    <p>
+      The <strong>SAP Management Cockpit</strong> is a centralized web dashboard that provides a single-pane-of-glass
+      view of the entire SAP landscape managed by the Fivetran SAP Specialist Team. It serves as the top-level
+      entry point for all system cockpits, monitoring, and operational links.
+    </p>
+    <div class="info-box" style="margin-top:14px;">
+      <strong>URL:</strong> <a href="https://sapidesecc8.fivetran-internal-sales.com/sap_skills/docs/SAP_Management_Cockpit.html" target="_blank">https://sapidesecc8.fivetran-internal-sales.com/sap_skills/docs/SAP_Management_Cockpit.html</a>
+    </div>
+
+    <div class="grid-2" style="margin-top:16px;">
+      <div>
+        <h4>Key Features</h4>
+        <ul style="margin:8px 0 0 18px; font-size:0.9rem;">
+          <li>Live reachability checks for all 6 servers</li>
+          <li>Direct links to individual system cockpits</li>
+          <li>GCP infrastructure details per server</li>
+          <li>Quick access to SAP and Fivetran tools</li>
+          <li>Color-coded status indicators (green/red/gray)</li>
+        </ul>
+      </div>
+      <div>
+        <h4>Technical Stack</h4>
+        <table>
+          <tr><td>Type</td><td>Static HTML + JavaScript</td></tr>
+          <tr><td>Server</td><td>sapidesecc8 (port 443)</td></tr>
+          <tr><td>Path</td><td><code>/usr/sap/sap_skills/docs/</code></td></tr>
+          <tr><td>Theme</td><td>Teal (<code>#0d7377</code>)</td></tr>
+          <tr><td>GitHub</td><td><a href="https://github.com/fivetran/SAPManagementCockpit" target="_blank">fivetran/SAPManagementCockpit</a></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- REACHABILITY API -->
+<div class="section" id="reachability">
+  <div class="section-title">Reachability API</div>
+  <div class="card">
+    <p>The cockpit performs automatic health checks on page load for all 6 servers. Each server card displays a color-coded status indicator.</p>
+
+    <h3 style="margin-top:16px;"><span class="dot" style="background: var(--primary)"></span> API Endpoint</h3>
+    <table>
+      <tr><td>Method</td><td><code>GET</code></td></tr>
+      <tr><td>URL</td><td><code>/sap_skills/api/reachability?system={system}</code></td></tr>
+      <tr><td>Auth</td><td>None required</td></tr>
+      <tr><td>Response</td><td><code>{ "reachable": true|false }</code></td></tr>
+    </table>
+
+    <h3 style="margin-top:20px;"><span class="dot" style="background: var(--primary)"></span> System Identifiers</h3>
+    <table>
+      <thead><tr><th>System Parameter</th><th>Server Checked</th><th>Status Element ID</th></tr></thead>
+      <tbody>
+        <tr><td><code>s4hana</code></td><td>sapidess4</td><td><code>reach-s4hana</code></td></tr>
+        <tr><td><code>ecc8</code></td><td>sapidesecc8</td><td><code>reach-ecc8</code></td></tr>
+        <tr><td><code>sq1</code></td><td>sap-sql-ides</td><td><code>reach-sq1</code></td></tr>
+        <tr><td><code>saprouter</code></td><td>saprouter</td><td><code>reach-saprouter</code></td></tr>
+        <tr><td><code>hvrhub</code></td><td>saphvrhub</td><td><code>reach-hvrhub</code></td></tr>
+        <tr><td><code>sshtunnel</code></td><td>ts-sap-hana-s4-ssh-tunnel</td><td><code>reach-sshtunnel</code></td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="margin-top:20px;"><span class="dot" style="background: var(--primary)"></span> Status Indicators</h3>
+    <table>
+      <thead><tr><th>Color</th><th>Meaning</th><th>Hex</th></tr></thead>
+      <tbody>
+        <tr><td style="color:#ccc; font-weight:bold;">Gray</td><td>Initial state (checking...)</td><td><code>#ccc</code></td></tr>
+        <tr><td style="color:#27ae60; font-weight:bold;">Green</td><td>Server reachable</td><td><code>#27ae60</code></td></tr>
+        <tr><td style="color:#e74c3c; font-weight:bold;">Red</td><td>Server unreachable or check failed</td><td><code>#e74c3c</code></td></tr>
+      </tbody>
+    </table>
+
+    <div class="info-box" style="margin-top:14px;">
+      <strong>Implementation:</strong> The <code>checkReachability(system, elementId)</code> JavaScript function is called 6 times on <code>DOMContentLoaded</code>, one for each server. The server-side handler in <code>gcs_explorer_server.py</code> performs the actual connectivity check.
+    </div>
+  </div>
+</div>
+
+<!-- EXTERNAL LINKS -->
+<div class="section" id="links">
+  <div class="section-title">External Links</div>
+  <div class="grid-2">
+    <div class="card">
+      <h3><span class="dot" style="background: #0058A8"></span> SAP Links</h3>
+      <table>
+        <tr><td><strong>SAP Notes</strong></td><td><a href="https://me.sap.com/servicessupport/search/" target="_blank">me.sap.com</a></td></tr>
+        <tr><td><strong>Software Downloads</strong></td><td><a href="https://me.sap.com/softwarecenter" target="_blank">SAP Software Center</a></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3><span class="dot" style="background: #0073FF"></span> Fivetran Links</h3>
+      <table>
+        <tr><td><strong>Connectors</strong></td><td><a href="https://fivetran.com/dashboard/connections" target="_blank">Fivetran Dashboard</a></td></tr>
+        <tr><td><strong>HVR Locations</strong></td><td><a href="http://saphvrhub:4340/" target="_blank">HVR Hub Console</a></td></tr>
+        <tr><td><strong>POV App</strong></td><td><a href="https://pov-app.fivetran-internal-sales.com/" target="_blank">Proof of Value App</a></td></tr>
+        <tr><td><strong>Slab</strong></td><td><a href="https://fivetran.slab.com/" target="_blank">Internal Knowledge Base</a></td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- COCKPIT PAGES -->
+<div class="section" id="cockpit-pages">
+  <div class="section-title">Individual Cockpit Pages</div>
+  <div class="card">
+    <p>Each server has its own dedicated cockpit page with server details, start/stop controls, backup management, disk space monitoring, and more.</p>
+    <table style="margin-top:14px;">
+      <thead><tr><th>Page</th><th>File</th><th>Features</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>S/4HANA 2023</strong></td>
+          <td><code>SAP_S4HANA_2023.html</code></td>
+          <td>SAP + HANA start/stop, BACKINT backup, disk space, status, Web IDE link</td>
+        </tr>
+        <tr>
+          <td><strong>S/4HANA User Guide</strong></td>
+          <td><code>SAP_S4HANA_2023_Guide.html</code></td>
+          <td>Step-by-step guide for using the S/4HANA cockpit</td>
+        </tr>
+        <tr>
+          <td><strong>ECC6 EHP8</strong></td>
+          <td><code>SAP_ECC6_EHP8.html</code></td>
+          <td>Oracle DB status, SAP start/stop, BR*Tools backup, SBP patching</td>
+        </tr>
+        <tr>
+          <td><strong>ECC6 SQ1</strong></td>
+          <td><code>SAP_ECC6_SQ1.html</code></td>
+          <td>SQL Server SAP instance, start/stop, disk space</td>
+        </tr>
+        <tr>
+          <td><strong>SAPRouter</strong></td>
+          <td><code>SAP_SAPRouter.html</code></td>
+          <td>SAPRouter service management, route table, connection testing</td>
+        </tr>
+        <tr>
+          <td><strong>HVR Hub</strong></td>
+          <td><code>SAP_HVRHub.html</code></td>
+          <td>HVR service status, location management, replication channels</td>
+        </tr>
+        <tr>
+          <td><strong>SSH Tunnel</strong></td>
+          <td><code>SAP_SSHTunnel.html</code></td>
+          <td>SSH key management, tunnel status, Fivetran connector access</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- GITHUB -->
+<div class="section" id="github">
+  <div class="section-title">GitHub Repository</div>
+  <div class="card">
+    <table>
+      <tr><td>Repository</td><td><a href="https://github.com/fivetran/SAPManagementCockpit" target="_blank">fivetran/SAPManagementCockpit</a></td></tr>
+      <tr><td>Local Directory</td><td><code>~/SAP_Skills/docs/</code> (Management Cockpit files are part of the portal)</td></tr>
+      <tr><td>Production Path</td><td><code>/usr/sap/sap_skills/docs/SAP_Management_Cockpit.html</code></td></tr>
+    </table>
+
+    <h3 style="margin-top:20px;"><span class="dot" style="background: var(--primary)"></span> Files</h3>
+    <table>
+      <thead><tr><th>File</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>SAP_Management_Cockpit.html</code></td><td>Main cockpit dashboard page</td></tr>
+        <tr><td><code>SAP_Management_Cockpit_Documentation.html</code></td><td>This documentation page</td></tr>
+        <tr><td><code>SAP_S4HANA_2023.html</code></td><td>S/4HANA system cockpit</td></tr>
+        <tr><td><code>SAP_S4HANA_2023_Guide.html</code></td><td>S/4HANA cockpit user guide</td></tr>
+        <tr><td><code>SAP_ECC6_EHP8.html</code></td><td>ECC Oracle cockpit</td></tr>
+        <tr><td><code>SAP_ECC6_SQ1.html</code></td><td>ECC SQL Server cockpit</td></tr>
+        <tr><td><code>SAP_SAPRouter.html</code></td><td>SAPRouter cockpit</td></tr>
+        <tr><td><code>SAP_HVRHub.html</code></td><td>HVR Hub cockpit</td></tr>
+        <tr><td><code>SAP_SSHTunnel.html</code></td><td>SSH Tunnel cockpit</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- DEPLOYMENT -->
+<div class="section" id="deployment">
+  <div class="section-title">Deployment</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Deploy Cockpit Pages</h3>
+    <p>All cockpit pages are static HTML served from disk. No server restart needed after updates.</p>
+    <pre>scp ~/SAP_Skills/docs/SAP_Management_Cockpit.html root@sapidesecc8:/usr/sap/sap_skills/docs/
+scp ~/SAP_Skills/docs/SAP_Management_Cockpit_Documentation.html root@sapidesecc8:/usr/sap/sap_skills/docs/</pre>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Adding a New Server</h3>
+    <p>To add a new server to the Management Cockpit:</p>
+    <ol style="margin:10px 0 0 18px; font-size:0.9rem; line-height:2;">
+      <li>Create a new cockpit page (e.g. <code>SAP_NewServer.html</code>) in <code>~/SAP_Skills/docs/</code></li>
+      <li>Add a server card in <code>SAP_Management_Cockpit.html</code> inside the <code>.status-grid</code> div</li>
+      <li>Add a reachability check identifier in <code>gcs_explorer_server.py</code></li>
+      <li>Add <code>checkReachability('newserver', 'reach-newserver')</code> in the <code>DOMContentLoaded</code> handler</li>
+      <li>Deploy both the cockpit page and the new server page to sapidesecc8</li>
+    </ol>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Reachability API Implementation</h3>
+    <p>The reachability check is handled server-side in <code>gcs_explorer_server.py</code> on sapidesecc8. The handler receives the <code>system</code> query parameter and performs a network connectivity check (typically SSH or ping) to the corresponding server.</p>
+    <div class="warn-box" style="margin-top:12px;">
+      <strong>Important:</strong> After modifying <code>gcs_explorer_server.py</code>, you must restart the service: <code>systemctl restart gcs-explorer</code>
+    </div>
+  </div>
+</div>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- MONITORING -->
+<!-- ============================================================ -->
+<div class="section" id="monitoring">
+  <div class="section-title">Monitoring Agent</div>
+  <div class="card">
+    <h3>Email Notifications</h3>
+    <p>The Management Cockpit includes a <strong>Monitoring Agent</strong> section for managing email distribution lists and sending test emails. All servers relay email via <strong>smtp2go</strong> using the <code>fivetran-internal-sales.com</code> verified domain.</p>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>SMTP Provider</td><td>smtp2go (<code>mail.smtp2go.com:2525</code>)</td></tr>
+        <tr><td>Portal From</td><td><code>sap-skills@fivetran-internal-sales.com</code></td></tr>
+        <tr><td>Verified Domain</td><td><code>fivetran-internal-sales.com</code></td></tr>
+        <tr><td>Vault Key</td><td><code>smtp2go</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Distribution Lists</h3>
+    <table>
+      <thead><tr><th>List Name</th><th>Recipients</th><th>Usage</th></tr></thead>
+      <tbody>
+        <tr><td><code>SAPSpecialists</code></td><td><code>antonio.carbone@fivetran.com</code>, <code>richard.brouwer@fivetran.com</code></td><td>Alerts, notifications, reports</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:10px;">Distribution lists can be edited directly from the <a href="SAP_Management_Cockpit.html#monitoring">Management Cockpit</a> or the <a href="SAP_Skills_Portal_Server_Documentation.html#mailing-lists">Server Documentation</a> page. Changes are persisted to the HTML files on disk.</p>
+  </div>
+
+  <div class="card">
+    <h3>APIs</h3>
+    <table>
+      <thead><tr><th>Endpoint</th><th>Method</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>/sap_skills/api/get_mailing_list</code></td><td>POST</td><td>Read a distribution list by name</td></tr>
+        <tr><td><code>/sap_skills/api/update_mailing_list</code></td><td>POST</td><td>Update a distribution list (rewrites HTML)</td></tr>
+        <tr><td><code>/sap_skills/api/send_test_email</code></td><td>POST</td><td>Send a test email to a distribution list</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SERVICE MONITOR -->
+<!-- ============================================================ -->
+<div class="section" id="service-monitor">
+  <div class="section-title">Service Monitor</div>
+  <div class="card">
+    <h3>How the Service Monitor Works</h3>
+    <p>The Service Monitor is a real-time health dashboard embedded in the <a href="SAP_Monitoring.html#service-monitor" style="color:var(--primary);">Monitoring page</a>. It checks all 6 servers and their critical services every 5 minutes.</p>
+    <table>
+      <thead><tr><th>Component</th><th>Location</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td>Health check script</td><td><code>/usr/local/bin/sap_health_check.sh</code> on sapidesecc8</td><td>Runs every 5 min via cron, checks all servers and services</td></tr>
+        <tr><td>JSON status file</td><td><code>/usr/sap/sap_skills/health_status.json</code></td><td>Written by the script, read by the web UI</td></tr>
+        <tr><td>History log</td><td><code>/var/log/sap_health_check.log</code></td><td>Append-only log of all checks (last 2000 lines)</td></tr>
+        <tr><td>Health log API</td><td><code>POST /sap_skills/api/admin/health_log</code></td><td>Returns last 50 log entries</td></tr>
+        <tr><td>Web UI</td><td><a href="SAP_Monitoring.html#service-monitor" style="color:var(--primary);">SAP_Monitoring.html</a></td><td>Auto-refreshing dashboard with status cards</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Services Monitored per Server</h3>
+    <table>
+      <thead><tr><th>Server</th><th>Services</th><th>Check Method</th></tr></thead>
+      <tbody>
+        <tr><td><strong>sapidess4</strong></td><td>SAP Dispatcher, Gateway, ICM, IGS; HANA FIV; HANA PIT</td><td><code>sapcontrol</code> via SSH (nr 03, 00, 96)</td></tr>
+        <tr><td><strong>sapidesecc8</strong></td><td>SAP Dispatcher, Gateway, ICM; Oracle DB; Web Server</td><td><code>sapcontrol</code> local; <code>ora_pmon</code> process; HTTPS curl</td></tr>
+        <tr><td><strong>saprouter</strong></td><td>Server reachability; SAPRouter service</td><td>SSH; <code>systemctl is-active saprouter</code></td></tr>
+        <tr><td><strong>sap-sql-ides</strong></td><td>Server reachability; SAP Instance (SQ1); SQL Server DB</td><td>Ping; SOAP sapcontrol port 50013; WinRM via API</td></tr>
+        <tr><td><strong>saphvrhub</strong></td><td>Server reachability; HVR Hub; PostgreSQL 14</td><td>SSH; <code>systemctl is-active</code> for both</td></tr>
+        <tr><td><strong>SSH Tunnel</strong></td><td>Server reachability</td><td>SSH to <code>10.142.0.37</code></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Status Indicators</h3>
+    <table>
+      <thead><tr><th>Indicator</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#27ae60;"></span> Green dot</td><td>Service is running</td></tr>
+        <tr><td><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#e74c3c;"></span> Red dot</td><td>Service is down or unreachable</td></tr>
+        <tr><td><span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:#95a5a6;"></span> Gray dot</td><td>Check in progress (initial state)</td></tr>
+        <tr><td><span style="background:#d4edda;color:#155724;padding:2px 8px;border-radius:10px;font-size:0.78rem;font-weight:600;">REACHABLE</span></td><td>Server responds to SSH or ping</td></tr>
+        <tr><td><span style="background:#f8d7da;color:#721c24;padding:2px 8px;border-radius:10px;font-size:0.78rem;font-weight:600;">UNREACHABLE</span></td><td>Server did not respond within timeout</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Cockpit Links</h3>
+    <p>Each server card has a <strong>Cockpit</strong> button that opens the individual server management page where you can start/stop services, view disk space, manage backups, and more.</p>
+    <table>
+      <thead><tr><th>Server</th><th>Cockpit Page</th><th>Actions Available</th></tr></thead>
+      <tbody>
+        <tr><td>sapidess4</td><td><code>SAP_S4HANA_2023.html</code></td><td>Start/stop SAP + HANA, backup, disk space</td></tr>
+        <tr><td>sapidesecc8</td><td><code>SAP_ECC6_EHP8.html</code></td><td>Start/stop SAP + Oracle, BR*Tools backup</td></tr>
+        <tr><td>saprouter</td><td><code>SAP_SAPRouter.html</code></td><td>Start/stop SAPRouter, edit route table</td></tr>
+        <tr><td>sap-sql-ides</td><td><code>SAP_ECC6_SQ1.html</code></td><td>Start/stop SAP, SQL Server backup</td></tr>
+        <tr><td>saphvrhub</td><td><code>SAP_HVRHub.html</code></td><td>Start/stop HVR + PostgreSQL, manage locations</td></tr>
+        <tr><td>SSH Tunnel</td><td><code>SAP_SSHTunnel.html</code></td><td>Manage SSH keys, view sessions</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3>Full Monitoring Guide</h3>
+    <p>For complete documentation on the email relay, SMTP configuration, distribution lists, health check script internals, and service restart procedures, see the <a href="SAP_Monitoring_Guide.html" style="color:var(--primary); font-weight:600;">Monitoring Agent User Guide</a>.</p>
+  </div>
+</div>
+
+</div>
+
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank">Claude Code</a>
+</div>
+
+</body>
+</html>

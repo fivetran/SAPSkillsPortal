@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAPRouter Documentation — SAP Skills Portal</title>
+<style>
+  :root {
+    --primary: #2e7d32;
+    --primary-light: #43a047;
+    --primary-dark: #1b5e20;
+    --bg: #f8f9fa;
+    --card-bg: #ffffff;
+    --border: #dee2e6;
+    --text: #2c3e50;
+    --text-light: #6c757d;
+    --success: #27ae60;
+    --warning: #f39c12;
+    --danger: #e74c3c;
+    --code-bg: #f1f3f5;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .header {
+    background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+    position: relative;
+  }
+  .header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 8px; }
+  .header .subtitle { font-size: 1.1rem; opacity: 0.85; }
+  .nav {
+    background: white;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .nav-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .nav a {
+    text-decoration: none;
+    color: var(--primary-dark);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    transition: background 0.2s;
+  }
+  .nav a:hover { background: #e8f5e9; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 30px 20px; }
+  .section { margin-bottom: 40px; }
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    border-bottom: 3px solid var(--primary);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+  }
+  .card {
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+  }
+  .card h3 {
+    font-size: 1.15rem;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card h3 .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+    margin-top: 10px;
+  }
+  th, td {
+    padding: 10px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+  }
+  th {
+    background: #e8f5e9;
+    font-weight: 600;
+    color: var(--primary-dark);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  tr:hover td { background: #f1f8f1; }
+  pre {
+    background: #1e1e2e;
+    color: #cdd6f4;
+    padding: 16px 20px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.88rem;
+    line-height: 1.7;
+    margin: 12px 0;
+  }
+  code {
+    background: var(--code-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    color: #c0392b;
+  }
+  pre code { background: none; padding: 0; color: inherit; }
+  .pre-wrap { position: relative; }
+  .copy-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255,255,255,0.12);
+    color: #cdd6f4;
+    border: 1px solid rgba(255,255,255,0.15);
+    padding: 3px 12px;
+    border-radius: 5px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    transition: background 0.2s;
+    z-index: 2;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.22); }
+  .copy-btn.copied { background: #27ae60; color: white; border-color: #27ae60; }
+  .info-box {
+    background: #e8f5e9;
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+  .warn-box {
+    background: #fff8e1;
+    border-left: 4px solid var(--warning);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+  .danger-box {
+    background: #fce4ec;
+    border-left: 4px solid var(--danger);
+    padding: 14px 18px;
+    border-radius: 0 8px 8px 0;
+    margin: 14px 0;
+    font-size: 0.92rem;
+  }
+  .footer {
+    text-align: center;
+    padding: 30px 20px;
+    color: var(--text-light);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  .back-link { position: absolute; top: 16px; right: 24px; color: rgba(255,255,255,0.85); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s; }
+  .back-link:hover { color: #fff; text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+  <a href="/sap_skills/" class="back-link">Go back to the main page</a>
+  <h1>SAPRouter Documentation</h1>
+  <div class="subtitle">Network Routing, Configuration &amp; Administration Guide</div>
+</div>
+
+<!-- NAVIGATION -->
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#overview">Overview</a>
+    <a href="#infrastructure">Infrastructure</a>
+    <a href="#installation">Installation</a>
+    <a href="#configuration">Configuration</a>
+    <a href="#route-table">Route Table</a>
+    <a href="#operations">Operations</a>
+    <a href="#logging">Logging</a>
+    <a href="#troubleshooting">Troubleshooting</a>
+    <a href="SAP_SAPRouter.html">Back to Cockpit</a>
+  </div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- OVERVIEW -->
+<!-- ============================================================ -->
+<div class="section" id="overview">
+  <div class="section-title">Overview</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> What is SAPRouter?</h3>
+    <p>SAPRouter is a standalone SAP program that acts as a <strong>proxy and application-level firewall</strong> for SAP network connections. It sits between external clients and internal SAP systems, controlling which connections are allowed based on a route permission table.</p>
+    <div style="margin-top:16px;">
+      <p><strong>Key Functions:</strong></p>
+      <ul style="margin:10px 0 0 20px;">
+        <li><strong>Access Control</strong> &mdash; Controls and logs all incoming connections to SAP systems using a route permission table (<code>saprouttab</code>)</li>
+        <li><strong>Network Security</strong> &mdash; Acts as an extra firewall layer, reducing the number of open ports needed on the corporate firewall</li>
+        <li><strong>Indirect Connections</strong> &mdash; Enables connections between programs that cannot reach each other directly due to network/firewall restrictions</li>
+        <li><strong>Connection Logging</strong> &mdash; Records all connection attempts (allowed and denied) for audit and troubleshooting</li>
+        <li><strong>SNC Encryption</strong> &mdash; Supports Secure Network Communications for encrypted connections with SAP Crypto library</li>
+      </ul>
+    </div>
+    <div style="margin-top:16px;">
+      <p><strong>Supported Scenarios:</strong></p>
+      <ul style="margin:10px 0 0 20px;">
+        <li><strong>SAP GUI</strong> communication through SAPRouter to the message server / dispatcher</li>
+        <li><strong>RFC communication</strong> between systems or between RFC client and Gateway</li>
+        <li><strong>SAP Support connections</strong> from SAP to customer systems (via SAP backbone network)</li>
+      </ul>
+    </div>
+    <div class="warn-box" style="margin-top:16px;">
+      <strong>Not Supported:</strong> HTTP-based protocols (Web Service calls, Web Dynpro, BSP), browser-to-application-server communication, and binary protocols (terminal server, X-server).
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- INFRASTRUCTURE -->
+<!-- ============================================================ -->
+<div class="section" id="infrastructure">
+  <div class="section-title">Infrastructure</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Server Details</h3>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>Hostname</td><td><code>saprouter</code> (GCP VM: <code>saprouter-internal</code>)</td></tr>
+        <tr><td>Operating System</td><td>Rocky Linux 10.1 (Red Quartz) &mdash; kernel 6.12</td></tr>
+        <tr><td>CPUs</td><td>2 vCPUs</td></tr>
+        <tr><td>Memory</td><td>3.6 GB RAM</td></tr>
+        <tr><td>Internal IP</td><td><code>10.128.0.111</code></td></tr>
+        <tr><td>External IP</td><td><code>34.46.174.105</code></td></tr>
+        <tr><td>GCP Zone</td><td><code>us-central1-c</code></td></tr>
+        <tr><td>GCP Project</td><td><code>internal-sales</code></td></tr>
+
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> SAP Software Versions</h3>
+    <table>
+      <thead><tr><th>Component</th><th>Version</th><th>Details</th></tr></thead>
+      <tbody>
+        <tr><td>SAProuter</td><td>Kernel 7.54, Patch 635</td><td>Compiled for linuxx86_64, 64-bit, Non-Unicode (Feb 6, 2026)</td></tr>
+        <tr><td>NI Version</td><td>40.4</td><td>Network Interface protocol version</td></tr>
+        <tr><td>SAP Crypto Library</td><td>8.6.3 (Patch 8603)</td><td><code>/saprouter/sec/libsapcrypto.so</code></td></tr>
+        <tr><td>SAPCAR</td><td>Included</td><td><code>/saprouter/SAPCAR</code> &mdash; SAP archive extraction tool</td></tr>
+        <tr><td>niping</td><td>Included</td><td><code>/saprouter/niping</code> &mdash; network connectivity test tool</td></tr>
+        <tr><td>sapgenpse</td><td>Included</td><td><code>/saprouter/sec/sapgenpse</code> &mdash; PSE/certificate management</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Disk Layout</h3>
+    <table>
+      <thead><tr><th>Mount</th><th>Size</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>/</code></td><td>50 GB</td><td>Root filesystem (OS)</td></tr>
+        <tr><td><code>/saprouter</code></td><td>30 GB</td><td>Dedicated SAPRouter filesystem &mdash; binaries, config, logs, crypto</td></tr>
+        <tr><td><code>/boot/efi</code></td><td>200 MB</td><td>EFI boot partition</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Network Architecture</h3>
+    <p style="margin-bottom:12px;">The SAPRouter sits in front of the internal SAP systems. External clients connect to the SAPRouter's public IP on port <code>3299</code>, and the SAPRouter forwards allowed connections to the internal SAP servers.</p>
+    <table>
+      <thead><tr><th>Flow</th><th>Source</th><th>Destination</th><th>Port</th></tr></thead>
+      <tbody>
+        <tr><td>Inbound</td><td>External clients (Internet)</td><td><code>34.46.174.105</code> (SAPRouter)</td><td><code>3299</code></td></tr>
+        <tr><td>Forward to S/4HANA</td><td>SAPRouter (<code>10.128.0.111</code>)</td><td><code>10.128.15.239</code> (sapidess4)</td><td><code>3203</code></td></tr>
+        <tr><td>Forward to ECC Oracle</td><td>SAPRouter (<code>10.128.0.111</code>)</td><td><code>10.128.15.241</code> (sapidesecc8)</td><td><code>3200</code></td></tr>
+        <tr><td>Forward to ECC MSSQL</td><td>SAPRouter (<code>10.128.0.111</code>)</td><td><code>10.128.0.51</code> (sap-sql)</td><td><code>3200</code></td></tr>
+      </tbody>
+    </table>
+    <div class="info-box" style="margin-top:14px;">
+      <strong>Default Port:</strong> SAPRouter listens on port <code>3299</code> (standard SAP port). This can be changed with option <code>-S</code>.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- INSTALLATION -->
+<!-- ============================================================ -->
+<div class="section" id="installation">
+  <div class="section-title">Installation</div>
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Directory Structure</h3>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>/saprouter/
+├── saprouter              # SAProuter binary (kernel 7.54, patch 635)
+├── niping                 # Network connectivity test tool
+├── SAPCAR                 # SAP archive extraction tool
+├── saprouttab             # Route permission table (active config)
+├── patches.mf             # Patch manifest
+├── dev_rout               # Trace file (runtime)
+├── saprouter_635-80007328.sar   # SAProuter SAR package
+├── log/
+│   └── saprouter.log      # Connection log (-G option)
+├── run/                   # Runtime directory (empty)
+└── sec/
+    ├── libsapcrypto.so    # SAP Crypto library (8.6.3)
+    ├── libslcryptokernel.so  # Crypto kernel library
+    ├── sapgenpse           # PSE/certificate management tool
+    ├── sapcrypto.lst       # Crypto library manifest
+    ├── sapcrypto.mf        # Crypto metadata
+    └── SAPCRYPTOLIBP_8603-20011697.SAR  # Crypto SAR package</code></pre></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> OS User</h3>
+    <table>
+      <thead><tr><th>Property</th><th>Value</th></tr></thead>
+      <tbody>
+        <tr><td>User</td><td><code>saprouter</code> (uid 995)</td></tr>
+        <tr><td>Group</td><td><code>saprouter</code> (gid 995)</td></tr>
+        <tr><td>Home</td><td><code>/saprouter</code></td></tr>
+        <tr><td>Service runs as</td><td><code>root</code> (via systemd)</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box" style="margin-top:12px;">
+      The <code>saprouter</code> user owns the binaries and config files. The systemd service runs as <code>root</code> for port binding (port 3299 &lt; 1024 not needed, but simplifies access to <code>/saprouter/sec/</code>).
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Installation from SAR Package</h3>
+    <p>To update or reinstall the SAPRouter binary:</p>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Extract new SAProuter package
+cd /saprouter
+./SAPCAR -xvf saprouter_635-80007328.sar
+
+# Extract crypto library (if updating)
+cd /saprouter/sec
+/saprouter/SAPCAR -xvf SAPCRYPTOLIBP_8603-20011697.SAR
+
+# Restart the service
+systemctl restart saprouter</code></pre></div>
+    <p style="margin-top:12px;">Download the latest SAProuter from <a href="https://me.sap.com/softwarecenter" target="_blank">SAP Software Download Center</a>: <strong>Support Packages and Patches A-Z &rarr; S &rarr; SAPROUTER &rarr; SAPROUTER 7.54</strong></p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- CONFIGURATION -->
+<!-- ============================================================ -->
+<div class="section" id="configuration">
+  <div class="section-title">Configuration</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Systemd Service</h3>
+    <p>SAPRouter runs as a systemd service with automatic restart:</p>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># /etc/systemd/system/saprouter.service
+[Unit]
+Description=SAProuter
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/saprouter
+ExecStart=/saprouter/saprouter -r -G /saprouter/log/saprouter.log
+Restart=always
+RestartSec=5
+LimitNOFILE=65536
+
+[Install]
+WantedBy=multi-user.target</code></pre></div>
+    <table style="margin-top:16px;">
+      <thead><tr><th>Parameter</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>-r</code></td><td>Start SAPRouter in routing mode</td></tr>
+        <tr><td><code>-G /saprouter/log/saprouter.log</code></td><td>Enable connection logging to the specified file</td></tr>
+        <tr><td><code>Restart=always</code></td><td>Auto-restart on crash or stop, with 5-second delay</td></tr>
+        <tr><td><code>LimitNOFILE=65536</code></td><td>Allow up to 65,536 open file descriptors (connections)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Startup Options Reference</h3>
+    <p>Common SAPRouter startup options:</p>
+    <table>
+      <thead><tr><th>Option</th><th>Description</th><th>Default</th></tr></thead>
+      <tbody>
+        <tr><td><code>-r</code></td><td>Start SAPRouter</td><td>&mdash;</td></tr>
+        <tr><td><code>-s</code></td><td>Stop SAPRouter</td><td>&mdash;</td></tr>
+        <tr><td><code>-n</code></td><td>Reload route permission table without restart</td><td>&mdash;</td></tr>
+        <tr><td><code>-R &lt;file&gt;</code></td><td>Specify route permission table file</td><td><code>./saprouttab</code></td></tr>
+        <tr><td><code>-K &lt;SNC name&gt;</code></td><td>Enable SNC (Secure Network Communications)</td><td>Disabled</td></tr>
+        <tr><td><code>-G &lt;logfile&gt;</code></td><td>Enable connection logging</td><td>No logging</td></tr>
+        <tr><td><code>-T &lt;tracefile&gt;</code></td><td>Specify trace file</td><td><code>dev_rout</code></td></tr>
+        <tr><td><code>-V &lt;level&gt;</code></td><td>Set trace level at startup (0-3)</td><td>1</td></tr>
+        <tr><td><code>-S &lt;port&gt;</code></td><td>Change SAPRouter port</td><td>3299</td></tr>
+        <tr><td><code>-C &lt;n&gt;</code></td><td>Max number of clients</td><td>1024</td></tr>
+        <tr><td><code>-Y &lt;n&gt;</code></td><td>Start additional SAPRouter process at n clients</td><td>Disabled</td></tr>
+        <tr><td><code>-D</code></td><td>Do not resolve IP addresses (improve performance)</td><td>Resolve</td></tr>
+        <tr><td><code>-J &lt;size&gt;</code></td><td>Max log file size in bytes</td><td>Unlimited</td></tr>
+        <tr><td><code>-H &lt;host&gt; &lt;pwd&gt;</code></td><td>Set hostname and admin password</td><td>&mdash;</td></tr>
+        <tr><td><code>-l</code></td><td>Display active connections (short)</td><td>&mdash;</td></tr>
+        <tr><td><code>-L</code></td><td>Display active connections (detailed)</td><td>&mdash;</td></tr>
+        <tr><td><code>-p</code></td><td>Trigger soft shutdown (finish current, reject new)</td><td>&mdash;</td></tr>
+        <tr><td><code>-t</code></td><td>Toggle trace level in running system</td><td>&mdash;</td></tr>
+        <tr><td><code>-d</code></td><td>Dump trace buffers to file</td><td>&mdash;</td></tr>
+        <tr><td><code>-f</code></td><td>Flush internal buffers</td><td>&mdash;</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> SAP Crypto Library (SNC)</h3>
+    <p>The SAP Crypto Library is installed for SNC-capable connections:</p>
+    <table>
+      <thead><tr><th>File</th><th>Version</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>/saprouter/sec/libsapcrypto.so</code></td><td>8.6.3 (patch 8603)</td><td>Main SAP cryptographic library</td></tr>
+        <tr><td><code>/saprouter/sec/libslcryptokernel.so</code></td><td>&mdash;</td><td>Crypto kernel library</td></tr>
+        <tr><td><code>/saprouter/sec/sapgenpse</code></td><td>&mdash;</td><td>Tool for creating and managing PSE (Personal Security Environment) files</td></tr>
+      </tbody>
+    </table>
+    <div class="info-box" style="margin-top:12px;">
+      To enable SNC connections, generate a PSE with <code>sapgenpse</code> and start SAPRouter with <code>-K &lt;SNC name&gt;</code>. Set the <code>SECUDIR</code> environment variable to <code>/saprouter/sec</code>.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- ROUTE TABLE -->
+<!-- ============================================================ -->
+<div class="section" id="route-table">
+  <div class="section-title">Route Permission Table</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Current Configuration</h3>
+    <p>The active route permission table at <code>/saprouter/saprouttab</code>:</p>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># /saprouter/saprouttab
+# Format: P/S/D  &lt;source&gt;  &lt;destination&gt;  &lt;port&gt;
+#
+# P = Permit    S = Permit (SAP protocol only)    D = Deny
+
+P * 10.128.15.239 3203      # S/4HANA 2023 (sapidess4) - dispatcher instance 03
+P * 10.128.15.241 3200      # ECC 6.0 EHP8 on Oracle (sapidesecc8) - instance 00
+P * 10.128.0.51   3200      # ECC 6.0 on SQL Server (sap-sql / SQ1) - instance 00
+D * * *                      # Deny everything else</code></pre></div>
+
+    <table style="margin-top:16px;">
+      <thead><tr><th>Rule</th><th>Source</th><th>Destination</th><th>Port</th><th>SAP System</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--success); font-weight:700;">PERMIT</td><td>Any (<code>*</code>)</td><td><code>10.128.15.239</code></td><td><code>3203</code></td><td>S/4HANA 2023 &mdash; sapidess4 (instance 03)</td></tr>
+        <tr><td style="color:var(--success); font-weight:700;">PERMIT</td><td>Any (<code>*</code>)</td><td><code>10.128.15.241</code></td><td><code>3200</code></td><td>ECC 6.0 EHP8 &mdash; sapidesecc8 (instance 00)</td></tr>
+        <tr><td style="color:var(--success); font-weight:700;">PERMIT</td><td>Any (<code>*</code>)</td><td><code>10.128.0.51</code></td><td><code>3200</code></td><td>ECC 6.0 SQ1 &mdash; sap-sql (instance 00)</td></tr>
+        <tr><td style="color:var(--danger); font-weight:700;">DENY</td><td>Any (<code>*</code>)</td><td>Any (<code>*</code>)</td><td>Any (<code>*</code>)</td><td>Block all other traffic</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Route Table Syntax</h3>
+    <p>Each line follows the format: <code>P/S/D &lt;source host&gt; &lt;destination host&gt; &lt;destination port&gt; [password]</code></p>
+    <table>
+      <thead><tr><th>Prefix</th><th>Action</th><th>Description</th></tr></thead>
+      <tbody>
+        <tr><td><code>P</code></td><td>Permit</td><td>Allow any protocol (SAP + native TCP/IP)</td></tr>
+        <tr><td><code>S</code></td><td>Permit (SAP only)</td><td>Allow only SAP protocol connections (SAP GUI, RFC)</td></tr>
+        <tr><td><code>D</code></td><td>Deny</td><td>Reject the connection</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:12px;">Wildcards: <code>*</code> matches any value. The table is read top-down; first matching rule wins.</p>
+    <div class="warn-box" style="margin-top:12px;">
+      <strong>Important:</strong> Always end with <code>D * * *</code> to deny all unmatched traffic (default-deny policy).
+    </div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Route Strings (Client Side)</h3>
+    <p>Clients connect through SAPRouter using route strings in the format:</p>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Route string syntax
+/H/&lt;saprouter_host&gt;/S/&lt;saprouter_port&gt;/H/&lt;target_host&gt;/S/&lt;target_port&gt;
+
+# Example: Connect to S/4HANA through SAPRouter
+/H/34.46.174.105/S/3299/H/10.128.15.239/S/3203
+
+# Example: Connect to ECC Oracle through SAPRouter
+/H/34.46.174.105/S/3299/H/10.128.15.241/S/3200
+
+# Example: Connect to ECC SQL Server through SAPRouter
+/H/34.46.174.105/S/3299/H/10.128.0.51/S/3200</code></pre></div>
+    <table style="margin-top:12px;">
+      <thead><tr><th>Substring</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>/H/</code></td><td>Host name or IP address</td></tr>
+        <tr><td><code>/S/</code></td><td>Service (port number) &mdash; optional, defaults to 3299</td></tr>
+        <tr><td><code>/W/</code></td><td>Password for the route &mdash; optional</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Modifying the Route Table</h3>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Edit the route table
+vi /saprouter/saprouttab
+
+# Reload without restart (soft reload)
+/saprouter/saprouter -n
+
+# Or restart the service (if reload doesn't apply)
+systemctl restart saprouter</code></pre></div>
+    <div class="info-box" style="margin-top:12px;">
+      The <code>-n</code> option re-reads the route table without stopping active connections. Use this in production.
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- OPERATIONS -->
+<!-- ============================================================ -->
+<div class="section" id="operations">
+  <div class="section-title">Operations</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Service Management</h3>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Check service status
+systemctl status saprouter
+
+# Start SAPRouter
+systemctl start saprouter
+
+# Stop SAPRouter
+systemctl stop saprouter
+
+# Restart SAPRouter
+systemctl restart saprouter
+
+# Enable on boot
+systemctl enable saprouter</code></pre></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> SAPRouter Admin Commands</h3>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Display active connections (short)
+/saprouter/saprouter -l
+
+# Display active connections (detailed)
+/saprouter/saprouter -L
+
+# Soft shutdown (reject new, finish current)
+/saprouter/saprouter -p
+
+# Hard stop
+/saprouter/saprouter -s
+
+# Reload route table without restart
+/saprouter/saprouter -n
+
+# Toggle trace level (cycle through 0-3)
+/saprouter/saprouter -t
+
+# Dump buffers to trace file
+/saprouter/saprouter -d
+
+# Flush internal buffers
+/saprouter/saprouter -f
+
+# Display version info
+/saprouter/saprouter -v</code></pre></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Network Testing with niping</h3>
+    <p>Use <code>niping</code> to test network connectivity between hosts:</p>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Self-test
+/saprouter/niping -t
+
+# Start niping server (on target host)
+/saprouter/niping -s
+
+# Test direct connection (without SAPRouter)
+/saprouter/niping -c -H &lt;target_host&gt;
+
+# Test connection through SAPRouter
+/saprouter/niping -c -H /H/saprouter/H/&lt;target_host&gt;
+
+# Example: test route to S/4HANA via SAPRouter
+/saprouter/niping -c -H /H/34.46.174.105/H/10.128.15.239</code></pre></div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- LOGGING -->
+<!-- ============================================================ -->
+<div class="section" id="logging">
+  <div class="section-title">Logging &amp; Tracing</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Connection Log</h3>
+    <p>The connection log (<code>-G</code> option) records all connection attempts:</p>
+    <table>
+      <thead><tr><th>File</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>/saprouter/log/saprouter.log</code></td><td>Connection log &mdash; timestamps, source IPs, destinations, connect/disconnect events</td></tr>
+        <tr><td><code>/saprouter/dev_rout</code></td><td>Trace file &mdash; startup info, errors, debug details (trace level 1 by default)</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:12px;"><strong>Log format example:</strong></p>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code>Tue Mar 31 23:06:43 2026 CONNECT FROM C9/- host 47.141.146.42/63968 (47-141-146-42.fdr01.bnng.ca.frontiernet.net)
+Tue Mar 31 23:06:43 2026 CONNECT TO   S9/17 host 10.128.15.241/3200 (10.128.15.241)
+Tue Mar 31 23:06:43 2026 ESTABLISHED  S9/17
+Tue Mar 31 23:06:46 2026 DISCONNECT   S9/17 host 10.128.15.241/3200 (10.128.15.241)</code></pre></div>
+    <table style="margin-top:12px;">
+      <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>CONNECT FROM</code></td><td>Incoming connection from external client (with source IP and resolved hostname)</td></tr>
+        <tr><td><code>CONNECT TO</code></td><td>Outbound connection to internal SAP system</td></tr>
+        <tr><td><code>ESTABLISHED</code></td><td>Connection successfully established end-to-end</td></tr>
+        <tr><td><code>DISCONNECT</code></td><td>Connection closed</td></tr>
+        <tr><td><code>C9/-</code></td><td>Client connection ID 9</td></tr>
+        <tr><td><code>S9/17</code></td><td>Server connection ID 9, file descriptor 17</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Trace Levels</h3>
+    <table>
+      <thead><tr><th>Level</th><th>Description</th><th>Use Case</th></tr></thead>
+      <tbody>
+        <tr><td><code>0</code></td><td>No trace</td><td>Production (minimal overhead)</td></tr>
+        <tr><td><code>1</code></td><td>Basic (default)</td><td>Normal operation &mdash; startup, errors</td></tr>
+        <tr><td><code>2</code></td><td>Detailed</td><td>Troubleshooting connection issues</td></tr>
+        <tr><td><code>3</code></td><td>Full</td><td>Deep debugging (verbose, large files)</td></tr>
+      </tbody>
+    </table>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Toggle trace level on running SAPRouter (cycles 1 → 2 → 3 → 0 → 1)
+/saprouter/saprouter -t
+
+# Start with specific trace level
+/saprouter/saprouter -r -V 2 -G /saprouter/log/saprouter.log
+
+# View trace file
+cat /saprouter/dev_rout
+
+# View connection log
+tail -50 /saprouter/log/saprouter.log</code></pre></div>
+    <div class="warn-box" style="margin-top:12px;">
+      <strong>Log rotation:</strong> Use <code>-J &lt;bytes&gt;</code> to limit log file size. Recommended: <code>-J 2000000</code> (2 MB). Use <code>-E</code> to prevent overwriting old log/trace files (appends timestamp to filename).
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- TROUBLESHOOTING -->
+<!-- ============================================================ -->
+<div class="section" id="troubleshooting">
+  <div class="section-title">Troubleshooting</div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Common Errors</h3>
+    <table>
+      <thead><tr><th>Error</th><th>Cause</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>Route permission denied</code></td>
+          <td>The route is blocked by <code>saprouttab</code></td>
+          <td>Add a permit rule for the source/destination/port, then reload with <code>saprouter -n</code></td>
+        </tr>
+        <tr>
+          <td><code>Maximum number of clients reached</code></td>
+          <td>Connection limit exceeded (default 1024)</td>
+          <td>Increase with <code>-C &lt;n&gt;</code> or use <code>-Y</code> for multi-process mode</td>
+        </tr>
+        <tr>
+          <td><code>Connection timed out</code></td>
+          <td>Target host unreachable or GCP firewall blocking</td>
+          <td>Check GCP firewall rules, verify target SAP system is running</td>
+        </tr>
+        <tr>
+          <td><code>NiPConnect2: connect failed</code></td>
+          <td>Cannot reach the SAPRouter on port 3299</td>
+          <td>Check if SAPRouter is running, verify GCP firewall allows port 3299 inbound</td>
+        </tr>
+        <tr>
+          <td><code>Connection refused</code></td>
+          <td>SAPRouter not running or wrong port</td>
+          <td><code>systemctl start saprouter</code>, verify port with <code>ss -tlnp | grep 3299</code></td>
+        </tr>
+        <tr>
+          <td><code>partner not reached</code></td>
+          <td>Target SAP system is down or port mismatch</td>
+          <td>Verify target system is running, check instance number matches port (inst 00 = 3200)</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> Diagnostic Commands</h3>
+    <div class="pre-wrap"><button class="copy-btn" onclick="copyCode(this)">Copy</button>
+<pre><code># Check if SAPRouter is running
+systemctl status saprouter
+ps aux | grep saprouter
+
+# Check listening port
+ss -tlnp | grep 3299
+
+# View recent connections
+tail -20 /saprouter/log/saprouter.log
+
+# View trace for errors
+cat /saprouter/dev_rout
+
+# List active connections
+/saprouter/saprouter -l
+
+# Test connectivity to target SAP system
+/saprouter/niping -c -H 10.128.15.239 -S 3203
+
+# Test full route through SAPRouter
+/saprouter/niping -c -H /H/34.46.174.105/H/10.128.15.239/S/3203</code></pre></div>
+  </div>
+
+  <div class="card">
+    <h3><span class="dot" style="background: var(--primary)"></span> SAP Notes</h3>
+    <table>
+      <thead><tr><th>Note</th><th>Title</th></tr></thead>
+      <tbody>
+        <tr><td><a href="https://me.sap.com/notes/3713006" target="_blank">3713006</a></td><td>SAProuter patch 0.635 (current installed version)</td></tr>
+        <tr><td><a href="https://me.sap.com/notes/500235" target="_blank">500235</a></td><td>Comprehensive documentation for niping tool</td></tr>
+        <tr><td><a href="https://me.sap.com/notes/734095" target="_blank">734095</a></td><td>Operating SAProuter on Windows</td></tr>
+        <tr><td><a href="https://me.sap.com/notes/618053" target="_blank">618053</a></td><td>Registering SAProuter as a Windows service</td></tr>
+        <tr><td><a href="https://me.sap.com/notes/684106" target="_blank">684106</a></td><td>Missing Microsoft DLLs for SAProuter on Windows</td></tr>
+        <tr><td><a href="https://me.sap.com/notes/1818735" target="_blank">1818735</a></td><td>Installing SAProuter on IBM i</td></tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+</div><!-- /container -->
+
+<!-- FOOTER -->
+<div class="footer">
+  Fivetran SAP Specialist Team &mdash; Built with <a href="https://claude.ai/claude-code" target="_blank" style="color: var(--primary)">Claude Code</a>
+</div>
+
+<script>
+function copyCode(btn) {
+  var pre = btn.closest('.pre-wrap').querySelector('pre');
+  var text = pre.textContent;
+  navigator.clipboard.writeText(text).then(function() {
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(function() { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+
+</body>
+</html>

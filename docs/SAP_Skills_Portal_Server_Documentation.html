@@ -279,7 +279,7 @@
 
 <!-- HEADER -->
 <div class="header">
-  <a href="/sap_skills/" class="back-link">Go back to the main page</a>
+  <a href="javascript:void(0)" class="back-link" onclick="window.close()">Close this Page</a>
   <h1>SAP Skills Portal</h1>
   <div class="subtitle">Server Administration of the SAP Specialist Web Portal</div>
 </div>
@@ -290,6 +290,8 @@
     <a href="#server">Server</a>
     <a href="#ssh">SSH Access</a>
     <a href="#architecture">Architecture</a>
+    <a href="#email">Email</a>
+    <a href="#mailing-lists">Mailing Lists</a>
     <a href="#ssl">SSL Certificate</a>
     <a href="#resilience">Resilience</a>
     <a href="#backup">Backup</a>
@@ -759,6 +761,64 @@ git add -A &amp;&amp; git commit -m "Update portal" &amp;&amp; git push</pre>
   </div>
 </div>
 
+<!-- ============================================================ -->
+<!-- EMAIL -->
+<!-- ============================================================ -->
+<div class="section" id="email">
+  <div class="section-title">Email Relay</div>
+  <div style="background:white; border-radius:10px; border:1px solid #dee2e6; padding:24px; margin-bottom:20px;">
+    <h3 style="font-size:1.15rem; margin-bottom:14px; color:#0d7377;">SMTP Configuration</h3>
+    <p>The web server (sapidesecc8) sends email via <strong>smtp2go</strong> relay using Postfix. The SAP Skills Portal uses <code>sap-skills@fivetran-internal-sales.com</code> as the from address.</p>
+    <table style="width:100%; border-collapse:collapse; font-size:0.9rem; margin:12px 0;">
+      <thead><tr><th style="padding:10px 14px; text-align:left; background:#e6f5f3; font-weight:600;">Property</th><th style="padding:10px 14px; text-align:left; background:#e6f5f3; font-weight:600;">Value</th></tr></thead>
+      <tbody>
+        <tr><td style="padding:10px 14px; border-bottom:1px solid #dee2e6;">Provider</td><td style="padding:10px 14px; border-bottom:1px solid #dee2e6;">smtp2go</td></tr>
+        <tr><td style="padding:10px 14px; border-bottom:1px solid #dee2e6;">SMTP Server</td><td style="padding:10px 14px; border-bottom:1px solid #dee2e6;"><code>mail.smtp2go.com:2525</code></td></tr>
+        <tr><td style="padding:10px 14px; border-bottom:1px solid #dee2e6;">Portal From</td><td style="padding:10px 14px; border-bottom:1px solid #dee2e6;"><code>sap-skills@fivetran-internal-sales.com</code></td></tr>
+        <tr><td style="padding:10px 14px; border-bottom:1px solid #dee2e6;">Server From</td><td style="padding:10px 14px; border-bottom:1px solid #dee2e6;"><code>sapidesecc8@fivetran-internal-sales.com</code></td></tr>
+        <tr><td style="padding:10px 14px; border-bottom:1px solid #dee2e6;">Verified Domain</td><td style="padding:10px 14px; border-bottom:1px solid #dee2e6;"><code>fivetran-internal-sales.com</code></td></tr>
+        <tr><td style="padding:10px 14px; border-bottom:1px solid #dee2e6;">Vault Key</td><td style="padding:10px 14px; border-bottom:1px solid #dee2e6;"><code>smtp2go</code></td></tr>
+        <tr><td style="padding:10px 14px; border-bottom:1px solid #dee2e6;">Config Files</td><td style="padding:10px 14px; border-bottom:1px solid #dee2e6;"><code>/etc/postfix/main.cf</code>, <code>/etc/postfix/sasl_passwd</code></td></tr>
+      </tbody>
+    </table>
+    <p>All Linux servers in the landscape are configured with the same smtp2go relay. Each uses <code>&lt;hostname&gt;@fivetran-internal-sales.com</code> as its from address.</p>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- MAILING LISTS -->
+<!-- ============================================================ -->
+<div class="section" id="mailing-lists">
+  <div class="section-title">Mailing Lists</div>
+  <div style="background:white; border-radius:10px; border:1px solid #dee2e6; padding:24px; margin-bottom:20px;">
+    <h3 style="font-size:1.15rem; margin-bottom:14px; color:#0d7377;">Distribution Lists</h3>
+    <p style="margin-bottom:16px;">Mailing lists used for alerts, notifications, and reports from the SAP landscape. Lists are stored in this page and can be read by the server APIs.</p>
+
+    <!-- SAPSpecialists list -->
+    <div id="dl-SAPSpecialists" data-list-name="SAPSpecialists" style="border:1px solid #dee2e6; border-radius:8px; padding:16px; margin-bottom:16px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+        <h4 style="margin:0; color:#0d7377;">SAPSpecialists</h4>
+        <span style="font-size:0.78rem; color:#6c757d;">Alerts, notifications, reports from SAP landscape</span>
+      </div>
+      <div id="dl-SAPSpecialists-emails" style="margin-bottom:10px;">
+        <div class="dl-email-row" style="display:flex; align-items:center; gap:8px; margin-bottom:6px;">
+          <code style="flex:1; padding:6px 10px; background:#f1f3f5; border-radius:4px;">antonio.carbone@fivetran.com</code>
+          <button onclick="removeDlEmail('SAPSpecialists', this)" style="background:#e74c3c; color:white; border:none; border-radius:4px; padding:4px 10px; cursor:pointer; font-size:0.78rem; font-weight:600;">Remove</button>
+        </div>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <input id="dl-SAPSpecialists-input" type="email" placeholder="email@example.com" style="flex:1; padding:6px 10px; border:1px solid #dee2e6; border-radius:6px; font-size:0.88rem;" onkeydown="if(event.key==='Enter')addDlEmail('SAPSpecialists')">
+        <button onclick="addDlEmail('SAPSpecialists')" style="background:#0d7377; color:white; border:none; border-radius:6px; padding:6px 16px; cursor:pointer; font-size:0.82rem; font-weight:600;">Add</button>
+      </div>
+      <div id="dl-SAPSpecialists-status" style="font-size:0.82rem; margin-top:6px; display:none;"></div>
+    </div>
+
+    <div style="margin-top:12px; padding:12px 16px; background:#e6f5f3; border-left:4px solid #0d7377; border-radius:0 8px 8px 0; font-size:0.88rem;">
+      <strong>How it works:</strong> Changes are saved to this HTML file on the server via the <code>/sap_skills/api/update_mailing_list</code> API. The server reads the distribution list from this page when sending emails.
+    </div>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <div class="footer">
   SAP Skills Portal &bull; sapidesecc8 &bull; SAP S/4HANA 2023
@@ -934,6 +994,72 @@ document.getElementById('run-output-overlay').addEventListener('click', function
 document.getElementById('run-auth-master').addEventListener('keydown', function(e) {
   if (e.key === 'Enter') submitRunAuth();
 });
+
+// --- Distribution List Management ---
+function getDlEmails(listName) {
+  var container = document.getElementById('dl-' + listName + '-emails');
+  var emails = [];
+  container.querySelectorAll('.dl-email-row code').forEach(function(el) {
+    emails.push(el.textContent.trim());
+  });
+  return emails;
+}
+
+function addDlEmail(listName) {
+  var input = document.getElementById('dl-' + listName + '-input');
+  var email = input.value.trim();
+  if (!email || !email.includes('@')) return;
+  var existing = getDlEmails(listName);
+  if (existing.indexOf(email) !== -1) {
+    showDlStatus(listName, 'Already in list', '#f39c12');
+    return;
+  }
+  var container = document.getElementById('dl-' + listName + '-emails');
+  var row = document.createElement('div');
+  row.className = 'dl-email-row';
+  row.style.cssText = 'display:flex; align-items:center; gap:8px; margin-bottom:6px;';
+  row.innerHTML = '<code style="flex:1; padding:6px 10px; background:#f1f3f5; border-radius:4px;">' + escapeHtml(email) + '</code>' +
+    '<button onclick="removeDlEmail(\'' + listName + '\', this)" style="background:#e74c3c; color:white; border:none; border-radius:4px; padding:4px 10px; cursor:pointer; font-size:0.78rem; font-weight:600;">Remove</button>';
+  container.appendChild(row);
+  input.value = '';
+  saveDl(listName);
+}
+
+function removeDlEmail(listName, btn) {
+  btn.parentElement.remove();
+  saveDl(listName);
+}
+
+function saveDl(listName) {
+  var emails = getDlEmails(listName);
+  showDlStatus(listName, 'Saving...', '#6c757d');
+  fetch('/sap_skills/api/update_mailing_list', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({list_name: listName, emails: emails})
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    if (data.status === 'ok') {
+      showDlStatus(listName, 'Saved (' + emails.length + ' recipients)', '#27ae60');
+    } else {
+      showDlStatus(listName, data.message || 'Error saving', '#e74c3c');
+    }
+  })
+  .catch(function() { showDlStatus(listName, 'Network error', '#e74c3c'); });
+}
+
+function showDlStatus(listName, msg, color) {
+  var el = document.getElementById('dl-' + listName + '-status');
+  el.style.display = 'block';
+  el.style.color = color;
+  el.textContent = msg;
+  if (color === '#27ae60') setTimeout(function() { el.style.display = 'none'; }, 3000);
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>
 
 </body>
